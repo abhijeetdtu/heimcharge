@@ -6,5 +6,5 @@ application = Flask(__name__)
 
 @application.route("/")
 def hello():
-    my_plot_div = plot([Scatter(x=[1, 2, 3], y=[3, 1, 6])], output_type='div')
+    my_plot_div = plot([Scatter(x=[1, 2, 3 , 5], y=[3, 1, 6 , 15])], output_type='div')
     return Markup(my_plot_div)
