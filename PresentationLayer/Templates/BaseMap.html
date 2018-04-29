@@ -1,0 +1,20 @@
+<html>
+
+<head>
+    <link rel="stylesheet" href="{{  url_for('static', filename='Styles/Vendor/bootstrap.min.css') }}"/>
+    <script src="{{ url_for('static', filename='Scripts/Vendor/bootstrap.min.js') }}"></script>
+</head>
+<body>
+
+    <div class="row">
+        <div class="col-md-8">
+            {{ map_content }}
+        </div>
+
+        <div class="col-md-4">
+            {{ bar_chart }}
+        </div>
+    </div>
+    
+</body>
+</html>

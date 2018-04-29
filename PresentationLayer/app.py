@@ -2,7 +2,25 @@ from flask import Flask , Markup
 from plotly.offline import plot
 from plotly.graph_objs import Scatter
 
-application = Flask(__name__)
+
+from PresentationLayer.Visualization.IndiaBasePlot import IndiaBasePlot
+
+application = Flask(__name__ , static_folder="static")
+
+application.register_blueprint(IndiaBasePlot ,url_prefix='/india')
+
+
+@application.after_request
+def add_header(r):
+    """
+    Add headers to both force latest IE rendering engine or Chrome Frame,
+    and also to cache the rendered page for 10 minutes.
+    """
+    r.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    r.headers["Pragma"] = "no-cache"
+    r.headers["Expires"] = "0"
+    r.headers['Cache-Control'] = 'public, max-age=0'
+    return r
 
 @application.route("/")
 def hello():
