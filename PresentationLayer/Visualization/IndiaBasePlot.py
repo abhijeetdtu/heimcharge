@@ -3,13 +3,16 @@ from jinja2 import TemplateNotFound
 
 from BusinessLogic.Mapping import *
 
+import os
+
 IndiaBasePlot = Blueprint('IndiaBasePlot', __name__,template_folder='templates')
 
 @IndiaBasePlot.route('/')
 def show():
     try:
         
-        df = GetDataFrameFromJson('Data\stateWisePopulation.json' , PopulationTransform)
+        dataFile = os.path.abspath(os.path.join("Data" , "stateWisePopulation.json"))
+        df = GetDataFrameFromJson(dataFile , PopulationTransform)
 
         columns = ['India / State/ Union Territory', 'Population 2011']
         colorBy = 'Population 2011'
