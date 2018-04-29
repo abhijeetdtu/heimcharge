@@ -5,7 +5,7 @@ from plotly.graph_objs import Scatter
 
 from PresentationLayer.Visualization.IndiaBasePlot import IndiaBasePlot
 
-application = Flask(__name__ , static_folder="static")
+application = Flask(__name__ , static_folder="static", template_folder='Templates')
 
 application.register_blueprint(IndiaBasePlot ,url_prefix='/india')
 
