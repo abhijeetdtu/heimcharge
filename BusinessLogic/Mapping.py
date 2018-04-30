@@ -1,9 +1,8 @@
 import os
-import json
-import pandas as pd
 
 import folium
 import plotly.plotly as py
+from plotly import tools
 from plotly.offline import plot
 
 import plotly.graph_objs as go
@@ -11,33 +10,70 @@ import plotly.graph_objs as go
 from branca.utilities import split_six
 from config import plotting
 
-
-def GetDataFrameFromJson(file , transform = None):
-     jsonData = json.load(open(file))
-     columns = [ f['label'] for f in jsonData['fields']]
-
-     data = jsonData['data']
-     df = pd.DataFrame(data = data , columns = columns)
-
-     if transform != None:
-        df = transform(df)
-
-     return df
+from BusinessLogic.FileOps import *
 
 def PopulationTransform(df):   
      df["Population 2011"] = df["Population 2011"].astype(float)
      return df
 
-def BarChart(df , xCol , yCol , orientation = 'h'):
-    data = [
-        go.Bar(
+def BarChartTrace(df , xCol , yCol , orientation = 'h'):
+    return go.Bar(
             x=df[xCol], # assign x as the dataframe column 'x'
             y=df[yCol],
             orientation = orientation
         )
+
+def BarChartRaw(df , xCol , yCol , orientation = 'h'):
+    data = [
+        BarChartTrace(df , xCol , yCol , orientation)
     ]
 
-    return plot(data, output_type='div' , config={'displayModeBar': False})
+    layout = go.Layout( xaxis = dict(title=xCol) , yaxis = dict(title = yCol))
+    figure = go.Figure(data = data , layout = layout)
+
+    return figure
+
+def BarChart(df , xCol , yCol , orientation = 'h'):
+    figure = BarChartRaw(df , xCol , yCol , orientation = 'h')
+    return plot(figure, output_type='div' , config={'displayModeBar': False})
+
+def SharedXAxisLayout(chartArr,subplotTitles):
+
+    fig = tools.make_subplots(rows=len(chartArr), cols=1, shared_xaxes=True, shared_yaxes=False  , subplot_titles=tuple(subplotTitles))
+    for i,chart in enumerate(chartArr):
+        fig.append_trace(chart,i+1,1)
+
+    return fig
+
+def SharedYAxisLayout(chartArr,subplotTitles):
+    
+    fig = tools.make_subplots(rows=1, cols=len(chartArr), shared_xaxes=False, shared_yaxes=True  , subplot_titles=tuple(subplotTitles))
+    for i,chart in enumerate(chartArr):
+        fig.append_trace(chart,1,i+1)
+
+    return fig
+
+def SharedAxisLayout(chartArr , sharedX , sharedY,subplotTitles):
+    if sharedX == True:
+        return SharedXAxisLayout(chartArr,subplotTitles)
+    else:
+        return SharedYAxisLayout(chartArr,subplotTitles)
+
+def SharedAxisBarCharts(chartArr , subplotTitles , chartTitle , sharedX , sharedY):
+    fig = SharedAxisLayout(chartArr , sharedX , sharedY,subplotTitles)
+    fig['layout'].update(showlegend=False, title=chartTitle)
+    return plot(fig, output_type='div' , config={'displayModeBar': False})
+
+def SharedYAxisBarCharts(chartArr , subplotTitles , chartTitle , sharedX , sharedY):
+
+
+    fig = tools.make_subplots(rows=1, cols=len(chartArr), shared_yaxes=sharedY , subplot_titles=tuple(subplotTitles))
+
+    for i,chart in enumerate(chartArr):
+        fig.append_trace(chart,1,i+1)
+
+    fig['layout'].update(showlegend=False, title=chartTitle)
+    return plot(fig, output_type='div' , config={'displayModeBar': False})
 
 def IndiaMap(df ,colorBy, columns):
     state_geo =  os.path.abspath(os.path.join('Data', 'indiageojson.json'))
@@ -54,7 +90,7 @@ def IndiaMap(df ,colorBy, columns):
             fill_opacity=0.7,
             line_opacity=0.2,
             threshold_scale=threshold_scale,
-            legend_name='Unemployment Rate (%)'
+            legend_name=colorBy
     )
 
     folium.LayerControl().add_to(m)

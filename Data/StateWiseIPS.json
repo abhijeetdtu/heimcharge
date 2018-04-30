@@ -1,0 +1,5 @@
+{"fields":[ {"label" :"Sl. No." },{"label" :"State" },{"label" :"Sanctioned strength" },{"label" :"In position" },
+{"label" :"Posts vacant"}]
+,
+ "data" : [["1","Andhra Pradesh","144","118","26"],["2","AGMUT","295","242","53"],["3","Assam-Meghalaya","188","155","33"],["4","Bihar","231","190","41"],["5","Chhattisgarh","103","88","15"],["6","Gujarat","195","158","37"],["7","Haryana","137","106","31"],["8","Himachal Pradesh","89","69","20"],["9","Jammu & Kashmir","147","98","49"],["10","Jharkhand","135","106","29"],["11","Karnataka","205","146","59"],["12","Kerala","163","124","39"],["13","Madhya Pradesh","291","245","46"],["14","Maharashtra","302","240","62"],["15","Manipur","89","61","28"],["16","Nagaland","70","44","26"],["17","Odisha","188","109","79"],["18","Punjab","172","141","31"],["19","Rajasthan","205","179","26"],["20","Sikkim","32","28","4"],["21","Tamil Nadu","263","216","47"],["22","Telangana","112","91","21"],["23","Tripura","65","53","12"],["24","Uttar Pradesh","517","388","129"],["25","Uttarakhand","69","59","10"],["26","West Bengal","347","249","98"],["27","2014 batch of IPS probationers","","145","-145"],["Total","Total","4754","3848","906"]] 
+}

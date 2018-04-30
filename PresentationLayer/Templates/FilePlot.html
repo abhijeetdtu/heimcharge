@@ -4,25 +4,15 @@
     <link rel="stylesheet" href="{{  url_for('static', filename='Styles/Vendor/bootstrap.min.css') }}" />
     <script src="{{ url_for('static', filename='Scripts/Vendor/bootstrap.min.js') }}"></script>
 
-    <script src="{{ url_for('static', filename='Scripts/IndiaBasePlot.js') }}"></script>
 </head>
 <body>
 
+
     <div class="row">
-        <div class="col-md-6">
-            {{ map_content }}
-        </div>
-        {% if side_chart %}
-        <div class="col-md-6">
-            {{ side_chart }}
-        </div>
-        {% endif%}
-    </div>
-    
-    <div class="row">
+
         {% for barChart in  bar_charts %}
 
-        <div class="col-md-4">
+        <div class="col-md-{{ [4, (12 / bar_charts|length) |int]|max }}">
             {{ barChart }}
         </div>
 

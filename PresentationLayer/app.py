@@ -1,7 +1,8 @@
-from flask import Flask , Markup
+from flask import Flask , Markup , render_template
 from plotly.offline import plot
 from plotly.graph_objs import Scatter
 
+from BusinessLogic.Mapping import *
 
 from PresentationLayer.Visualization.IndiaBasePlot import IndiaBasePlot
 
@@ -24,5 +25,6 @@ def add_header(r):
 
 @application.route("/")
 def hello():
-    my_plot_div = plot([Scatter(x=[1, 2, 3 , 5], y=[3, 1, 6 , 15])], output_type='div')
-    return Markup(my_plot_div)
+
+    my_plot_div = plot([Scatter(x=[1, 2, 3 , 5], y=[3, 1, 6 , 15])], output_type='div' ,  config={'displayModeBar': False})
+    return render_template('BaseMap.html' , map_content = Markup(m._repr_html_()) , bar_chart = my_plot_div)
