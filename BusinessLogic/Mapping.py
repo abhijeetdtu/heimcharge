@@ -12,6 +12,9 @@ from config import plotting
 
 from BusinessLogic.FileOps import *
 
+def Plot(figure):
+    return plot(figure, output_type='div' , config={'displayModeBar': False} , include_plotlyjs=False)
+
 def PopulationTransform(df):   
      df["Population 2011"] = df["Population 2011"].astype(float)
      return df
@@ -35,7 +38,7 @@ def BarChartRaw(df , xCol , yCol , orientation = 'h'):
 
 def BarChart(df , xCol , yCol , orientation = 'h'):
     figure = BarChartRaw(df , xCol , yCol , orientation = 'h')
-    return plot(figure, output_type='div' , config={'displayModeBar': False})
+    return Plot(figure)
 
 def SharedXAxisLayout(chartArr,subplotTitles):
 
@@ -62,7 +65,7 @@ def SharedAxisLayout(chartArr , sharedX , sharedY,subplotTitles):
 def SharedAxisBarCharts(chartArr , subplotTitles , chartTitle , sharedX , sharedY):
     fig = SharedAxisLayout(chartArr , sharedX , sharedY,subplotTitles)
     fig['layout'].update(showlegend=False, title=chartTitle)
-    return plot(fig, output_type='div' , config={'displayModeBar': False})
+    return Plot(figure)
 
 def SharedYAxisBarCharts(chartArr , subplotTitles , chartTitle , sharedX , sharedY):
 
@@ -73,7 +76,7 @@ def SharedYAxisBarCharts(chartArr , subplotTitles , chartTitle , sharedX , share
         fig.append_trace(chart,1,i+1)
 
     fig['layout'].update(showlegend=False, title=chartTitle)
-    return plot(fig, output_type='div' , config={'displayModeBar': False})
+    return Plot(figure)
 
 def IndiaMap(df ,colorBy, columns):
     state_geo =  os.path.abspath(os.path.join('Data', 'indiageojson.json'))
