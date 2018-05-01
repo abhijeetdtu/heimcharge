@@ -2,11 +2,17 @@
 
 <head>
     <link rel="stylesheet" href="{{  url_for('static', filename='Styles/Vendor/bootstrap.min.css') }}" />
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Tangerine">
     <link rel="stylesheet" href="{{  url_for('static', filename='Styles/site.css') }}" />
     <link rel="stylesheet" href="{{  url_for('static', filename='Styles/map.css') }}" />
+
+
+    <script src="{{ url_for('static', filename='Scripts/Vendor/jquery-3.3.1.js') }}"></script>
     <script src="{{ url_for('static', filename='Scripts/Vendor/bootstrap.min.js') }}"></script>
 
+    <script src="{{ url_for('static', filename='Scripts/App.js') }}"></script>
     <script src="{{ url_for('static', filename='Scripts/IndiaBasePlot.js') }}"></script>
 
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
@@ -14,8 +20,10 @@
 <body>
 
     <div class="container">
+        <nav class="navbar navbar-light">
+            <a class="navbar-brand" href="#">Pokhi.<i>HeimCharge</i></a>
+        </nav>
 
-        {% include 'topbar.html' %}
         {% block content%}
         {% endblock %}
     </div>

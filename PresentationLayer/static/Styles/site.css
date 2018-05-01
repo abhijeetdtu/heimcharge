@@ -17,3 +17,20 @@ body {
 .card {
     border-radius: .75rem;
 }
+
+
+.js-plot-link-container {
+    display:none;
+}
+
+#viewBox {
+    position:relative;
+    height:100%;
+}
+
+.loading-circle {
+   font-size: 72px !important;
+   position:absolute;
+   left:45%;
+   top:40%;
+}

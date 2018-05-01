@@ -5,6 +5,7 @@ from plotly.graph_objs import Scatter
 from BusinessLogic.Mapping import *
 from BusinessLogic.FileOps import *
 from PresentationLayer.Visualization.IndiaBasePlot import IndiaBasePlot
+from BusinessLogic.Entities import NavItem
 
 application = Flask(__name__ , static_folder="static", template_folder='Templates')
 
@@ -25,13 +26,19 @@ def add_header(r):
     r.headers['Cache-Control'] = 'public, max-age=0'
     return r
 
+
+@application.errorhandler(404)
+def Error404():
+    return render_template('Errors/404.html'), 404
+
 @application.route("/")
 def hello():
-    return redirect('/india/plotFileWithMap/StateWiseTreeCover/0/2' , code=302)
-    xAxisIndex = 2
-    yAxisForMap= 2
-    df,columns = GetDataFrame('stateWisePopulation')
-    colorBy = columns[yAxisForMap]
-    df[colorBy] = df[colorBy].astype("float")
-    m = IndiaMap(df ,colorBy, [columns[xAxisIndex] , columns[yAxisForMap]])
-    return render_template('BaseMap.html' , map=m )
+    try:
+        files = GetStateWiseFileList('json')
+        navItems = [ NavItem(file , '/india/plotFileWithMap/{0}/{1}/2'.format(file.replace(".json", "") , GetStateColumnFromFile(file.replace(".json", "")))) for file in files]
+        return render_template('Landing.html' , nav_items = navItems)
+
+    except Exception as e:
+        print(e)
+        return Error404()
+
