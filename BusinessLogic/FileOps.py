@@ -70,3 +70,10 @@ def GetDataFrameFromJson(file , transform = None):
         df = transform(df)
 
      return df
+
+ 
+def GetDataFrame(filename):
+    dataFile = os.path.abspath(os.path.join("Data" , filename+".json"))
+    df = GetDataFrameFromJson(dataFile)
+    columns =list(df.columns)
+    return [df ,columns]

@@ -1,0 +1,3 @@
+.map-holder > div, .map-holder > div > div {
+    height: 100% !important;
+}

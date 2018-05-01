@@ -11,6 +11,7 @@ from branca.utilities import split_six
 from config import plotting
 
 from BusinessLogic.FileOps import *
+from BusinessLogic.IndiaMap import IndiaMapModel
 
 def Plot(figure):
     return plot(figure, output_type='div' , config={'displayModeBar': False} , include_plotlyjs=False)
@@ -65,18 +66,8 @@ def SharedAxisLayout(chartArr , sharedX , sharedY,subplotTitles):
 def SharedAxisBarCharts(chartArr , subplotTitles , chartTitle , sharedX , sharedY):
     fig = SharedAxisLayout(chartArr , sharedX , sharedY,subplotTitles)
     fig['layout'].update(showlegend=False, title=chartTitle)
-    return Plot(figure)
+    return Plot(fig)
 
-def SharedYAxisBarCharts(chartArr , subplotTitles , chartTitle , sharedX , sharedY):
-
-
-    fig = tools.make_subplots(rows=1, cols=len(chartArr), shared_yaxes=sharedY , subplot_titles=tuple(subplotTitles))
-
-    for i,chart in enumerate(chartArr):
-        fig.append_trace(chart,1,i+1)
-
-    fig['layout'].update(showlegend=False, title=chartTitle)
-    return Plot(figure)
 
 def IndiaMap(df ,colorBy, columns):
     state_geo =  os.path.abspath(os.path.join('Data', 'indiageojson.json'))
@@ -97,4 +88,5 @@ def IndiaMap(df ,colorBy, columns):
     )
 
     folium.LayerControl().add_to(m)
-    return m
+
+    return IndiaMapModel(colorBy , "" , m)

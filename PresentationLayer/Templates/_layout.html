@@ -1,0 +1,24 @@
+<html>
+
+<head>
+    <link rel="stylesheet" href="{{  url_for('static', filename='Styles/Vendor/bootstrap.min.css') }}" />
+    <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Tangerine">
+    <link rel="stylesheet" href="{{  url_for('static', filename='Styles/site.css') }}" />
+    <link rel="stylesheet" href="{{  url_for('static', filename='Styles/map.css') }}" />
+    <script src="{{ url_for('static', filename='Scripts/Vendor/bootstrap.min.js') }}"></script>
+
+    <script src="{{ url_for('static', filename='Scripts/IndiaBasePlot.js') }}"></script>
+
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+
+    <div class="container">
+
+        {% include 'topbar.html' %}
+        {% block content%}
+        {% endblock %}
+    </div>
+    
+</body>
+</html>

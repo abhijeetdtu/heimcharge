@@ -1,34 +1,35 @@
-<html>
+{% extends "_layout.html" %}
 
-<head>
-    <link rel="stylesheet" href="{{  url_for('static', filename='Styles/Vendor/bootstrap.min.css') }}" />
-    <script src="{{ url_for('static', filename='Scripts/Vendor/bootstrap.min.js') }}"></script>
+{% import 'Macros/CardMacro.html' as Card %}
 
-    <script src="{{ url_for('static', filename='Scripts/IndiaBasePlot.js') }}"></script>
-
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-</head>
-<body>
-
-    <div class="row">
-        <div class="col-md-6">
-            {{ map_content }}
+{% block content %}
+<div class="row" height="100%">
+    {% if side_chart %}
+    <div class="col-md-6">
+        {%else%}
+        <div class="col-md-12">
+            {% endif%}
+            {{ Card.input( map.Title  , map.Subtitle, map.Html ) }}
         </div>
+
         {% if side_chart %}
+
         <div class="col-md-6">
-            {{ side_chart }}
+            {{ Card.input('','',side_chart  ) }}
         </div>
+
         {% endif%}
     </div>
-    
-    <div class="row">
-        {% for barChart in  bar_charts %}
 
-        <div class="col-md-4">
-            {{ barChart }}
-        </div>
+<div class="row">
+    {% for barChart in  bar_charts %}
 
-        {% endfor %}
+    <div class="col-md-4">
+        {{ Card.input( loop.index ,'', barChart ) }}
+        
     </div>
-</body>
-</html>
+
+    {% endfor %}
+</div>
+
+{% endblock %}
