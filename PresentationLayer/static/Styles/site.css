@@ -70,4 +70,8 @@ body {
     .card-body svg {
         padding:20px;
     }
+
+    .map-top-container {
+        height:50%;
+    }
 }
