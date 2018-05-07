@@ -79,10 +79,18 @@ def GetDataFrameFromJson(file , transform = None):
 
      return df
 
+def ColumnCleanup(df):
+
+    if('S. No.' in df.columns):
+        df = df.drop(columns = ['S. No.'])
+
+    return df
 
 def GetDataFrame(filename):
     dataFile = os.path.abspath(os.path.join("Data" , filename+".json"))
     df = GetDataFrameFromJson(dataFile)
+
+    df = ColumnCleanup(df)
     columns =list(df.columns)
     return [df ,columns]
 

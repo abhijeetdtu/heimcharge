@@ -1,0 +1,40 @@
+{
+  "fields": [
+    {
+      "id": "a",
+      "label": "India\/States\/UTs",
+      "type": "string"
+    },
+    {
+      "id": "b",
+      "label": "Among Women of age group 15-49 % +ve",
+      "type": "string"
+    },
+    {
+      "id": "c",
+      "label": "Among Men of age group 15-49  % +ve",
+      "type": "string"
+    },
+    {
+      "id": "d",
+      "label": "Among Women and men of age group 15-49 % +ve",
+      "type": "string"
+    },
+    {
+      "id": "e",
+      "label": "Among Men of age group 15-54  % +ve",
+      "type": "string"
+    }
+  ],
+  "data": [
+    [ "Andhra Pradesh", "0.75", "1.22", "0.97", "1.2" ],
+    [ "Karnataka ", "0.54", "0.85", "0.69", "0.82" ],
+    [ "Maharashtra ", "0.48", "0.77", "0.62", "0.75" ],
+    [ "Manipur ", "0.76", "1.59", "1.13", "1.51" ],
+    [ "Tamil Nadu ", "0.39", "0.27", "0.34", "0.27" ],
+    [ "Total for five high HIV prevalence states", "0.55", "0.82", "0.67", "0.8" ],
+    [ "Uttar Pradesh", "0.05", "0.1", "0.07", "0.1" ],
+    [ "Total for five high HIV prevalence states and Uttar Pradesh", "0.38", "0.57", "0.47", "0.57" ],
+    [ "All other states not including Uttar Pradesh*", "0.09", "0.18", "0.13", "0.18" ]
+  ]
+}

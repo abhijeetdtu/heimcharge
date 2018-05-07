@@ -11,6 +11,16 @@
       "webBrowserUrl": "",
       "project": "wsgi.py",
       "name": "wsgi.py"
+    },
+    {
+      "type": "python",
+      "interpreter": "(default)",
+      "interpreterArguments": "",
+      "scriptArguments": "",
+      "nativeDebug": false,
+      "webBrowserUrl": "",
+      "project": "wsgi.py",
+      "name": "wsgi.py(1)"
     }
   ]
 }

@@ -1,6 +1,9 @@
 import os
 
 import folium
+
+from flask import Markup
+
 import plotly.plotly as py
 from plotly import tools
 from plotly.offline import plot
@@ -12,6 +15,114 @@ from config import plotting
 
 from BusinessLogic.FileOps import *
 from BusinessLogic.IndiaMap import IndiaMapModel
+
+
+class ChartBuilderBase:
+
+    def __init__(self , layoutConfig = None):
+        self.layoutConfig = layoutConfig
+
+    #to be overriden by child
+    def GetChartTrace():
+        return []
+
+    def PrepareFigure(self,layoutConfig , traceArr):        
+        layout = go.Layout( **layoutConfig)
+        figure = go.Figure(data = traceArr , layout = layout)
+
+        return figure
+
+    def GetChart(self):
+        data = self.GetChartTrace()
+        return self.PrepareFigure(self.layoutConfig, data)
+
+    def GetChartHTML(self):
+        return Markup(self.Plot(self.GetChart()))
+
+    def Plot(self,figure):
+        return plot(figure, output_type='div' , config={'displayModeBar': False} , include_plotlyjs=False)
+
+class Chart(ChartBuilderBase):
+
+    def __init__(self, goType, dataFrame , xCol , yCol , config):
+        layoutConfig= dict(xaxis = dict(title=xCol) , yaxis = dict(title = yCol))
+        self.DataFrame = dataFrame
+        self.Xcol =xCol
+        self.Ycol = yCol
+        self.goType = goType
+        self.config = config
+
+        super(Chart, self).__init__(layoutConfig)
+
+    def GetChartTrace(self):
+        return [self.goType(x = self.DataFrame[self.Xcol] , y = self.DataFrame[self.Ycol] ,  **self.config)]
+
+class StackedBar(ChartBuilderBase):
+
+    def __init__(self, dataFrame , selectedXColArr , yCol , config):
+        layoutConfig= dict(xaxis = dict(title="X-axis") , yaxis = dict(title = yCol),barmode='stack')
+        self.DataFrame = dataFrame
+        self.SelectedXColArr = selectedXColArr
+        self.Ycol = yCol
+        self.config = config
+
+        super(StackedBar, self).__init__(layoutConfig)
+
+    def GetChartTrace(self):
+        traces= []
+        for xcol in self.SelectedXColArr:
+            self.config["name"] = xcol
+            traces.append(go.Bar(x = self.DataFrame[xcol] , y = self.DataFrame[self.Ycol] ,  **self.config))
+        return traces
+
+class Pie(ChartBuilderBase):
+
+    def __init__(self,title, values , labels,config):
+        layoutConfig= dict(title = title , xaxis = dict(title="X-axis") , yaxis = dict(title = "Y-Axis"))
+        self.Values= values
+        self.Lables = labels
+        self.config = config
+
+        super(Pie, self).__init__(layoutConfig)
+
+    def GetChartTrace(self):
+        return [go.Pie(values = self.Values , labels = self.Lables ,  **self.config)]
+
+    @staticmethod
+    def GetMultiplePieChartsHTML(dataFrame ,selectedXColArr,yCol , config):
+        unqValues = dataFrame[yCol].unique()
+        return [ Pie(value  , dataFrame[selectedXColArr].values[dataFrame[yCol] == value][0] , selectedXColArr, config).GetChartHTML() for i , value  in enumerate(unqValues)]
+
+class Table():
+
+    def __init__(self,dataFrame):
+        self.DataFrame = dataFrame
+
+    def GetTableTrace(self):
+        df = self.DataFrame 
+        values = [df[col] for i,col in enumerate(df.columns)]
+        trace = go.Table(
+            header=dict(values=df.columns,
+                fill = dict(color='#C2D4FF'),
+                align = ['left'] * 5),
+        cells=dict(values=values,
+               fill = dict(color='#F5F8FF'),
+               align = ['left'] * 5))
+
+        return trace
+    
+    def GetChart(self):
+        data = [self.GetTableTrace()]
+
+        figure = go.Figure(data = data)
+
+        return figure
+
+    def GetChartHTML(self):
+        return Markup(self.Plot(self.GetChart()))
+
+    def Plot(self,figure):
+        return plot(figure, output_type='div' , config={'displayModeBar': False} , include_plotlyjs=False)
 
 def Plot(figure):
     return plot(figure, output_type='div' , config={'displayModeBar': False} , include_plotlyjs=False)
@@ -40,6 +151,7 @@ def BarChartRaw(df , xCol , yCol , orientation = 'h'):
 def BarChart(df , xCol , yCol , orientation = 'h'):
     figure = BarChartRaw(df , xCol , yCol , orientation = 'h')
     return Plot(figure)
+
 
 def SharedXAxisLayout(chartArr,subplotTitles):
 

@@ -1,15 +1,28 @@
+import sys, traceback , math
+
 from flask import Flask , Markup , render_template,redirect
+from flask import request
+
 from plotly.offline import plot
 from plotly.graph_objs import Scatter
+import plotly.graph_objs as go
+
+from BusinessLogic.Mapping import Chart
 
 from BusinessLogic.Mapping import *
 from BusinessLogic.FileOps import *
 from PresentationLayer.Visualization.IndiaBasePlot import IndiaBasePlot
+from PresentationLayer.Visualization.ChartPlot import ChartPlot
 from BusinessLogic.Entities import NavItem
+
+
+from config import files
+
 
 application = Flask(__name__ , static_folder="static", template_folder='Templates')
 
 application.register_blueprint(IndiaBasePlot ,url_prefix='/india')
+application.register_blueprint(ChartPlot ,url_prefix='/plot')
 
 application.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 application.config['TEMPLATES_AUTO_RELOAD'] = True
