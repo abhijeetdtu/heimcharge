@@ -7,7 +7,7 @@ import locale
 from locale import atof
 
 def GetColumnsFromFile(file):
-    jsonData = json.load(open(file))
+    jsonData = json.load(open(file ,  encoding='utf-16'))
     return [ f['label'] for f in jsonData['fields']]
 
 def GetFromIDFieldJson(jsonData):
