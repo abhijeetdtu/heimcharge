@@ -1,0 +1,20 @@
+{% extends "_layout.html" %}
+{% block content %}
+
+    {% for dashboard_link in dashboard_links %}
+<div class="row">
+    <div class="col-md-12">
+        <div id="viewBox-{{loop.index}}"></div>
+        <script>
+
+                $(function () {
+                    App.OpenLinkInDiv('{{dashboard_link}}', '#viewBox-{{loop.index}}');
+                })
+        </script>
+
+    </div>
+</div>
+
+    {% endfor %}
+
+{% endblock %}

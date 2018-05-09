@@ -7,12 +7,11 @@ from plotly.offline import plot
 from plotly.graph_objs import Scatter
 import plotly.graph_objs as go
 
-from BusinessLogic.Mapping import Chart
-
 from BusinessLogic.Mapping import *
 from BusinessLogic.FileOps import *
 from PresentationLayer.Visualization.IndiaBasePlot import IndiaBasePlot
 from PresentationLayer.Visualization.ChartPlot import ChartPlot
+from PresentationLayer.Visualization.Dashboards import Dashboards
 from BusinessLogic.Entities import NavItem
 
 
@@ -23,6 +22,7 @@ application = Flask(__name__ , static_folder="static", template_folder='Template
 
 application.register_blueprint(IndiaBasePlot ,url_prefix='/india')
 application.register_blueprint(ChartPlot ,url_prefix='/plot')
+application.register_blueprint(Dashboards ,url_prefix='/dashboards')
 
 application.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 application.config['TEMPLATES_AUTO_RELOAD'] = True
@@ -54,4 +54,3 @@ def hello():
     except Exception as e:
         print(e)
         return Error404()
-

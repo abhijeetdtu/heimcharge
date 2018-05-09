@@ -169,16 +169,28 @@ def SharedYAxisLayout(chartArr,subplotTitles):
 
     return fig
 
+def SharedBothAxisLayout(chartArr,subplotTitles):
+    
+    fig = tools.make_subplots(rows=1, cols=1, shared_xaxes=True, shared_yaxes=True  , subplot_titles=tuple(subplotTitles[0]))
+    for i,chart in enumerate(chartArr):
+        fig.append_trace(chart,1,1)
+
+    return fig
+
 def SharedAxisLayout(chartArr , sharedX , sharedY,subplotTitles):
-    if sharedX == True:
+    if sharedX and sharedY:
+        return SharedBothAxisLayout(chartArr , subplotTitles)
+    elif sharedX == True:
         return SharedXAxisLayout(chartArr,subplotTitles)
     else:
         return SharedYAxisLayout(chartArr,subplotTitles)
 
 def SharedAxisBarCharts(chartArr , subplotTitles , chartTitle , sharedX , sharedY):
-    fig = SharedAxisLayout(chartArr , sharedX , sharedY,subplotTitles)
-    fig['layout'].update(showlegend=False, title=chartTitle)
-    return Plot(fig)
+    #fig = SharedAxisLayout(chartArr , sharedX , sharedY,subplotTitles)
+    layout = go.Layout( xaxis = dict(title="asd") , yaxis = dict(title = "zxc") , yaxis2= dict(title = "hulu"))
+    figure = go.Figure(data = chartArr , layout = layout)
+    #fig['layout'].update(showlegend=False, title=chartTitle)
+    return Plot(figure)
 
 
 def IndiaMap(df ,colorBy, columns):
@@ -202,3 +214,29 @@ def IndiaMap(df ,colorBy, columns):
     folium.LayerControl().add_to(m)
 
     return IndiaMapModel(colorBy , "" , m)
+
+
+def GetMappedValue(OldValue , OldMin , OldMax , NewMax , NewMin):
+    return (((OldValue - OldMin) * (NewMax - NewMin)) / (OldMax - OldMin)) + NewMin
+
+def GetScatterChart(filename,xCol , yCol , textCol):
+    df,columns = GetDataFrame(filename)
+
+    sizeBy = (df[df.columns[xCol]].astype(float).values - df[df.columns[yCol]].astype(float).values)
+        
+    colorBy = [ 'rgb(255, 144, 14)' if x < 0 else 'rgb(44, 160, 101)' for x in sizeBy]
+
+    sizeBy = (sizeBy-sizeBy.mean())/sizeBy.std()
+    sizeBy = list(map(lambda x: abs(x)*50, sizeBy))
+
+    config = dict(mode ='markers+text' , text = df[df.columns[textCol]], marker = dict(size=  sizeBy , color = colorBy, line = dict(width = 2,)))
+    return Chart(go.Scatter,df , df.columns[xCol] ,  df.columns[yCol] , config)
+
+def GetChartHTML(filename , xAxis , yAxis ,xaxisPlot='x1', yaxisPlot = 'y1'):
+    df,columns = GetDataFrame(filename)
+    return Chart(go.Bar , df , columns[xAxis] , columns[yAxis]  , dict(xaxis = xaxisPlot , yaxis = yaxisPlot)).GetChartHTML()
+
+def GetChartTrace(filename , xAxis , yAxis ,xaxisPlot='x1', yaxisPlot = 'y1'):
+    df,columns = GetDataFrame(filename)
+    return Chart(go.Bar , df , columns[xAxis] , columns[yAxis]   , dict(xaxis = xaxisPlot , yaxis = yaxisPlot)).GetChartTrace()[0]
+    

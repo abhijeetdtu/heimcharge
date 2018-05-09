@@ -3,8 +3,8 @@ var App = (function () {
     return {
         OpenLinkInDiv: function (link, divSelector) {
             $(divSelector).empty();
-            this.ShowLoading(divSelector);
-            $(divSelector).load(link, function () { this.HideLoading(divSelector) });
+            App.ShowLoading(divSelector);
+            $(divSelector).load(link, function () { App.HideLoading(divSelector) });
         },
 
         ShowLoading: function (divSelector) {

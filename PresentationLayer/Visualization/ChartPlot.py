@@ -3,7 +3,7 @@ from jinja2 import TemplateNotFound
 
 from BusinessLogic.Mapping import *
 from BusinessLogic.FileOps import *
-
+from BusinessLogic.ExceptionHandling import *
 import os
 from config import files
 import sys , traceback
@@ -19,11 +19,7 @@ def index():
         return render_template('FilePlot.html' , bar_charts = [chart.GetChartHTML()])
 
     except Exception as e:
-        exc_type, exc_value, exc_traceback = sys.exc_info()
-        print("*** print_tb:")
-        traceback.print_tb(exc_traceback, limit=1, file=sys.stdout)
-        traceback.print_exception(exc_type, exc_value, exc_traceback,limit=2, file=sys.stdout)
-        return Error404()
+        return HandleException(e)
 
 
 @ChartPlot.route("/chart/<string:plotName>/<string:filename>/<int:xCol>/<int:yCol>" , methods = ['GET' , 'POST'])
@@ -36,11 +32,7 @@ def plot(plotName,filename,xCol , yCol):
         return render_template('FilePlot.html' , bar_charts = [chart.GetChartHTML()])
 
     except Exception as e:
-        exc_type, exc_value, exc_traceback = sys.exc_info()
-        print("*** print_tb:")
-        traceback.print_tb(exc_traceback, limit=1, file=sys.stdout)
-        traceback.print_exception(exc_type, exc_value, exc_traceback,limit=2, file=sys.stdout)
-        return Error404()
+        return HandleException(e)
 
 @ChartPlot.route("/table/<string:filename>/")
 def GetTable(filename):
@@ -50,31 +42,17 @@ def GetTable(filename):
         return render_template('FilePlot.html' , bar_charts = [chart.GetChartHTML()])
 
 
+
 @ChartPlot.route("/scatter/<string:filename>/<int:xCol>/<int:yCol>/<int:textCol>")
-def scatter(filename,xCol , yCol , textCol):
+def scatter( filename,xCol , yCol , textCol):
     try:
-        df,columns = GetDataFrame(filename)
-
-        sizeBy = (df[df.columns[xCol]].astype(float).values - df[df.columns[yCol]].astype(float).values)
+        returnPartial = (request.args.get('returnPartial') or None) == 'True'
         
-        colorBy = [ 'rgb(255, 144, 14)' if x < 0 else 'rgb(44, 160, 101)' for x in sizeBy]
-
-        sizeBy = (sizeBy-sizeBy.mean())/sizeBy.std()
-        
-        sizeBy = list(map(lambda x: abs(x)*20 , sizeBy))
-
-        config =  dict(mode ='markers+text' , text = df[df.columns[textCol]], marker = dict(size=  sizeBy , color = colorBy, line = dict(
-            width = 2,
-        ) ) )
-        chart = Chart(go.Scatter,df , df.columns[xCol] ,  df.columns[yCol] , config)
-        return render_template('FilePlot.html' , bar_charts = [chart.GetChartHTML()])
+        chart = GetScatterChart(filename,xCol , yCol , textCol)
+        return render_template('FilePlot.html' ,returnPartial = returnPartial, bar_charts = [chart.GetChartHTML()])
 
     except Exception as e:
-        exc_type, exc_value, exc_traceback = sys.exc_info()
-        print("*** print_tb:")
-        traceback.print_tb(exc_traceback, limit=1, file=sys.stdout)
-        traceback.print_exception(exc_type, exc_value, exc_traceback,limit=2, file=sys.stdout)
-        return Error404()
+        return HandleException(e)
 
 @ChartPlot.route("/stacked/<string:filename>/<int:yCol>/<string:commaSeparatedColumns>")
 def stacked(filename,yCol,commaSeparatedColumns):
@@ -90,11 +68,7 @@ def stacked(filename,yCol,commaSeparatedColumns):
         return render_template('FilePlot.html' , bar_charts = [chart.GetChartHTML()])
 
     except Exception as e:
-        exc_type, exc_value, exc_traceback = sys.exc_info()
-        print("*** print_tb:")
-        traceback.print_tb(exc_traceback, limit=1, file=sys.stdout)
-        traceback.print_exception(exc_type, exc_value, exc_traceback,limit=2, file=sys.stdout)
-        return Error404()
+        return HandleException(e)
 
 
 @ChartPlot.route("/pie/<string:filename>/<int:yCol>/<string:commaSeparatedColumns>")
@@ -109,29 +83,26 @@ def pie(filename,yCol,commaSeparatedColumns):
         return render_template('FilePlot.html' , bar_charts = charts)
 
     except Exception as e:
-        exc_type, exc_value, exc_traceback = sys.exc_info()
-        print("*** print_tb:")
-        traceback.print_tb(exc_traceback, limit=1, file=sys.stdout)
-        traceback.print_exception(exc_type, exc_value, exc_traceback,limit=2, file=sys.stdout)
-        return Error404()
+        return HandleException(e)
 
 
 
-@ChartPlot.route('/crossFile/<string:fileA>/<int:xAxisFileA>/<int:yAxisFileA>/<string:fileB>/<int:xAxisFileB>/<int:yAxisFileB>/<int:sharedX>/<int:sharedY>')
-def plotTogether(fileA , xAxisFileA , yAxisFileA ,fileB, xAxisFileB ,yAxisFileB, sharedX , sharedY):
+@ChartPlot.route('/crossFile/<string:fileA>/<int:xAxisFileA>/<int:yAxisFileA>/<string:fileB>/<int:xAxisFileB>/<int:yAxisFileB>/<int:sharedX>/<int:sharedY>/<string:normalize>')
+def plotTogether(fileA , xAxisFileA , yAxisFileA ,fileB, xAxisFileB ,yAxisFileB, sharedX , sharedY , normalize):
     try:
         
         if sharedX == 1:
-            sharedX = True
+            sharedX = 'x1'
         else:
-            sharedX = False
+            sharedX = 'x2'
 
         if sharedY == 1:
             sharedY = True
         else:
             sharedY = False
         
-        charts = [GetChartTrace(fileA , xAxisFileA , yAxisFileA) , GetChartTrace(fileB , xAxisFileB , yAxisFileB)]
+        normalize = bool(normalize)
+        charts = [GetChartTrace(fileA , xAxisFileA , yAxisFileA ,'x1' ,  'y1') , GetChartTrace(fileB , xAxisFileB , yAxisFileB ,'x2', 'y2')]
         chartTitles = ["X-axix" , "Y-axsx"]
 
         sharedChart = SharedAxisBarCharts(charts , chartTitles , "Together" , sharedX ,sharedY)
@@ -140,9 +111,3 @@ def plotTogether(fileA , xAxisFileA , yAxisFileA ,fileB, xAxisFileB ,yAxisFileB,
 
     except TemplateNotFound:
         abort(404)
-
-
-def GetChartTrace(filename , xAxis , yAxis):
-    df,columns = GetDataFrame(filename)
-    return Chart(go.Bar , df , columns[xAxis] , columns[yAxis]  , dict()).GetChartTrace()[0]
-    
