@@ -2,9 +2,7 @@
   "ExpandedNodes": [
     "",
     "\\BusinessLogic",
-    "\\PresentationLayer",
-    "\\PresentationLayer\\static\\Scripts",
-    "\\PresentationLayer\\Templates\\Macros"
+    "\\PresentationLayer"
   ],
   "SelectedNode": "\\BusinessLogic\\Entities.py",
   "PreviewInSolutionExplorer": false

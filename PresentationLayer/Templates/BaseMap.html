@@ -25,7 +25,7 @@
 
     <div class="col-md-12 col-lg-6">
         {%set onclick = 'App.OpenLinkInDiv("{0}" , "#viewBox");window.scrollTo(0,0);'.format(endpoint | replace("#YAXIS" , loop.index))%}
-        {{ Card.input( None ,None, barChart , [Btn.input('View In Map' , 'btn btn-green' , onclick)]) }}
+        {{ Card.input( None ,None, barChart , [Btn.input('View In Map' , 'btn btn-green' , onclick , 'fa fa-map')]) }}
         
     </div>
 

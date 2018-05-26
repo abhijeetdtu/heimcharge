@@ -1,8 +1,10 @@
 
-{% macro input(title, class, onclick) -%}
+{% macro input(title, class, onclick , iconClass) -%}
 
 <button class="{{class}}" 
         onclick="{{onclick}}">
+
+        <i class="{{iconClass}}" aria-hidden="true" title="{{title}}"></i>
         {{title}}
 </button>
 
