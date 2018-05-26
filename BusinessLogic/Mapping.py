@@ -1,7 +1,8 @@
 import os
 import operator
 import re
-import folium
+
+import json
 
 from flask import Markup
 
@@ -11,6 +12,9 @@ from plotly.offline import plot
 
 import plotly.graph_objs as go
 
+import folium
+import branca.element
+import branca.colormap as cm
 from branca.utilities import split_six
 import pandas as pd
 
@@ -245,23 +249,47 @@ def SharedAxisBarCharts(chartArr , subplotTitles , chartTitle , sharedX , shared
     return Plot(figure)
 
 
+def CreatePopupCirlcesForStates(geoJson , df , stateCol , colorBy):
+    html = """{0}<br/>{1}<br/>{2}"""
+    
+    markers = []
+    for state in geoJson["features"]:
+        arr = df[df[stateCol] == state["id"]][colorBy].values
+        value = 0
+        if len(arr) > 0:
+            value = arr[0]
+        # iframe = branca.element.IFrame(html=html, width=50, height=50)
+        # popup = folium.Popup(iframe, max_width=50)
+        markers.append(folium.CircleMarker(fill=True,fill_color='red', radius=40*(value/df[colorBy].max()), location=[state["properties"]["center"]["long"], state["properties"]["center"]["lat"]] , popup=html.format(state["id"] , colorBy ,value)))
+    return markers
+
 def IndiaMap(df ,colorBy, columns):
     state_geo =  os.path.abspath(os.path.join('Data', 'indiageojson.json'))
-    m = folium.Map(location=[plotting["India"]["Center"]["Lat"], plotting["India"]["Center"]["Long"]], zoom_start=plotting["DefaultZoom"])
+    geo_json = json.load(open(state_geo))
+    m = folium.Map(location=[plotting["India"]["Center"]["Lat"], plotting["India"]["Center"]["Long"]]
+                    , zoom_start=plotting["DefaultZoom"]
+                    , tiles='cartodbpositron')
+    
     threshold_scale = split_six(df[colorBy])
-
     m.choropleth(
             geo_data=state_geo,
             data = df,
             columns=columns,
             name='choropleth',
             key_on='feature.id',
-            fill_color='YlGn',
+            fill_color='PuBuGn',
             fill_opacity=0.7,
             line_opacity=0.2,
             threshold_scale=threshold_scale,
             legend_name=colorBy
+            
     )
+
+
+    markers = CreatePopupCirlcesForStates(geo_json , df , columns[0] , colorBy)
+    [marker.add_to(m) for marker in markers]
+
+    
     folium.LayerControl().add_to(m)
 
     return IndiaMapModel(colorBy , "" , m)
