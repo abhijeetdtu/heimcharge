@@ -1,10 +1,11 @@
 from flask import Blueprint,render_template , Markup ,request
 from jinja2 import TemplateNotFound
 
+from BusinessLogic.Entities import *
 from BusinessLogic.Mapping import *
 from BusinessLogic.FileOps import *
 from BusinessLogic.ExceptionHandling import *
-import os
+import os,re
 from config import files
 import sys , traceback
 
@@ -21,6 +22,9 @@ def index():
     except Exception as e:
         return HandleException(e)
 
+def SetupParamsAndReturnFilePlot(request  , bar_charts):
+    returnPartial = (request.args.get('returnPartial') or None) == 'True'
+    return render_template('FilePlot.html' ,returnPartial = returnPartial, bar_charts = bar_charts)
 
 @ChartPlot.route("/chart/<string:plotName>/<string:filename>/<int:xCol>/<int:yCol>" , methods = ['GET' , 'POST'])
 def plot(plotName,filename,xCol , yCol):
@@ -29,7 +33,7 @@ def plot(plotName,filename,xCol , yCol):
         config = request.form
 
         chart = Chart(getattr(go , plotName),df , df.columns[xCol] ,  df.columns[yCol] , config)
-        return render_template('FilePlot.html' , bar_charts = [chart.GetChartHTML()])
+        return SetupParamsAndReturnFilePlot(request ,[chart.GetChartHTML()])
 
     except Exception as e:
         return HandleException(e)
@@ -39,17 +43,15 @@ def GetTable(filename):
         df,columns = GetDataFrame(filename)
         config = {}
         chart = Table(df)
-        return render_template('FilePlot.html' , bar_charts = [chart.GetChartHTML()])
-
+        return SetupParamsAndReturnFilePlot(request ,[chart.GetChartHTML()])
 
 
 @ChartPlot.route("/scatter/<string:filename>/<int:xCol>/<int:yCol>/<int:textCol>")
 def scatter( filename,xCol , yCol , textCol):
     try:
-        returnPartial = (request.args.get('returnPartial') or None) == 'True'
-        
-        chart = GetScatterChart(filename,xCol , yCol , textCol)
-        return render_template('FilePlot.html' ,returnPartial = returnPartial, bar_charts = [chart.GetChartHTML()])
+        config = GetConfig(request)
+        chart = GetScatterChart(filename,xCol , yCol , textCol , config)
+        return SetupParamsAndReturnFilePlot(request ,[chart.GetChartHTML()])
 
     except Exception as e:
         return HandleException(e)
@@ -65,7 +67,7 @@ def stacked(filename,yCol,commaSeparatedColumns):
         print(selectedColumns)
         chart = StackedBar(df,selectedColumns ,yCol,config)
         
-        return render_template('FilePlot.html' , bar_charts = [chart.GetChartHTML()])
+        return SetupParamsAndReturnFilePlot(request ,[chart.GetChartHTML()])
 
     except Exception as e:
         return HandleException(e)
@@ -80,7 +82,7 @@ def pie(filename,yCol,commaSeparatedColumns):
         config = dict()
 
         charts = Pie.GetMultiplePieChartsHTML(df , selectedColumns , yCol , config)
-        return render_template('FilePlot.html' , bar_charts = charts)
+        return SetupParamsAndReturnFilePlot(request ,charts)
 
     except Exception as e:
         return HandleException(e)
@@ -106,8 +108,7 @@ def plotTogether(fileA , xAxisFileA , yAxisFileA ,fileB, xAxisFileB ,yAxisFileB,
         chartTitles = ["X-axix" , "Y-axsx"]
 
         sharedChart = SharedAxisBarCharts(charts , chartTitles , "Together" , sharedX ,sharedY)
-
-        return render_template('FilePlot.html' , bar_charts = [Markup(sharedChart)])
+        return SetupParamsAndReturnFilePlot(request ,[Markup(sharedChart)])
 
     except TemplateNotFound:
         abort(404)

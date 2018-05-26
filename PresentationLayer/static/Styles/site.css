@@ -39,24 +39,36 @@ body {
    top:40%;
 }
 
+.trace.bars .points .point path{
 
+    fill:#01579B !important;
+}
+
+.btn.btn-green{
+    background-color:#00B65E;
+    color:white;
+}
 @media screen and (min-width: 1081px) {
 
 }
 
 /* If the screen size is 600px wide or less, set the font-size of <div> to 30px */
 @media screen and (max-width: 1080px) {
+    body{
+        font-size: 60px;
+    }
     h5 {
-        font-size:72px;
+        font-size:1.5em;
     }
 
     .navbar-brand {
-        font-size: 72px;
+        font-size: 1.5em;
     }
 
     .btn {
         display: block;
         width: 100%;
+        font-size: 1.5em;
     }
 
     svg text {

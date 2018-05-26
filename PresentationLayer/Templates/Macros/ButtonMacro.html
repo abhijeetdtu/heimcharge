@@ -1,0 +1,9 @@
+
+{% macro input(title, class, onclick) -%}
+
+<button class="{{class}}" 
+        onclick="{{onclick}}">
+        {{title}}
+</button>
+
+{%- endmacro %}

@@ -1,0 +1,18 @@
+{% macro input(id,endpoint, config) -%}
+
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title">{{ config.title or "" }}</h5>
+        <h6 class="card-subtitle mb-2 text-muted">{{config.subtitle or ""}}</h6>
+        <div id="viewBox-{{id}}" class="map-holder" style="height:100%;">
+        </div>
+    </div>
+
+    <script>
+         $(function () {
+               App.OpenLinkInDiv('{{endpoint}}', '#viewBox-{{id}}');
+         })
+    </script>
+</div>
+
+{%- endmacro %}

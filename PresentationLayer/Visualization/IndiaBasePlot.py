@@ -1,9 +1,13 @@
 from flask import Blueprint,render_template , Markup
+from flask import request
 from jinja2 import TemplateNotFound
+import plotly.graph_objs as go
+
 
 from BusinessLogic.Mapping import *
 from BusinessLogic.FileOps import *
 
+import copy
 import os
 from config import files
 
@@ -33,10 +37,9 @@ def show():
 @IndiaBasePlot.route('/plotFile/<string:filename>/<int:xAxisIndex>')
 def plotFile(filename , xAxisIndex):
     try:
-        
         df,columns = GetDataFrame(filename)
-
-        barCharts = [Markup(BarChart(df , column , columns[xAxisIndex]  , 'h')) for column in columns if column != columns[xAxisIndex]]
+        config = dict(orientation='h' )
+        barCharts = [Chart(getattr(go , "Bar"),df , column ,  columns[xAxisIndex], config) for column in columns if column != columns[xAxisIndex]]
         
         return render_template('FilePlot.html' , bar_charts = barCharts)
 
@@ -46,16 +49,25 @@ def plotFile(filename , xAxisIndex):
 @IndiaBasePlot.route('/plotFileWithMap/<string:filename>/<int:xAxisIndex>/<int:yAxisForMap>')
 def plotFileWithMap(filename , xAxisIndex,  yAxisForMap):
     try:
-        
-        df,columns = GetDataFrame(filename)
 
+        df,columns = GetDataFrame(filename)
+        config = GetConfig(request)
+        config["orientation"]='h'
+        config["layoutConfig"] = dict(xaxis = dict(side = 'top'))
         colorBy = columns[yAxisForMap]
         df[colorBy] = df[colorBy].astype("float")
         m = IndiaMap(df ,colorBy, [columns[xAxisIndex] , columns[yAxisForMap]])
+        
+        barCharts = [Chart(getattr(go , "Bar"),df , column ,  columns[xAxisIndex], copy.deepcopy(config)).GetChartHTML() for column in columns if column != columns[xAxisIndex]]
+        sideChart = Chart(getattr(go , "Bar"),df , colorBy ,  columns[xAxisIndex],  copy.deepcopy(config)).GetChartHTML()
 
-        barCharts = [Markup(BarChart(df , column , columns[xAxisIndex]  , 'h')) for column in columns if column != columns[xAxisIndex]]
-        sideChart = Markup(BarChart(df , colorBy , columns[xAxisIndex]  , 'h')) 
-        return render_template('BaseMap.html' , map=m , bar_charts = barCharts , side_chart = sideChart)
+        prefix = request.path[:request.path.find("/plotFileWithMap")]
+        viewParams = dict(map=m , 
+                          bar_charts = barCharts , 
+                          side_chart = sideChart , 
+                          endpoint='{0}/plotFileWithMap/{1}/{2}/#YAXIS'.format(prefix , filename,xAxisIndex)
+                          )
+        return render_template('BaseMap.html' , **viewParams)
 
     except TemplateNotFound:
         abort(404)

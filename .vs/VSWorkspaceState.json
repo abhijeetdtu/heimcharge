@@ -1,8 +1,11 @@
 {
   "ExpandedNodes": [
     "",
-    "\\PresentationLayer"
+    "\\BusinessLogic",
+    "\\PresentationLayer",
+    "\\PresentationLayer\\static\\Scripts",
+    "\\PresentationLayer\\Templates\\Macros"
   ],
-  "SelectedNode": "\\wsgi.py",
+  "SelectedNode": "\\BusinessLogic\\Entities.py",
   "PreviewInSolutionExplorer": false
 }

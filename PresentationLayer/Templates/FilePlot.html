@@ -1,4 +1,4 @@
-{% if returnPartial == False %}
+{% if returnPartial == None or returnPartial == False %}
     {% extends "_layout.html" %}
 {% endif %}
 
@@ -15,5 +15,9 @@
 
     {% endfor %}
 </div>
+
+{% import 'Macros/ChartMacro.html' as Chart %}
+
+
 
 {% endblock %}

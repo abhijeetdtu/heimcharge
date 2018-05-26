@@ -1,4 +1,5 @@
 {% import 'Macros/CardMacro.html' as Card %}
+{% import 'Macros/ButtonMacro.html' as Btn %}
 
 {% block content %}
 <div class="row map-top-container" height="100%">
@@ -23,7 +24,8 @@
     {% for barChart in  bar_charts %}
 
     <div class="col-md-12 col-lg-6">
-        {{ Card.input( loop.index ,'', barChart ) }}
+        {%set onclick = 'App.OpenLinkInDiv("{0}" , "#viewBox");window.scrollTo(0,0);'.format(endpoint | replace("#YAXIS" , loop.index))%}
+        {{ Card.input( None ,None, barChart , [Btn.input('View In Map' , 'btn btn-green' , onclick)]) }}
         
     </div>
 

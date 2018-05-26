@@ -26,7 +26,8 @@ def importantDashboards():
 def mutualFunds():
     try:
         
-        dashboards= ['/plot/scatter/MutualFundPerformance/{}/{}/0?returnPartial=True'.format(i,i+1) for i in range(3,10)]
+        dashboards = ['/plot/scatter/MutualFundPerformance/{}/{}/0?returnPartial=True'.format(i,i+1) for i in range(3,10)]
+
 
         return render_template('Dashboards/Base.html' ,dashboard_links = dashboards)
 

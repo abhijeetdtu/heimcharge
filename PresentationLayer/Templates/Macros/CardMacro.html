@@ -1,9 +1,21 @@
-{% macro input(title, subtitle, content) -%}
+{% macro input(title, subtitle, content , ui) -%}
 
         <div class="card">
+            <div class="row">
+                {%if ui%}
+                    {%for uiobj in ui%}
+                        <div class="col">{{uiobj}}</div>
+                    {% endfor %}
+                {%endif%}
+            </div>
             <div class="card-body">
-                <h5 class="card-title">{{title }}</h5>
-                <h6 class="card-subtitle mb-2 text-muted">{{subtitle}}</h6>
+                {%if title%}
+                    <h5 class="card-title">{{title }}</h5>
+                {%endif%}
+                {%if subtitle%}
+                    <h6 class="card-subtitle mb-2 text-muted">{{subtitle}}</h6>
+                {%endif%}
+                
                 <div class="map-holder" style="height:100%;">
 
                     {{ content}}
