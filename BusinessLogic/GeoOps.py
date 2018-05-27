@@ -1,11 +1,13 @@
 import geopy
 import json
+import os
 
 from geopy.geocoders import Nominatim
 from config import locationCacheFile
 
 geolocator = Nominatim()
-locationCache = json.load(open(locationCacheFile))
+locationCacheFilePath = os.path.abspath(os.path.join("Data" , locationCacheFile))
+locationCache = json.load(open(locationCacheFilePath))
 
 def GetLocationLatLong(strAddress):
     if strAddress in locationCache:
