@@ -12,3 +12,5 @@ files = {
     "LanguageWiseMovies" : os.path.abspath(os.path.join("Data" , "LanguageWiseMovies.json"))
     }
 plotting = { "India" : { "Center" : { "Lat" :  20.5937, "Long" : 78.9629 } } , "DefaultZoom": 4}
+
+locationCacheFile = ".\Data\LocationCache.json"

@@ -2,9 +2,29 @@ import os
 import json
 import pandas as pd
 import numpy as np
+import re
 
 import locale
 from locale import atof
+
+def ExtractNumbers(value):
+    value = str(value)
+    try:
+        values = re.findall("[\d,]+" ,value)
+        values = [value.replace("," , "") for value in values]
+    except:
+        values = re.findall("[\d.]+" ,value)
+
+    if(values and len(values) > 0):
+        try:
+            val =  float(values[0])
+        except:
+            val = 0
+        
+        return val
+
+        
+    return 0
 
 def GetColumnsFromFile(file):
     jsonData = json.load(open(file ,  encoding='utf-16'))

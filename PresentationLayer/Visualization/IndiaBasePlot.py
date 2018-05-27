@@ -3,12 +3,13 @@ from flask import request
 from jinja2 import TemplateNotFound
 import plotly.graph_objs as go
 
-
+from BusinessLogic.GeoProcessing import *
 from BusinessLogic.Mapping import *
 from BusinessLogic.FileOps import *
 
 import copy
 import os
+
 from config import files
 
 IndiaBasePlot = Blueprint('IndiaBasePlot', __name__,template_folder='templates')
@@ -46,6 +47,8 @@ def plotFile(filename , xAxisIndex):
     except TemplateNotFound:
         abort(404)
 
+
+
 @IndiaBasePlot.route('/plotFileWithMap/<string:filename>/<int:xAxisIndex>/<int:yAxisForMap>')
 def plotFileWithMap(filename , xAxisIndex,  yAxisForMap):
     try:
@@ -55,7 +58,7 @@ def plotFileWithMap(filename , xAxisIndex,  yAxisForMap):
         config["orientation"]='h'
         config["layoutConfig"] = dict(xaxis = dict(side = 'top'))
         colorBy = columns[yAxisForMap]
-        df[colorBy] = df[colorBy].astype("float")
+        df[colorBy] = df[colorBy].apply(ExtractNumbers)
         m = IndiaMap(df ,colorBy, [columns[xAxisIndex] , columns[yAxisForMap]])
         
         barCharts = [Chart(getattr(go , "Bar"),df , column ,  columns[xAxisIndex], copy.deepcopy(config)).GetChartHTML() for column in columns if column != columns[xAxisIndex]]
