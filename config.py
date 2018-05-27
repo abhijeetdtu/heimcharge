@@ -13,4 +13,4 @@ files = {
     }
 plotting = { "India" : { "Center" : { "Lat" :  20.5937, "Long" : 78.9629 } } , "DefaultZoom": 4}
 
-locationCacheFile = "LocationCache.json"
+locationCacheFile = "locationCache.json"
