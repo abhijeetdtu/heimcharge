@@ -63,10 +63,10 @@ def CreatePopupCluster(markerArr):
 def GetSizeAndColor(type ,value ,mean, max , min):
     max_min = (max-min)
     if(type == 'simple'):
-        size = 15 + 15*value
+        size = 15 + 30*value
         color = 'red'
     if(type == 'deviationFromMean'):
-        size = 15 +  (15*abs(value-mean)/(max_min+1))
+        size = 15 +  (30*abs(value-mean)/(max_min+1))
         if(value-mean > 0):
             color = 'red'
         else:
@@ -128,5 +128,5 @@ def IndiaMap(df ,colorBy, columns):
     #GetText([12,86] , ).add_to(m)
     folium.LayerControl().add_to(m)
 
-    return IndiaMapModel(colorBy ,  'Sized By Deviation From Mean : {0}'.format(df[colorBy].mean()) , m)
+    return IndiaMapModel(colorBy ,  'Sized By Deviation From Mean : {0}<br/> Green < Mean <br/> Red > Mean'.format(df[colorBy].mean()) , m)
 

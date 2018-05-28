@@ -121,5 +121,5 @@ def GetFileList(type):
 
 def GetStateWiseFileList(type):
     files = GetFileList(type)
-    selectedFiles = [f for f in files if f.lower().find("statewise") >= 0]
+    selectedFiles = [f for f in files if f.lower().find("statewise") >= 0 or f.lower().find("locationwise") >= 0]
     return selectedFiles

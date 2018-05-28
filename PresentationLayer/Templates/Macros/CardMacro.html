@@ -10,10 +10,10 @@
             </div>
             <div class="card-body">
                 {%if title%}
-                    <h5 class="card-title">{{title }}</h5>
+                    <h5 class="card-title">{{title|safe }}</h5>
                 {%endif%}
                 {%if subtitle%}
-                    <h6 class="card-subtitle mb-2 text-muted">{{subtitle}}</h6>
+                    <h6 class="card-subtitle mb-2 text-muted">{{subtitle |safe}}</h6>
                 {%endif%}
                 
                 <div class="map-holder" style="height:100%;">
