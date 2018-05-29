@@ -2,7 +2,7 @@
     font-family: 'Abril Fatface', Tahoma, Geneva, Verdana, sans-serif;
     font-size: x-large;
     color: #ffffff !important;
-    background-color: #17a2b8;
+    background-color: #4e90a4;
 }
 
 .navbar-brand.global {
@@ -10,7 +10,7 @@
 }
 
 .navbar-brand {
-    color: #ffffff !important;
+    color: #f3fbf1 !important;
 }
 body {
     color: #202121;
@@ -39,14 +39,37 @@ body {
    top:40%;
 }
 
-.trace.bars .points .point path{
+.carousel .trace.bars .points .point:nth-child(even) path{
 
-    fill:#01579B !important;
+    fill:#4e90a4 !important;
+}
+.carousel .trace.bars .points .point:nth-child(odd) path{
+
+    fill:#3ec8ac !important;
 }
 
+.trace.bars .points .point:nth-child(even) path{
+
+    fill:#6e60a0 !important;
+}
+.trace.bars .points .point:nth-child(odd) path{
+
+    fill:#4e90a4 !important;
+}
+
+path.leaflet-interactive{
+    fill:#85a6b1;
+}
+path.leaflet-interactive{
+    fill:#414a50;
+}
 .btn.btn-green{
-    background-color:#00B65E;
-    color:white;
+    background-color:#4e90a4;
+    color:#f7f6de;
+}
+
+.yaxislayer-above .ytick text{
+    fill:#28385e !important;
 }
 @media screen and (min-width: 1081px) {
 
