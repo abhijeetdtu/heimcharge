@@ -1,23 +1,29 @@
 {% import 'Macros/CardMacro.html' as Card %}
 {% import 'Macros/ButtonMacro.html' as Btn %}
-
+{% import 'Macros/CarousalMacro.html' as Carsl %}
 {% block content %}
-<div class="row map-top-container" height="100%">
+<div class="row " height="100%">
     {% if side_chart %}
-    <div class="col-md-12 col-lg-6">
-        {%else%}
-        <div class="col-md-12 col-lg-6">
-            {% endif%}
+        <div class="col-md-12 col-lg-6 map-top-container">
+    {%else%}
+        <div class="col-md-12 col-lg-6 map-top-container" >
+    {% endif%}
             {{ Card.input( map.Title  , map.Subtitle, map.Html ) }}
         </div>
 
-        {% if side_chart %}
+    {% if side_chart %}
 
-        <div class="col-md-12 col-lg-6">
-            {{ Card.input('','',side_chart  ) }}
+        <div class="col-sm-12 col-md-12 col-lg-6">
+            
+            <div style="height:50%;">
+                    {{Card.input('Quick Stats','', Carsl.input('sideStat',carousal)   )}}
+            </div>
+            <div style="height:50%;">
+                    {{ Card.input('','',side_chart  ) }}
+            </div>
         </div>
 
-        {% endif%}
+    {% endif%}
     </div>
 </div>
 <div class="row">

@@ -63,7 +63,13 @@ class ChartBuilderBase:
         #self.DataFrame = self.DataFrame[rowIndices]
     
 
-    def PrepareFigure(self,layoutConfig , traceArr):        
+    def PrepareFigure(self,layoutConfig , traceArr):
+        margin=go.Margin(
+            b=10,
+            t=50,
+            pad=4
+        )   
+        layoutConfig["margin"] = margin
         layout = go.Layout( **layoutConfig)
         figure = go.Figure(data = traceArr , layout = layout)
 
@@ -112,6 +118,18 @@ class Chart(ChartBuilderBase):
 
     def GetChartTrace(self):    
         return [self.goType(x = self.DataFrame[self.Xcol] , y = self.DataFrame[self.Ycol] ,  **self.config)]
+
+class SingleAxisChart(Chart):
+    def __init__(self,goType, dataFrame , col ,axis, config):
+        self.axis = axis
+        super(SingleAxisChart, self).__init__(goType, dataFrame,col , None , config)
+    
+    def GetChartTrace(self):
+        if self.axis == 'y':
+            return [self.goType(y=self.DataFrame[self.Xcol])]
+        if self.axis == 'x':
+            return [self.goType(x=self.DataFrame[self.Xcol])]
+
 
 class StackedBar(ChartBuilderBase):
 

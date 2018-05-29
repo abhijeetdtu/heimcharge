@@ -61,11 +61,14 @@ def plotFileWithMap(filename , xAxisIndex,  yAxisForMap):
         df[colorBy] = df[colorBy].apply(ExtractNumbers)
         m = IndiaMap(df ,colorBy, [columns[xAxisIndex] , columns[yAxisForMap]])
         
+        boxPlot = SingleAxisChart(go.Box , df,colorBy ,'x', copy.deepcopy(config)).GetChartHTML()
+        histoPlot = SingleAxisChart(go.Histogram , df,colorBy ,'x', copy.deepcopy(config)).GetChartHTML()
         barCharts = [Chart(getattr(go , "Bar"),df , column ,  columns[xAxisIndex], copy.deepcopy(config)).GetChartHTML() for column in columns if column != columns[xAxisIndex]]
         sideChart = Chart(getattr(go , "Bar"),df , colorBy ,  columns[xAxisIndex],  copy.deepcopy(config)).GetChartHTML()
 
         prefix = request.path[:request.path.find("/plotFileWithMap")]
         viewParams = dict(map=m , 
+                          carousal = [histoPlot , boxPlot],
                           bar_charts = barCharts , 
                           side_chart = sideChart , 
                           endpoint='{0}/plotFileWithMap/{1}/{2}/#YAXIS'.format(prefix , filename,xAxisIndex)
