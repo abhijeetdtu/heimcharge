@@ -53,11 +53,13 @@ def GetStateColumnFromFile(filename):
 def GetStateColumn(df):
 
     states= ['andhra pradesh', 'arunachal pradesh', 'assam', 'bihar', 'chhattisgarh', 'goa', 'gujarat', 'haryana', 'himachal pradesh', 'jammu & kashmir', 'jharkhand', 'karnataka', 'kerala', 'madhya pradesh', 'maharashtra', 'manipur', 'meghalaya', 'mizoram', 'nagaland', 'odisha', 'punjab', 'rajasthan', 'sikkim', 'tamil nadu', 'telangana', 'tripura', 'uttar pradesh', 'uttarakhand', 'west bengal', 'total (states)', 'a & n islands', 'chandigarh', 'd&n haveli', 'daman & diu', 'delhi ut', 'lakshadweep', 'puducherry', 'total (uts)', 'total (all india)']
-
+    cities = ["delhi" , "mumbai" , "bengaluru" , "chennai" , "kolkata" , "coimbatore" , "ahmedabad" , "jaipur "]
     try:
         for i,column in enumerate(df.columns):
             values = list(df[column].str.lower())
             if len(set(states).intersection(set(values))) > 10:
+                return [column,i]
+            if len(set(cities).intersection(set(values))) > len(cities)/2:
                 return [column,i]
     except:
         pass
@@ -103,7 +105,7 @@ def ColumnCleanup(df):
 
     if('S. No.' in df.columns):
         df = df.drop(columns = ['S. No.'])
-
+    
     return df
 
 def GetDataFrame(filename):

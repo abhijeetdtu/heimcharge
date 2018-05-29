@@ -123,7 +123,13 @@ class SingleAxisChart(Chart):
     def __init__(self,goType, dataFrame , col ,axis, config):
         self.axis = axis
         super(SingleAxisChart, self).__init__(goType, dataFrame,col , None , config)
+        self.HandleChartSepecific()
     
+    def HandleChartSepecific(self):
+        if self.goType == go.Histogram:
+            bin = dict(start = self.DataFrame[self.Xcol].min() , end = self.DataFrame[self.Xcol].max() , size =self.DataFrame[self.Xcol].std()*self.DataFrame[self.Xcol].mean())
+            self.config["{0}bin".format(self.axis)] = bin
+                
     def GetChartTrace(self):
         if self.axis == 'y':
             return [self.goType(y=self.DataFrame[self.Xcol])]
