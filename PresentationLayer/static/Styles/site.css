@@ -75,6 +75,13 @@ path.leaflet-interactive{
 
 }
 
+.filename {
+    
+    justify-content: center;
+    display: flex;
+    background-color:#3ec8ac;
+    color:white;
+}
 .leaflet-popup{
     
 }
@@ -111,6 +118,10 @@ height:95%;
 .carousel-control-next-icon {
     background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%2317a2b8' viewBox='0 0 8 8'%3E%3Cpath d='M2.75 0l-1.5 1.5 2.5 2.5-2.5 2.5 1.5 1.5 4-4-4-4z'/%3E%3C/svg%3E");
 }
+
+.dropdown-item:nth-child(even){
+    background-color:#f4f9f4;
+}
 /* If the screen size is 600px wide or less, set the font-size of <div> to 30px */
 @media screen and (max-width: 1080px) {
     body{
@@ -130,6 +141,9 @@ height:95%;
         font-size: 1.5em;
     }
 
+    .dropdown-item{
+        font-size: 1.5em;
+    }
     svg text {
         
     }

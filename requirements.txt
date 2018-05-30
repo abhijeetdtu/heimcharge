@@ -5,3 +5,4 @@ pandas
 folium
 branca==0.2.0
 geopy
+wikipedia

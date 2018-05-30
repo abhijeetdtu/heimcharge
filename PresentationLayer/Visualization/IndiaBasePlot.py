@@ -6,6 +6,7 @@ import plotly.graph_objs as go
 from BusinessLogic.GeoProcessing import *
 from BusinessLogic.Mapping import *
 from BusinessLogic.FileOps import *
+import BusinessLogic.Wikipedia as Wiki
 
 import copy
 import os
@@ -52,13 +53,19 @@ def plotFile(filename , xAxisIndex):
 @IndiaBasePlot.route('/plotFileWithMap/<string:filename>/<int:xAxisIndex>/<int:yAxisForMap>')
 def plotFileWithMap(filename , xAxisIndex,  yAxisForMap):
     try:
-
+        
         df,columns = GetDataFrame(filename)
         config = GetConfig(request)
         config["orientation"]='h'
         config["layoutConfig"] = dict(xaxis = dict(side = 'top'))
+
+        if "autoFitColumnIndex" in request.args and request.args["autoFitColumnIndex"] == "true":
+            if yAxisForMap >= len(columns):
+                yAxisForMap = len(columns)-1
+                
         colorBy = columns[yAxisForMap]
         df[colorBy] = df[colorBy].apply(ExtractNumbers)
+        df[columns[xAxisIndex]] = df[columns[xAxisIndex]].apply(MakeTextSafe)
         m = IndiaMap(df ,colorBy, [columns[xAxisIndex] , columns[yAxisForMap]])
         
         boxPlot = SingleAxisChart(go.Box , df,colorBy ,'x', copy.deepcopy(config)).GetChartHTML()
@@ -67,7 +74,9 @@ def plotFileWithMap(filename , xAxisIndex,  yAxisForMap):
         sideChart = Chart(getattr(go , "Bar"),df , colorBy ,  columns[xAxisIndex],  copy.deepcopy(config)).GetChartHTML()
 
         prefix = request.path[:request.path.find("/plotFileWithMap")]
-        viewParams = dict(map=m , 
+        viewParams = dict(filename = ConvertFileNameToMeaningful(filename),
+                          
+                          map=m , 
                           carousal = [histoPlot , boxPlot],
                           bar_charts = barCharts , 
                           side_chart = sideChart , 

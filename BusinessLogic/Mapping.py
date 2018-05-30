@@ -117,7 +117,7 @@ class Chart(ChartBuilderBase):
         return layoutConfig
 
     def GetChartTrace(self):    
-        return [self.goType(x = self.DataFrame[self.Xcol] , y = self.DataFrame[self.Ycol] ,  **self.config)]
+        return [self.goType(x = self.DataFrame[self.Xcol].values , y = self.DataFrame[self.Ycol].values ,  **self.config)]
 
 class SingleAxisChart(Chart):
     def __init__(self,goType, dataFrame , col ,axis, config):
@@ -202,6 +202,7 @@ class Table():
         return Markup(self.Plot(self.GetChart()))
 
     def Plot(self,figure):
+
         return plot(figure, output_type='div' , config={'displayModeBar': False} , include_plotlyjs=False)
 
 def Plot(figure):

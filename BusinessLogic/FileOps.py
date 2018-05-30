@@ -6,6 +6,13 @@ import re
 
 import locale
 from locale import atof
+from BusinessLogic.ExceptionHandling import HandleException
+
+
+def MakeTextSafe(value):
+    value = str(value)
+    value.replace("'" , "''")
+    return value
 
 def ExtractNumbers(value):
     value = str(value)
@@ -44,31 +51,51 @@ def GetFromCSVLikeJson(jsonData):
 
 def GetStateColumnFromFile(filename):
     df,columns = GetDataFrame(filename)
-    stateColumn = GetStateColumn(df)
+    stateColumn = GetLocationColumn(df, isOnlyState=True)
     print(filename , stateColumn)
     if stateColumn == None:
         return 0
     return stateColumn[1]
 
-def GetStateColumn(df):
+def AreColumnsMatching(df,col ,arr ):
+    try:
+        values = list(df[col].str.lower())
+        if len(set(arr).intersection(set(values))) > len(set(values))/2:
+            return True
+        return False
+    except:
+        return False
 
-    states= ['andhra pradesh', 'arunachal pradesh', 'assam', 'bihar', 'chhattisgarh', 'goa', 'gujarat', 'haryana', 'himachal pradesh', 'jammu & kashmir', 'jharkhand', 'karnataka', 'kerala', 'madhya pradesh', 'maharashtra', 'manipur', 'meghalaya', 'mizoram', 'nagaland', 'odisha', 'punjab', 'rajasthan', 'sikkim', 'tamil nadu', 'telangana', 'tripura', 'uttar pradesh', 'uttarakhand', 'west bengal', 'total (states)', 'a & n islands', 'chandigarh', 'd&n haveli', 'daman & diu', 'delhi ut', 'lakshadweep', 'puducherry', 'total (uts)', 'total (all india)']
-    cities = ["delhi" , "mumbai" , "bengaluru" , "chennai" , "kolkata" , "coimbatore" , "ahmedabad" , "jaipur "]
+def GetLocationColumn(df,isOnlyState=False,isOnlyCity=False):
     try:
         for i,column in enumerate(df.columns):
-            values = list(df[column].str.lower())
-            if len(set(states).intersection(set(values))) > 10:
-                return [column,i]
-            if len(set(cities).intersection(set(values))) > len(cities)/2:
-                return [column,i]
-    except:
-        pass
+            if isOnlyCity == False:
+                val = GetStateColumn(df, column)
+                if val != None:
+                    return [val,i]
+            if isOnlyState == False:
+                val = GetCityColumn(df,column)
+                if val != None:
+                    return [val , i]
+    except Exception as e:
+        HandleException(e)
+    return None
 
+def GetCityColumn(df , column):
+    cities = ["delhi" , "mumbai" , "bengaluru" , "chennai" , "kolkata" , "coimbatore" , "ahmedabad" , "jaipur "]
+    if AreColumnsMatching(df, column , cities):
+        return column
+    return None
+
+def GetStateColumn(df , column):
+    states= ['andhra pradesh', 'arunachal pradesh', 'assam', 'bihar', 'chhattisgarh', 'goa', 'gujarat', 'haryana', 'himachal pradesh', 'jammu & kashmir', 'jharkhand', 'karnataka', 'kerala', 'madhya pradesh', 'maharashtra', 'manipur', 'meghalaya', 'mizoram', 'nagaland', 'odisha', 'punjab', 'rajasthan', 'sikkim', 'tamil nadu', 'telangana', 'tripura', 'uttar pradesh', 'uttarakhand', 'west bengal', 'total (states)', 'a & n islands', 'chandigarh', 'd&n haveli', 'daman & diu', 'delhi ut', 'lakshadweep', 'puducherry', 'total (uts)', 'total (all india)']
+    if AreColumnsMatching(df, column , states):
+        return column
     return None
 
 def TypeCheckColumns(df):
      
-     stateColumn = GetStateColumn(df)
+     stateColumn = GetLocationColumn(df , isOnlyState=True)
 
      for column in list(df.columns):
          
@@ -115,6 +142,11 @@ def GetDataFrame(filename):
     df = ColumnCleanup(df)
     columns =list(df.columns)
     return [df ,columns]
+
+def ConvertFileNameToMeaningful(file):
+    file = file.split(".")[0]
+    regex = "([A-Z]+[a-z]*)"
+    return " ".join(re.findall(regex , file))
 
 def GetFileList(type):
     files = os.listdir(os.path.abspath(os.path.join("." , 'Data')))

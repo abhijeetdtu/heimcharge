@@ -1,7 +1,13 @@
 {% import 'Macros/CardMacro.html' as Card %}
 {% import 'Macros/ButtonMacro.html' as Btn %}
 {% import 'Macros/CarousalMacro.html' as Carsl %}
+{% import 'Macros/TooltipMacro.html' as ToolTip %}
+
 {% block content %}
+<div class="row-fluid filename">
+    <h5>{{filename}}</h5>
+</div>
+
 <div class="row " height="100%">
     {% if side_chart %}
         <div class="col-md-12 col-lg-6 map-top-container">

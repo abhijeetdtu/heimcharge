@@ -1,0 +1,27 @@
+[
+    [
+        "Sl. No.",
+        "Name of State\/UT",
+        "Name of City"
+    ],
+    [1,"Bhubaneswar","Odisha"  ],
+    [2,"Pune","Maharashtra"  ],
+    [3,"Jaipur","Rajasthan"  ],
+    [4,"Surat","Gujarat"  ],
+    [5,"Kochi","Kerala"  ],
+    [6,"Ahmadabad","Gujarat"  ],
+    [7,"Jabalpur","Madhya Pradesh"  ],
+    [8,"Visakhapatnam","Andhra Pradesh"  ],
+    [9,"Solapur","Maharashtra"  ],
+    [10,"Davanagere","Karnataka"  ],
+    [11,"Indore","Madhya Pradesh"  ],
+    [12,"NDMC","Delhi"  ],
+    [13,"Coimbatore","Tamil Nadu"  ],
+    [14,"Kakinada","Andhra Pradesh"  ],
+    [15,"Belagavi","Karnataka"  ],
+    [16,"Udaipur","Rajasthan"  ],
+    [17,"Guwahati","Assam"  ],
+    [18,"Chennai","Tamil Nadu"  ],
+    [19,"Ludhiana","Punjab"  ],
+    [20,"Bhopal","Madhya Pradesh"  ]
+]

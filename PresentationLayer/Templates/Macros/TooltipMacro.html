@@ -1,0 +1,14 @@
+
+{% macro input(iconClass, content) -%}
+
+<div class="hiem-tooltip">
+    <a href="#" title="{{content}}"  data-toggle="tooltip" data-placement="auto" >
+        <i class="{{iconClass}}" aria-hidden="true"></i>
+    </a>
+</div>
+<script>
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip()
+          })
+</script>
+{%- endmacro %}
