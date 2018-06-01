@@ -64,12 +64,16 @@ class ChartBuilderBase:
     
 
     def PrepareFigure(self,layoutConfig , traceArr):
-        margin=go.Margin(
-            b=10,
-            t=50,
-            pad=4
-        )   
-        layoutConfig["margin"] = margin
+        
+        if "margin" not in layoutConfig:
+            margin=go.Margin(
+                l=150,
+                r=0,
+                b=10,
+                t=50,
+                pad=4
+            )   
+            layoutConfig["margin"] = margin
         layout = go.Layout( **layoutConfig)
         figure = go.Figure(data = traceArr , layout = layout)
 
@@ -139,6 +143,14 @@ class Chart(ChartBuilderBase):
 class SingleAxisChart(Chart):
     def __init__(self,goType, dataFrame , col ,axis, config):
         self.axis = axis
+        config["layoutConfig"]["margin"] = margin=go.Margin(
+                l=75,
+                r=75,
+                b=10,
+                t=50,
+                pad=4
+            )
+            
         super(SingleAxisChart, self).__init__(goType, dataFrame,col , None , config)
         self.HandleChartSepecific()
     
