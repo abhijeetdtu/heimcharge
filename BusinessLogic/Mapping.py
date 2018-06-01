@@ -20,6 +20,7 @@ import pandas as pd
 
 from config import plotting
 
+from BusinessLogic.ExceptionHandling import * 
 from BusinessLogic.FileOps import *
 from BusinessLogic.IndiaMap import IndiaMapModel
 from BusinessLogic.Entities import DataFilter
@@ -29,7 +30,7 @@ class ChartBuilderBase:
     def __init__(self ,dataFrame, layoutConfig = None):
         self.DataFrame = dataFrame
         self.layoutConfig = layoutConfig
-        print(self.layoutConfig)
+
         if 'locked' in self.config and 'filters' in self.config['locked']:
             x = [self.AddFilterTransform(filter.dfColIndex , filter.op , filter.value) for filter in self.config['locked']['filters']]
 
@@ -46,7 +47,6 @@ class ChartBuilderBase:
             col = self.DataFrame.columns[dfColIndex]
         
         df =self.DataFrame
-        print(df[col].head() , op , value,col)
 
         if op == '==':
             df = df[df[col] == value]
@@ -97,7 +97,24 @@ class Chart(ChartBuilderBase):
         self.Ycol = yCol
         self.goType = goType
         self.config = config
+
         super(Chart, self).__init__(dataFrame,layoutConfig)
+
+        try:
+            quantiles = self.DataFrame[xCol].quantile([0.25 , 0.5 , 0.75 , 1]).values
+
+            colorCol = 'MarkerColor' + xCol
+            self.DataFrame[colorCol] = plotting["ColorSchemes"]["Blueiss"][0]
+            self.DataFrame.loc[self.DataFrame[self.Xcol] > quantiles[0], colorCol] = plotting["ColorSchemes"]["Blueiss"][1]
+            self.DataFrame.loc[self.DataFrame[self.Xcol] > quantiles[1], colorCol] = plotting["ColorSchemes"]["Blueiss"][2]
+            self.DataFrame.loc[self.DataFrame[self.Xcol] > quantiles[2] , colorCol] = plotting["ColorSchemes"]["Blueiss"][3]
+            self.DataFrame = self.DataFrame.sort_values(by=self.Xcol)
+            self.config['marker'] = dict(color = self.DataFrame[colorCol])
+
+        except Exception as e:
+            self.config['marker'] = dict(color =  plotting["ColorSchemes"]["Blueiss"][0])
+            HandleException(e)
+            pass
         
     def SeparateLayoutConfig(self,config, xCol , yCol):
         if "layoutConfig" in config:

@@ -33,8 +33,10 @@
         var parent = $(event.relatedTarget);
         var pHeight = parent.height();
         var pWidth = parent.width();
-        console.log(pHeight , pWidth)
-        Plotly.relayout(parent.find(".plotly-graph-div.js-plotly-plot").get(0) , {width:pWidth , height : pHeight});
+        if(parent.find(".plotly-graph-div.js-plotly-plot").get(0) ){
+            Plotly.relayout(parent.find(".plotly-graph-div.js-plotly-plot").get(0) , {width:pWidth , height : pHeight});
+        }
+        
         
     })
         

@@ -26,6 +26,7 @@ application.register_blueprint(Dashboards ,url_prefix='/dashboards')
 
 application.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 application.config['TEMPLATES_AUTO_RELOAD'] = True
+application.jinja_env.auto_reload = True
 
 @application.after_request
 def add_header(r):

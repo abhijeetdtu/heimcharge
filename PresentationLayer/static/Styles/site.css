@@ -48,14 +48,14 @@ body {
     fill:#3ec8ac !important;
 }
 
-.trace.bars .points .point:nth-child(even) path{
+/* .trace.bars .points .point:nth-child(even) path{
 
     fill:#6e60a0 !important;
 }
 .trace.bars .points .point:nth-child(odd) path{
 
     fill:#4e90a4 !important;
-}
+} */
 
 path.leaflet-interactive{
     fill:#85a6b1;
@@ -119,9 +119,15 @@ height:95%;
     background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%2317a2b8' viewBox='0 0 8 8'%3E%3Cpath d='M2.75 0l-1.5 1.5 2.5 2.5-2.5 2.5 1.5 1.5 4-4-4-4z'/%3E%3C/svg%3E");
 }
 
-.dropdown-item:nth-child(even){
+.dropdown-col:nth-child(odd) .dropdown-row:nth-child(even),
+.dropdown-col:nth-child(even) .dropdown-row:nth-child(odd){
     background-color:#f4f9f4;
 }
+.dropdown-col{
+    text-align: left;
+    cursor: pointer;
+}
+
 /* If the screen size is 600px wide or less, set the font-size of <div> to 30px */
 @media screen and (max-width: 1080px) {
     body{

@@ -1,3 +1,4 @@
+{% import 'Macros/CarousalMacro.html' as Carsl %}
 {% macro input(title, items , divSelector) -%}
 
 <div class="dropdown">
@@ -5,11 +6,42 @@
         {{title}}
     </button>
     <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-        {% for item in items%}
-            <span class="dropdown-item" href="#" onclick="App.OpenLinkInDiv('{{item.Link}}' , '{{divSelector}}')">{{item.Display}}</span>
-        {% endfor %}
 
+        {% set numCols = 4 %}
+        {% set itemsPerColumm = ( ( items|length) / numCols ) | int %}
+        <div class="row">
+            {% for i in range(numCols)%}
+
+                <div id="{{i}}-dropdownCol"class="col-md-{{(12/numCols) | int}} dropdown-col" >
+                        {% for item in items[i*itemsPerColumm :(i+1)*itemsPerColumm] %}
+                            <div class="dropdown-row row-fluid" onclick="App.OpenLinkInDiv('{{item.Link}}' , '{{divSelector}}')">
+                                <div class="col">
+                                    <span href="#" >{{item.Display}}</span>    
+                                </div>
+                            </div>
+                        {%endfor%}
+                 </div> 
+                
+    
+            {% endfor %}
+        </div>
+           
+        </div>
     </div>
 </div>
+
+<script>
+        function toggleColumnVisibility(currentCol){
+            $(currentCol).css("opacity" , "1");
+            $(currentCol).css("font-size" , "1.12em");
+            $(".dropdown-menu .dropdown-col").each(function(){
+
+                if($(this).attr("id") !== currentCol.id){
+                    $(this).css("opacity" , "0.5");
+                    $(this).css("font-size" , "1em");
+                }
+            })
+        }
+</script>
 
 {%- endmacro %}

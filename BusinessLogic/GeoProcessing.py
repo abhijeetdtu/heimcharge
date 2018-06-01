@@ -86,7 +86,13 @@ def CreateIndividualPopups(df , locationCol , colorBy , drawingType):
         latLong = GetLocationLatLong(location)
         popUp = GetPopupTemplate(location ,colorBy , value)
         size,color = GetSizeAndColor(drawingType , value , mean , max,min)
-        markers.append(folium.CircleMarker(fill=True,fill_color=color, radius=size, location= latLong, popup=popUp))
+        markers.append(folium.CircleMarker(color="rgba(255,255,255,0)",
+                                           fill=True,
+                                           fill_color=color,
+                                           fill_opacity=0.3, 
+                                           radius=size, 
+                                           location= latLong, 
+                                           popup=popUp , ))
 
     return markers
 
