@@ -2,7 +2,7 @@ gunicorn
 Flask==0.12.3
 plotly
 pandas
-folium
+folium==0.5.0
 branca==0.2.0
 geopy
 wikipedia
