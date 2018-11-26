@@ -1,7 +1,7 @@
 import sys, traceback , math
 
 from flask import Flask , Markup , render_template,redirect
-from flask import request
+from flask import request,jsonify
 
 from plotly.offline import plot
 from plotly.graph_objs import Scatter
@@ -13,7 +13,7 @@ from PresentationLayer.Visualization.IndiaBasePlot import IndiaBasePlot
 from PresentationLayer.Visualization.ChartPlot import ChartPlot
 from PresentationLayer.Visualization.Dashboards import Dashboards
 from BusinessLogic.Entities import NavItem
-
+from API.AirQuality import AirQuality
 
 from config import files
 
@@ -23,6 +23,7 @@ application = Flask(__name__ , static_folder="static", template_folder='Template
 application.register_blueprint(IndiaBasePlot ,url_prefix='/india')
 application.register_blueprint(ChartPlot ,url_prefix='/plot')
 application.register_blueprint(Dashboards ,url_prefix='/dashboards')
+application.register_blueprint(AirQuality, url_prefix="/airquality")
 
 application.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 application.config['TEMPLATES_AUTO_RELOAD'] = True
@@ -45,6 +46,7 @@ def add_header(r):
 def Error404():
     return render_template('Errors/404.html'), 404
 
+
 @application.route("/")
 def hello():
     try:
@@ -62,8 +64,8 @@ def locationWise():
     try:
         files = GetStateWiseFileList('json')
         navItems = [ NavItem(ConvertFileNameToMeaningful( file )
-                            , '/india/plotFileWithMap/{0}/{1}/3?autoFitColumnIndex=true'.format(file.replace(".json", "") 
-                            , GetStateColumnFromFile(file.replace(".json", "")))) 
+                            , '/india/plotFileWithMap/{0}/{1}/3?autoFitColumnIndex=true'.format(file.replace(".json", "")
+                            , GetStateColumnFromFile(file.replace(".json", ""))))
                     for file in files]
         return render_template('Landing.html' , nav_items = navItems)
 
