@@ -22,9 +22,14 @@ def index():
     except Exception as e:
         return HandleException(e)
 
-def SetupParamsAndReturnFilePlot(request  , bar_charts):
+def SetupParamsAndReturnTemplate(template , request , params):
     returnPartial = (request.args.get('returnPartial') or None) == 'True'
-    return render_template('FilePlot.html' ,returnPartial = returnPartial, bar_charts = bar_charts)
+    params["returnPartial"] = returnPartial
+    return render_template(f'{template}.html' ,**params)
+
+def SetupParamsAndReturnFilePlot(template , request  , bar_charts):
+    returnPartial = (request.args.get('returnPartial') or None) == 'True'
+    return render_template(f'{template}.html' ,returnPartial = returnPartial, bar_charts = bar_charts)
 
 @ChartPlot.route("/chart/<string:plotName>/<string:filename>/<int:xCol>/<int:yCol>" , methods = ['GET' , 'POST'])
 def plot(plotName,filename,xCol , yCol):
@@ -33,7 +38,7 @@ def plot(plotName,filename,xCol , yCol):
         config = request.form
 
         chart = Chart(getattr(go , plotName),df , df.columns[xCol] ,  df.columns[yCol] , config)
-        return SetupParamsAndReturnFilePlot(request ,[chart.GetChartHTML()])
+        return SetupParamsAndReturnFilePlot("FilePlot",request ,[chart.GetChartHTML()])
 
     except Exception as e:
         return HandleException(e)
@@ -43,7 +48,7 @@ def GetTable(filename):
         df,columns = GetDataFrame(filename)
         config = {}
         chart = Table(df)
-        return SetupParamsAndReturnFilePlot(request ,[chart.GetChartHTML()])
+        return SetupParamsAndReturnFilePlot("FilePlot",request ,[chart.GetChartHTML()])
 
 
 @ChartPlot.route("/scatter/<string:filename>/<int:xCol>/<int:yCol>/<int:textCol>")
@@ -51,7 +56,7 @@ def scatter( filename,xCol , yCol , textCol):
     try:
         config = GetConfig(request)
         chart = GetScatterChart(filename,xCol , yCol , textCol , config)
-        return SetupParamsAndReturnFilePlot(request ,[chart.GetChartHTML()])
+        return SetupParamsAndReturnFilePlot("FilePlot",request ,[chart.GetChartHTML()])
 
     except Exception as e:
         return HandleException(e)
@@ -66,8 +71,8 @@ def stacked(filename,yCol,commaSeparatedColumns):
 
         print(selectedColumns)
         chart = StackedBar(df,selectedColumns ,yCol,config)
-        
-        return SetupParamsAndReturnFilePlot(request ,[chart.GetChartHTML()])
+
+        return SetupParamsAndReturnFilePlot("FilePlot",request ,[chart.GetChartHTML()])
 
     except Exception as e:
         return HandleException(e)
@@ -82,7 +87,7 @@ def pie(filename,yCol,commaSeparatedColumns):
         config = dict()
 
         charts = Pie.GetMultiplePieChartsHTML(df , selectedColumns , yCol , config)
-        return SetupParamsAndReturnFilePlot(request ,charts)
+        return SetupParamsAndReturnFilePlot("FilePlot",request ,charts)
 
     except Exception as e:
         return HandleException(e)
@@ -92,7 +97,7 @@ def pie(filename,yCol,commaSeparatedColumns):
 @ChartPlot.route('/crossFile/<string:fileA>/<int:xAxisFileA>/<int:yAxisFileA>/<string:fileB>/<int:xAxisFileB>/<int:yAxisFileB>/<int:sharedX>/<int:sharedY>/<string:normalize>')
 def plotTogether(fileA , xAxisFileA , yAxisFileA ,fileB, xAxisFileB ,yAxisFileB, sharedX , sharedY , normalize):
     try:
-        
+
         if sharedX == 1:
             sharedX = 'x1'
         else:
@@ -102,13 +107,12 @@ def plotTogether(fileA , xAxisFileA , yAxisFileA ,fileB, xAxisFileB ,yAxisFileB,
             sharedY = True
         else:
             sharedY = False
-        
+
         normalize = bool(normalize)
         charts = [GetChartTrace(fileA , xAxisFileA , yAxisFileA ,'x1' ,  'y1') , GetChartTrace(fileB , xAxisFileB , yAxisFileB ,'x2', 'y2')]
         chartTitles = ["X-axix" , "Y-axsx"]
 
         sharedChart = SharedAxisBarCharts(charts , chartTitles , "Together" , sharedX ,sharedY)
-        return SetupParamsAndReturnFilePlot(request ,[Markup(sharedChart)])
-
+        return SetupParamsAndReturnFilePlot("FilePlot",(request ,[Markup(sharedChart)]))
     except TemplateNotFound:
         abort(404)

@@ -1,6 +1,9 @@
 import json
 import requests
 import os
+
+import BusinessLogic.FileOps as Ops
+
 class Rest:
 
     #API_KEY = "54f6530135d98e6597e84b5f4009de12"
@@ -8,7 +11,8 @@ class Rest:
     RESOURCE_KEY_FILE = os.path.abspath(os.path.join("." ,"API", "resource_keys.json"))
     BASE_URL = "https://api.data.gov.in/resource/{0}?api-key={1}&format={2}&limit={3}&offset={4}"
 
-    ResourceKeys = json.load(open(RESOURCE_KEY_FILE , "r"))
+    #ensure dict keys are lowercase for easy finding
+    ResourceKeys = dict( (k.lower() , v) for k,v in json.load(open(RESOURCE_KEY_FILE , "r")).items())
 
     @staticmethod
     def FilterDictToQueryParam(filters):
@@ -32,10 +36,14 @@ class Rest:
             if offset > limit or prev == json.dumps(js):
                 break
             prev = json.dumps(js)
+            #records.extend(js["records"])
             records.extend(js["records"])
             offset += 10
 
-        return records
+        js = json.loads(prev)
+        js["records"] = records
+        #return records
+        return js
 
     @staticmethod
     def GetJsonFromId(resourceId,type="json" , limit=-1 , offset=0 , filters=None):
@@ -49,3 +57,10 @@ class Rest:
     @staticmethod
     def GetJsonFromName(resourceName ,limit=10, filters=None):
         return Rest.GetAllData(Rest.ResourceKeys[resourceName] , limit=limit,filters=filters)
+
+    @staticmethod
+    def Get(resourceName , filters):
+        resourceName = resourceName.lower()
+        df = Ops.GetDataFrameFromJson(Rest.GetJsonFromName(resourceName ,limit=2, filters=filters))
+        print(df)
+        return df

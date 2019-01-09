@@ -1,4 +1,16 @@
 {
 
-  "AirQuality":"3b01bcb8-0b14-4abf-b6f2-c1bfd384ba69"
+  "AirQuality":"3b01bcb8-0b14-4abf-b6f2-c1bfd384ba69",
+  "AirTraffic":"da28d265-d62a-418b-82fe-329052b77846",
+  "AvgDailyWageAgri":"d8ff17fa-2708-43ae-a106-8d61966dbaf1",
+  "StateDailyWageAgri" : "d1009d5c-3351-404d-b12a-8018f7459069",
+  "StateLiteracy":"4462bd51-65e5-44c1-a4f0-7cd22a51925c",
+  "GenderLiteracy":"45eeb6fa-438c-446a-bb4d-b2074ae2f19c",
+  "NationalIncome":"503fecf6-a064-490b-a70f-5ed51bbe32a4",
+  "CrudeOil":"86bbf950-c7e6-4a59-bbd6-02b3673095fb",
+  "LifeSavingDrugs":"26a686fb-eff5-4b33-b5e9-7dd6f41fb870",
+  "CrimeByForeingers":"d58505c6-15c3-40fe-a73f-abdcc34487c1",
+  "StateRoadLength":"6f25cce4-6da3-4b67-9ed8-3bd9340d3a6d",
+  "StateRoadAccidents":"2bb75482-a1bb-4bac-9604-4d4cbfa55f93"
+
 }

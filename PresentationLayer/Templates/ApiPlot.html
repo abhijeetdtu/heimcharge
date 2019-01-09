@@ -1,0 +1,33 @@
+{% if returnPartial == None or returnPartial == False %}
+    {% extends "_layout.html" %}
+{% endif %}
+
+{% import 'Macros/CardMacro.html' as Card %}
+{% import 'Macros/JsonToChartFormMacro.html' as Jf %}
+
+{% block content %}
+
+<div class="row" >
+
+    <div class="col-md-4">
+      <div class="row">
+          <p>Example Record</p>
+          <pre>
+          <code>
+            {{ json }}
+          </code>
+          </pre>
+      </div>
+
+      <div class="row">
+        {{ Jf.input( exampleDic , '') }}
+      </div>
+    </div>
+
+    <div class="col-md-8">
+        {{ Card.input('','', barChart ) }}
+    </div>
+</div>
+
+
+{% endblock %}

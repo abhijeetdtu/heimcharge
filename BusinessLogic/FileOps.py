@@ -7,7 +7,7 @@ import re
 import locale
 from locale import atof
 from BusinessLogic.ExceptionHandling import HandleException
-
+import API.ApiOps as ApiOps
 
 def MakeTextSafe(value):
     value = str(value)
@@ -27,10 +27,10 @@ def ExtractNumbers(value):
             val =  float(values[0])
         except:
             val = 0
-        
+
         return val
 
-        
+
     return 0
 
 def GetColumnsFromFile(file):
@@ -38,16 +38,25 @@ def GetColumnsFromFile(file):
     return [ f['label'] for f in jsonData['fields']]
 
 def GetFromIDFieldJson(jsonData):
+    try:
+        df = FileFormatJsonToDF(jsonData)
+    except:
+        df = ApiOps.APIFormatJsonToDF(jsonData)
+
+    return df
+
+def FileFormatJsonToDF(jsonData):
     columns = [ f['label'] for f in jsonData['fields']]
     data = jsonData['data']
     df = pd.DataFrame(data = data , columns = columns)
-    return df 
+    print(df)
+    return df
 
 def GetFromCSVLikeJson(jsonData):
     columns = jsonData[0]
     data = jsonData[1:]
     df = pd.DataFrame(data = data , columns = columns)
-    return df 
+    return df
 
 def GetStateColumnFromFile(filename):
     df,columns = GetDataFrame(filename)
@@ -93,46 +102,57 @@ def GetStateColumn(df , column):
         return column
     return None
 
+def DigitRatioInString(str):
+    return len(re.findall("\d"))/len(str)
+    
 def TypeCheckColumns(df):
-     
+
      stateColumn = GetLocationColumn(df , isOnlyState=True)
 
      for column in list(df.columns):
-         
+
          if stateColumn != None and column == stateColumn[0]:
              df[column] = df[column].str.title()
 
          try:
             df[column] = df[column].str.replace("NA","0")
             df[column] = df[column].str.replace(",","").astype(float)
-            
+
 
          except:
              pass
-    
+
      df = df.fillna(0)
      return df
 
+def GetJSONFromFileOrObj(file):
+    if type(file) == str:
+        jsonData = json.load(open(file))
+    else:
+        jsonData = file
+    return jsonData
+
 def GetDataFrameFromJson(file , transform = None):
-     jsonData = json.load(open(file))
 
-     try:
-         df = GetFromIDFieldJson(jsonData)
-     except:      
-         df = GetFromCSVLikeJson(jsonData)
-     
-     df = TypeCheckColumns(df)
+    jsonData = GetJSONFromFileOrObj(file)
+    print(jsonData)
+    try:
+        df = GetFromIDFieldJson(jsonData)
+    except:
+        df = GetFromCSVLikeJson(jsonData)
 
-     if transform != None:
+    df = TypeCheckColumns(df)
+
+    if transform != None:
         df = transform(df)
 
-     return df
+    return df
 
 def ColumnCleanup(df):
 
     if('S. No.' in df.columns):
         df = df.drop(columns = ['S. No.'])
-    
+
     return df
 
 def GetDataFrame(filename):
