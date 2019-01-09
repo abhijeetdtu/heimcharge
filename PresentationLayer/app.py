@@ -46,7 +46,7 @@ def Error404():
     return render_template('Errors/404.html'), 404
 
 @application.route("/")
-def hello():
+def index():
     try:
         files = GetStateWiseFileList('json')
         navItems = [ NavItem(ConvertFileNameToMeaningful(file) , '/india/plotFileWithMap/{0}/{1}/3?autoFitColumnIndex=true'.format(file.replace(".json", "") , GetStateColumnFromFile(file.replace(".json", "")))) for file in files]
@@ -62,8 +62,8 @@ def locationWise():
     try:
         files = GetStateWiseFileList('json')
         navItems = [ NavItem(ConvertFileNameToMeaningful( file )
-                            , '/india/plotFileWithMap/{0}/{1}/3?autoFitColumnIndex=true'.format(file.replace(".json", "") 
-                            , GetStateColumnFromFile(file.replace(".json", "")))) 
+                            , '/india/plotFileWithMap/{0}/{1}/3?autoFitColumnIndex=true'.format(file.replace(".json", "")
+                            , GetStateColumnFromFile(file.replace(".json", ""))))
                     for file in files]
         return render_template('Landing.html' , nav_items = navItems)
 
