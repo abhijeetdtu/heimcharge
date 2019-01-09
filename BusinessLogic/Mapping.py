@@ -20,7 +20,7 @@ import pandas as pd
 
 from config import plotting
 
-from BusinessLogic.ExceptionHandling import * 
+from BusinessLogic.ExceptionHandling import *
 from BusinessLogic.FileOps import *
 from BusinessLogic.IndiaMap import IndiaMapModel
 from BusinessLogic.Entities import DataFilter
@@ -45,7 +45,7 @@ class ChartBuilderBase:
             col = dfColIndex
         else:
             col = self.DataFrame.columns[dfColIndex]
-        
+
         df =self.DataFrame
 
         if op == '==':
@@ -61,18 +61,18 @@ class ChartBuilderBase:
 
         self.DataFrame = df
         #self.DataFrame = self.DataFrame[rowIndices]
-    
+
 
     def PrepareFigure(self,layoutConfig , traceArr):
-        
+
         if "margin" not in layoutConfig:
             margin=go.Margin(
                 l=150,
                 r=0,
-                b=10,
+                b=50,
                 t=50,
                 pad=4
-            )   
+            )
             layoutConfig["margin"] = margin
         layout = go.Layout( **layoutConfig)
         figure = go.Figure(data = traceArr , layout = layout)
@@ -113,13 +113,17 @@ class Chart(ChartBuilderBase):
             self.DataFrame.loc[self.DataFrame[self.Xcol] > quantiles[1], colorCol] = plotting["ColorSchemes"]["Blueiss"][2]
             self.DataFrame.loc[self.DataFrame[self.Xcol] > quantiles[2] , colorCol] = plotting["ColorSchemes"]["Blueiss"][3]
             self.DataFrame = self.DataFrame.sort_values(by=self.Xcol)
-            self.config['marker'] = dict(color = self.DataFrame[colorCol])
+
+            if 'marker' not in self.config:
+                self.config['marker'] = dict(color = self.DataFrame[colorCol])
+            else:
+                self.config['marker']['color'] = self.DataFrame[colorCol]
 
         except Exception as e:
             self.config['marker'] = dict(color =  plotting["ColorSchemes"]["Blueiss"][0])
             HandleException(e)
             pass
-        
+
     def SeparateLayoutConfig(self,config, xCol , yCol):
         if "layoutConfig" in config:
             layoutConfig = config["layoutConfig"]
@@ -137,8 +141,21 @@ class Chart(ChartBuilderBase):
 
         return layoutConfig
 
-    def GetChartTrace(self):    
+    def GetChartTrace(self):
         return [self.goType(x = self.DataFrame[self.Xcol].values , y = self.DataFrame[self.Ycol].values ,  **self.config)]
+
+
+class Scatter(Chart):
+
+    def __init__(self, goType, dataFrame , xCol , yCol , config):
+        self.Zcol = 'sizeBy'
+
+        super(Scatter, self).__init__(goType, dataFrame,xCol , yCol , config)
+
+    def GetChartTrace(self):
+        self.config['marker']['size'] = self.DataFrame[self.Zcol].tolist()
+        print(self.config['marker']['size'])
+        [self.goType(x=self.DataFrame[self.Xcol] , y=self.DataFrame[self.Ycol] ,**self.config)]
 
 class SingleAxisChart(Chart):
     def __init__(self,goType, dataFrame , col ,axis, config):
@@ -150,15 +167,15 @@ class SingleAxisChart(Chart):
                 t=50,
                 pad=4
             )
-            
+
         super(SingleAxisChart, self).__init__(goType, dataFrame,col , None , config)
         self.HandleChartSepecific()
-    
+
     def HandleChartSepecific(self):
         if self.goType == go.Histogram:
             bin = dict(start = self.DataFrame[self.Xcol].min() , end = self.DataFrame[self.Xcol].max() , size =self.DataFrame[self.Xcol].std()*self.DataFrame[self.Xcol].mean())
             self.config["{0}bin".format(self.axis)] = bin
-                
+
     def GetChartTrace(self):
         if self.axis == 'y':
             return [self.goType(y=self.DataFrame[self.Xcol])]
@@ -208,7 +225,7 @@ class Table():
         self.DataFrame = dataFrame
 
     def GetTableTrace(self):
-        df = self.DataFrame 
+        df = self.DataFrame
         values = [df[col] for i,col in enumerate(df.columns)]
         trace = go.Table(
             header=dict(values=df.columns,
@@ -219,7 +236,7 @@ class Table():
                align = ['left'] * 5))
 
         return trace
-    
+
     def GetChart(self):
         data = [self.GetTableTrace()]
 
@@ -237,7 +254,7 @@ class Table():
 def Plot(figure):
     return plot(figure, output_type='div' , config={'displayModeBar': False} , include_plotlyjs=False)
 
-def PopulationTransform(df):   
+def PopulationTransform(df):
      df["Population 2011"] = df["Population 2011"].astype(float)
      return df
 
@@ -272,7 +289,7 @@ def SharedXAxisLayout(chartArr,subplotTitles):
     return fig
 
 def SharedYAxisLayout(chartArr,subplotTitles):
-    
+
     fig = tools.make_subplots(rows=1, cols=len(chartArr), shared_xaxes=False, shared_yaxes=True  , subplot_titles=tuple(subplotTitles))
     for i,chart in enumerate(chartArr):
         fig.append_trace(chart,1,i+1)
@@ -280,7 +297,7 @@ def SharedYAxisLayout(chartArr,subplotTitles):
     return fig
 
 def SharedBothAxisLayout(chartArr,subplotTitles):
-    
+
     fig = tools.make_subplots(rows=1, cols=1, shared_xaxes=True, shared_yaxes=True  , subplot_titles=tuple(subplotTitles[0]))
     for i,chart in enumerate(chartArr):
         fig.append_trace(chart,1,1)
@@ -305,13 +322,14 @@ def SharedAxisBarCharts(chartArr , subplotTitles , chartTitle , sharedX , shared
 
 def UpdateSizeByColorByColumns(df,xCol , yCol ):
     sizeBy = (df[df.columns[xCol]].astype(float).values - df[df.columns[yCol]].astype(float).values)
-        
+
     colorBy = [ 'rgb(255, 144, 14)' if x < 0 else 'rgb(44, 160, 101)' for x in sizeBy]
 
     sizeBy = (sizeBy-sizeBy.mean())/sizeBy.std()
 
 
-    sizeBy = list(map(lambda x: abs(x)*50, sizeBy))
+    sizeBy = list(map(lambda x: abs(x)*20, sizeBy))
+    #print(sizeBy)
     df["sizeBy"] = sizeBy
     df["colorBy"] = colorBy
 
@@ -324,7 +342,7 @@ def GetScatterChart(filename,xCol , yCol , textCol,configBase):
     df,columns = GetDataFrame(filename)
     df = UpdateSizeByColorByColumns(df,xCol , yCol )
 
-    config = dict(mode ='markers+text' , text = df[df.columns[textCol]], marker = dict(size=  df["sizeBy"] , color = df["colorBy"], line = dict(width = 2,)))
+    config = dict(mode ='markers' , text = df[df.columns[textCol]], marker = dict(size=  df["sizeBy"].tolist() , color = df["colorBy"], line = dict(width = 2,)))
 
     for key in configBase:
         config[key] = configBase[key]
@@ -361,5 +379,3 @@ def GetFilterArrayFromArguments(filterArr):
             filters.append(DataFilter(colIndex , op , value))
 
     return filters
-
-    
