@@ -7,7 +7,7 @@ import re
 import locale
 from locale import atof
 from BusinessLogic.ExceptionHandling import HandleException
-import API.ApiOps as ApiOps
+
 
 def MakeTextSafe(value):
     value = str(value)
@@ -38,18 +38,9 @@ def GetColumnsFromFile(file):
     return [ f['label'] for f in jsonData['fields']]
 
 def GetFromIDFieldJson(jsonData):
-    try:
-        df = FileFormatJsonToDF(jsonData)
-    except:
-        df = ApiOps.APIFormatJsonToDF(jsonData)
-
-    return df
-
-def FileFormatJsonToDF(jsonData):
     columns = [ f['label'] for f in jsonData['fields']]
     data = jsonData['data']
     df = pd.DataFrame(data = data , columns = columns)
-    #print(df)
     return df
 
 def GetFromCSVLikeJson(jsonData):
@@ -61,7 +52,7 @@ def GetFromCSVLikeJson(jsonData):
 def GetStateColumnFromFile(filename):
     df,columns = GetDataFrame(filename)
     stateColumn = GetLocationColumn(df, isOnlyState=True)
-    #print(filename , stateColumn)
+    print(filename , stateColumn)
     if stateColumn == None:
         return 0
     return stateColumn[1]
@@ -102,6 +93,7 @@ def GetStateColumn(df , column):
         return column
     return None
 
+
 def DigitRatioInString(str):
     return len(re.findall("\d"))/len(str)
 
@@ -133,16 +125,12 @@ def GetJSONFromFileOrObj(file):
     return jsonData
 
 def GetDataFrameFromJson(file , transform = None):
-
     jsonData = GetJSONFromFileOrObj(file)
     #print(jsonData)
     try:
         df = GetFromIDFieldJson(jsonData)
     except:
         df = GetFromCSVLikeJson(jsonData)
-
-    df = TypeCheckColumns(df)
-
     if transform != None:
         df = transform(df)
 

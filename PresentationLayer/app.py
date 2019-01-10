@@ -1,7 +1,7 @@
 import sys, traceback , math
 
 from flask import Flask , Markup , render_template,redirect
-from flask import request,jsonify
+from flask import request
 
 from plotly.offline import plot
 from plotly.graph_objs import Scatter
@@ -12,8 +12,6 @@ from BusinessLogic.FileOps import *
 from PresentationLayer.Visualization.IndiaBasePlot import IndiaBasePlot
 from PresentationLayer.Visualization.ChartPlot import ChartPlot
 from PresentationLayer.Visualization.Dashboards import Dashboards
-from PresentationLayer.Visualization.APIPlot import APIPlot
-
 from BusinessLogic.Entities import NavItem
 
 
@@ -25,7 +23,6 @@ application = Flask(__name__ , static_folder="static", template_folder='Template
 application.register_blueprint(IndiaBasePlot ,url_prefix='/india')
 application.register_blueprint(ChartPlot ,url_prefix='/plot')
 application.register_blueprint(Dashboards ,url_prefix='/dashboards')
-application.register_blueprint(APIPlot, url_prefix="/APIPlot")
 
 application.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 application.config['TEMPLATES_AUTO_RELOAD'] = True
@@ -47,7 +44,6 @@ def add_header(r):
 @application.errorhandler(404)
 def Error404():
     return render_template('Errors/404.html'), 404
-
 
 @application.route("/")
 def index():
