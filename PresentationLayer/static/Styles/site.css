@@ -80,14 +80,14 @@ path.leaflet-interactive{
 }
 
 .filename {
-    
+
     justify-content: center;
     display: flex;
     background-color:#3ec8ac;
     color:white;
 }
 .leaflet-popup{
-    
+
 }
 
 .card-body{
@@ -123,6 +123,10 @@ height:95%;
     background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%2317a2b8' viewBox='0 0 8 8'%3E%3Cpath d='M2.75 0l-1.5 1.5 2.5 2.5-2.5 2.5 1.5 1.5 4-4-4-4z'/%3E%3C/svg%3E");
 }
 
+.dropdown-menu{
+  white-space: normal;
+}
+
 .dropdown-col:nth-child(odd) .dropdown-row:nth-child(even),
 .dropdown-col:nth-child(even) .dropdown-row:nth-child(odd){
     background-color:#f4f9f4;
@@ -155,7 +159,7 @@ height:95%;
         font-size: 1.5em;
     }
     svg text {
-        
+
     }
 
     svg .infolayer text {

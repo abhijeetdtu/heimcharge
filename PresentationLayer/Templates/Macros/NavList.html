@@ -1,0 +1,26 @@
+{% macro input(title, links, openInDiv="") -%}
+
+<div class="col-md-12">
+  <ul class="nav flex-column">
+    {% for name,href in links%}
+    <li class="nav-item">
+      <p class="nav-link btn btn-secondary" onclick="NavOnClick('{{ href }}')" href="#">{{ name }}</p>
+    </li>
+    {% endfor %}
+  </ul>
+</div>
+
+
+<script>
+    function NavOnClick(href){
+        divSelector = "{{openInDiv}}"
+        if(divSelector == ""){
+          window.location.href = href
+        }
+        else{
+          App.OpenLinkInDiv(href , divSelector)
+        }
+    }
+</script>
+
+{%- endmacro %}
