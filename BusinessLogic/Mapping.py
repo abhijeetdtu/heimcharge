@@ -357,15 +357,15 @@ def GetScatterChart(filename,xCol , yCol , textCol,configBase):
         config[key] = configBase[key]
 
     #print(config)
-    return Chart(go.Scatter,df , df.columns[xCol] ,  df.columns[yCol] , config)
+    return Chart("Scatter",df , df.columns[xCol] ,  df.columns[yCol] , config)
 
 def GetChartHTML(filename , xAxis , yAxis ,xaxisPlot='x1', yaxisPlot = 'y1'):
     df,columns = GetDataFrame(filename)
-    return Chart(go.Bar , df , columns[xAxis] , columns[yAxis]  , dict(xaxis = xaxisPlot , yaxis = yaxisPlot)).GetChartHTML()
+    return Chart("Bar" , df , columns[xAxis] , columns[yAxis]  , dict(xaxis = xaxisPlot , yaxis = yaxisPlot)).GetChartHTML()
 
 def GetChartTrace(filename , xAxis , yAxis ,xaxisPlot='x1', yaxisPlot = 'y1'):
     df,columns = GetDataFrame(filename)
-    return Chart(go.Bar , df , columns[xAxis] , columns[yAxis]   , dict(xaxis = xaxisPlot , yaxis = yaxisPlot)).GetChartTrace()[0]
+    return Chart("Bar" , df , columns[xAxis] , columns[yAxis]   , dict(xaxis = xaxisPlot , yaxis = yaxisPlot)).GetChartTrace()[0]
 
 def GetConfig(request):
     config = dict(locked = dict())

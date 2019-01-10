@@ -16,7 +16,7 @@ def index():
     try:
         df,columns = GetDataFrame("stateWisePopulation")
         config = {}
-        chart = Chart(getattr(go , "Scatter"),df , df.columns[1] ,  df.columns[2] , config)
+        chart = Chart("Scatter",df , df.columns[1] ,  df.columns[2] , config)
         return render_template('FilePlot.html' , bar_charts = [chart.GetChartHTML()])
 
     except Exception as e:
@@ -37,7 +37,7 @@ def plot(plotName,filename,xCol , yCol):
         df,columns = GetDataFrame(filename)
         config = request.form
 
-        chart = Chart(getattr(go , plotName),df , df.columns[xCol] ,  df.columns[yCol] , config)
+        chart = Chart(plotName,df , df.columns[xCol] ,  df.columns[yCol] , config)
         return SetupParamsAndReturnFilePlot("FilePlot",request ,[chart.GetChartHTML()])
 
     except Exception as e:
