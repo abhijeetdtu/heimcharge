@@ -1,0 +1,14 @@
+{% extends "_layout.html" %}
+
+{% import 'Macros/NavList.html' as Nav %}
+
+{% block content %}
+
+<div class="row">
+  <div class="col-md-2">
+    {{ Nav.input("hello", links , "#APIViewBox") }}
+  </div>
+  <div class="col-md-10" id="APIViewBox">
+  </div>
+</div>
+{% endblock %}

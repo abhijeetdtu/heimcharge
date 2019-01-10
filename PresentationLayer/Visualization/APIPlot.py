@@ -1,4 +1,4 @@
-from flask import Blueprint,render_template , Markup ,request , jsonify
+from flask import Blueprint,render_template , Markup ,request , jsonify,url_for
 from jinja2 import TemplateNotFound
 import json
 
@@ -35,6 +35,11 @@ def GetParams(request , xy , df):
             y = df.columns[1]
     return x,y,isHorizontal
 
+@APIPlot.route("/landing" , methods=["GET"])
+def landing():
+    links = [(link , url_for("APIPlot.plot" , resourceName= link , chartType= "bar" , returnPartial=True))  for link in  RT.GetAllAvailableResources()]
+    return SetupParamsAndReturnTemplate("APIPlot/Landing" , request , dict(links = links))
+
 @APIPlot.route("/<string:resourceName>/<string:chartType>" , methods=["GET" , "POST"])
 @APIPlot.route("/<string:resourceName>/<string:chartType>/<string:xy>" , methods=["GET" , "POST"])
 @APIPlot.route("/<string:resourceName>/<string:chartType>/<string:xy>/<string:filters>/", methods=["GET" , "POST"])
@@ -47,7 +52,10 @@ def plot(resourceName ,chartType,xy=None, filters=None):
 
     df = RT.Get(resourceName, filters)
 
-    url = Helpers.GetPathPrefix(request , f"/{resourceName}/{chartType}") + f"/{resourceName}/{chartType}"
+    baseUrl = url_for("APIPlot.plot" , resourceName="" , chartType="").strip("/")
+    url = url_for("APIPlot.plot" , resourceName = resourceName , chartType = chartType)
+    print(url)
+    #url = Helpers.GetPathPrefix(request , f"/{resourceName}/{chartType}") + f"/{resourceName}/{chartType}"
 
     exampleDic = json.loads(df.head(1).to_json(orient='records'))[0]
     js = json.dumps(json.loads(df.head(1).to_json(orient='records')) , indent=4 , sort_keys=True)
@@ -56,7 +64,7 @@ def plot(resourceName ,chartType,xy=None, filters=None):
     config['orientation'] = isHorizontal
     #barChart = Markup(BarChart(df , x , y  , 'h'))
     barChart = Chart(chartType,df ,x , y , config).GetChartHTML()
-    return SetupParamsAndReturnTemplate("ApiPlot",request , {"barChart":barChart , "json":js , "exampleDic":exampleDic})
+    return SetupParamsAndReturnTemplate("ApiPlot",request , {"barChart":barChart , "json":js ,"resourceName":resourceName,"chartType" :chartType, "exampleDic":exampleDic , "url":baseUrl})
 
 
 

@@ -64,3 +64,7 @@ class Rest:
         df = Ops.GetDataFrameFromJson(Rest.GetJsonFromName(resourceName ,limit=2, filters=filters))
         print(df)
         return df
+
+    @staticmethod
+    def GetAllAvailableResources():
+        return [k for k,v in Rest.ResourceKeys.items()]
