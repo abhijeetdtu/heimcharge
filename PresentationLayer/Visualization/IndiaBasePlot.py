@@ -19,7 +19,7 @@ IndiaBasePlot = Blueprint('IndiaBasePlot', __name__,template_folder='templates')
 @IndiaBasePlot.route('/')
 def show():
     try:
-
+        
         dataFile = files["StateWisePop"]
         df = GetDataFrameFromJson(dataFile , PopulationTransform)
 
@@ -29,7 +29,7 @@ def show():
 
         barCharts = [Markup(BarChart(df , column , columns[0]  , 'h')) for column in list(df.columns) if column != columns[0]]
 
-
+        
         return render_template('BaseMap.html' ,map = m, bar_charts = barCharts)
 
     except TemplateNotFound:
@@ -41,8 +41,8 @@ def plotFile(filename , xAxisIndex):
     try:
         df,columns = GetDataFrame(filename)
         config = dict(orientation='h' )
-        barCharts = [Chart("Bar",df , column ,  columns[xAxisIndex], config) for column in columns if column != columns[xAxisIndex]]
-
+        barCharts = [Chart(getattr(go , "Bar"),df , column ,  columns[xAxisIndex], config) for column in columns if column != columns[xAxisIndex]]
+        
         return render_template('FilePlot.html' , bar_charts = barCharts)
 
     except TemplateNotFound:
@@ -53,7 +53,7 @@ def plotFile(filename , xAxisIndex):
 @IndiaBasePlot.route('/plotFileWithMap/<string:filename>/<int:xAxisIndex>/<int:yAxisForMap>')
 def plotFileWithMap(filename , xAxisIndex,  yAxisForMap):
     try:
-
+        
         df,columns = GetDataFrame(filename)
         config = GetConfig(request)
         config["orientation"]='h'
@@ -62,24 +62,24 @@ def plotFileWithMap(filename , xAxisIndex,  yAxisForMap):
         if "autoFitColumnIndex" in request.args and request.args["autoFitColumnIndex"] == "true":
             if yAxisForMap >= len(columns):
                 yAxisForMap = len(columns)-1
-
+                
         colorBy = columns[yAxisForMap]
         df[colorBy] = df[colorBy].apply(ExtractNumbers)
         df[columns[xAxisIndex]] = df[columns[xAxisIndex]].apply(MakeTextSafe)
         m = IndiaMap(df ,colorBy, [columns[xAxisIndex] , columns[yAxisForMap]])
-
-        boxPlot = SingleAxisChart("Box" , df,colorBy ,'x', copy.deepcopy(config)).GetChartHTML()
-        histoPlot = SingleAxisChart("Histogram" , df,colorBy ,'x', copy.deepcopy(config)).GetChartHTML()
-        barCharts = [Chart("Bar",df , column ,  columns[xAxisIndex], copy.deepcopy(config)).GetChartHTML() for column in columns if column != columns[xAxisIndex]]
-        sideChart = Chart("Bar",df , colorBy ,  columns[xAxisIndex],  copy.deepcopy(config)).GetChartHTML()
+        
+        boxPlot = SingleAxisChart(go.Box , df,colorBy ,'x', copy.deepcopy(config)).GetChartHTML()
+        histoPlot = SingleAxisChart(go.Histogram , df,colorBy ,'x', copy.deepcopy(config)).GetChartHTML()
+        barCharts = [Chart(getattr(go , "Bar"),df , column ,  columns[xAxisIndex], copy.deepcopy(config)).GetChartHTML() for column in columns if column != columns[xAxisIndex]]
+        sideChart = Chart(getattr(go , "Bar"),df , colorBy ,  columns[xAxisIndex],  copy.deepcopy(config)).GetChartHTML()
 
         prefix = request.path[:request.path.find("/plotFileWithMap")]
         viewParams = dict(filename = ConvertFileNameToMeaningful(filename),
-
-                          map=m ,
+                          
+                          map=m , 
                           carousal = [histoPlot , boxPlot],
-                          bar_charts = barCharts ,
-                          side_chart = sideChart ,
+                          bar_charts = barCharts , 
+                          side_chart = sideChart , 
                           endpoint='{0}/plotFileWithMap/{1}/{2}/#YAXIS'.format(prefix , filename,xAxisIndex)
                           )
         return render_template('BaseMap.html' , **viewParams)
@@ -90,7 +90,7 @@ def plotFileWithMap(filename , xAxisIndex,  yAxisForMap):
 @IndiaBasePlot.route('/plotTogether/<string:filename>/<int:xAxisIndex>/<int:chartA>/<int:chartB>/<int:sharedX>/<int:sharedY>')
 def plotTogether(filename , xAxisIndex , chartA , chartB , sharedX , sharedY):
     try:
-
+        
         if sharedX == 1:
             sharedX = True
         else:
@@ -117,7 +117,7 @@ def plotTogether(filename , xAxisIndex , chartA , chartB , sharedX , sharedY):
 @IndiaBasePlot.route('/getproperties')
 def getproperties():
     try:
-
+        
         allAvailable = []
 
         for filename in files:
