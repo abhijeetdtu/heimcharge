@@ -94,12 +94,21 @@ class ChartBuilderBase:
 
 class Chart(ChartBuilderBase):
 
+    def GetGoType(self,goType):
+        if goType.lower() == "bar":
+            return "Bar"
+        if goType.lower() == "scatter":
+            return "Scatter"
+        if goType.lower() == "pie":
+            return "Pie"
+        return goType
+
     def __init__(self, goType, dataFrame , xCol , yCol , config):
 
         layoutConfig = self.SeparateLayoutConfig(config, xCol , yCol )
         self.Xcol =xCol
         self.Ycol = yCol
-        self.goType = goType
+        self.goType = getattr(go , self.GetGoType(goType))
         self.config = config
 
         super(Chart, self).__init__(dataFrame,layoutConfig)
