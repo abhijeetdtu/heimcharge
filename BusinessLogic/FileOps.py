@@ -49,7 +49,7 @@ def FileFormatJsonToDF(jsonData):
     columns = [ f['label'] for f in jsonData['fields']]
     data = jsonData['data']
     df = pd.DataFrame(data = data , columns = columns)
-    print(df)
+    #print(df)
     return df
 
 def GetFromCSVLikeJson(jsonData):
@@ -61,7 +61,7 @@ def GetFromCSVLikeJson(jsonData):
 def GetStateColumnFromFile(filename):
     df,columns = GetDataFrame(filename)
     stateColumn = GetLocationColumn(df, isOnlyState=True)
-    print(filename , stateColumn)
+    #print(filename , stateColumn)
     if stateColumn == None:
         return 0
     return stateColumn[1]
@@ -104,7 +104,7 @@ def GetStateColumn(df , column):
 
 def DigitRatioInString(str):
     return len(re.findall("\d"))/len(str)
-    
+
 def TypeCheckColumns(df):
 
      stateColumn = GetLocationColumn(df , isOnlyState=True)
@@ -135,7 +135,7 @@ def GetJSONFromFileOrObj(file):
 def GetDataFrameFromJson(file , transform = None):
 
     jsonData = GetJSONFromFileOrObj(file)
-    print(jsonData)
+    #print(jsonData)
     try:
         df = GetFromIDFieldJson(jsonData)
     except:
