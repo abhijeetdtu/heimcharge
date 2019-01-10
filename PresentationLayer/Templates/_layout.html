@@ -1,4 +1,4 @@
-<html>
+  <html>
 
 <head>
     <link rel="stylesheet" href="{{  url_for('static', filename='Styles/Vendor/bootstrap.min.css') }}" />
@@ -22,7 +22,7 @@
 
     <div class="container-fluid">
         <nav class="navbar navbar-light">
-            <a class="navbar-brand global" href="#">
+            <a class="navbar-brand global" href="/">
                 <img src="{{ url_for('static', filename='Images/Logo_pokhi.png') }}" width="60" height="30" alt="">
                 |<i>HeimCharge</i>
             </a>
@@ -31,6 +31,6 @@
         {% block content%}
         {% endblock %}
     </div>
-    
+
 </body>
 </html>

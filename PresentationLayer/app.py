@@ -50,7 +50,7 @@ def Error404():
 
 
 @application.route("/")
-def hello():
+def index():
     try:
         files = GetStateWiseFileList('json')
         navItems = [ NavItem(ConvertFileNameToMeaningful(file) , '/india/plotFileWithMap/{0}/{1}/3?autoFitColumnIndex=true'.format(file.replace(".json", "") , GetStateColumnFromFile(file.replace(".json", "")))) for file in files]

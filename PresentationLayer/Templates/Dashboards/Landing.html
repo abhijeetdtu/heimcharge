@@ -1,0 +1,16 @@
+{% extends "_layout.html" %}
+
+
+{% block content %}
+
+<nav class="navbar bg-light">
+  <ul class="navbar-nav">
+    {% for dashboard_link in dashboard_links %}
+        <li class="nav-item">
+          <a class="nav-link btn btn-default" href="{{ dashboard_link }}">{{ dashboard_link }} </a>
+        </li>
+    {% endfor %}
+  </ul>
+</nav>
+
+{% endblock %}

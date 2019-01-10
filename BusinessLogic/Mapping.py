@@ -69,7 +69,7 @@ class ChartBuilderBase:
             margin=go.Margin(
                 l=150,
                 r=0,
-                b=10,
+                b=50,
                 t=50,
                 pad=4
             )
@@ -122,7 +122,11 @@ class Chart(ChartBuilderBase):
             self.DataFrame.loc[self.DataFrame[self.Xcol] > quantiles[1], colorCol] = plotting["ColorSchemes"]["Blueiss"][2]
             self.DataFrame.loc[self.DataFrame[self.Xcol] > quantiles[2] , colorCol] = plotting["ColorSchemes"]["Blueiss"][3]
             self.DataFrame = self.DataFrame.sort_values(by=self.Xcol)
-            self.config['marker'] = dict(color = self.DataFrame[colorCol])
+
+            if 'marker' not in self.config:
+                self.config['marker'] = dict(color = self.DataFrame[colorCol])
+            else:
+                self.config['marker']['color'] = self.DataFrame[colorCol]
 
         except Exception as e:
             self.config['marker'] = dict(color =  plotting["ColorSchemes"]["Blueiss"][0])
@@ -148,6 +152,19 @@ class Chart(ChartBuilderBase):
 
     def GetChartTrace(self):
         return [self.goType(x = self.DataFrame[self.Xcol].values , y = self.DataFrame[self.Ycol].values ,  **self.config)]
+
+
+class Scatter(Chart):
+
+    def __init__(self, goType, dataFrame , xCol , yCol , config):
+        self.Zcol = 'sizeBy'
+
+        super(Scatter, self).__init__(goType, dataFrame,xCol , yCol , config)
+
+    def GetChartTrace(self):
+        self.config['marker']['size'] = self.DataFrame[self.Zcol].tolist()
+        print(self.config['marker']['size'])
+        [self.goType(x=self.DataFrame[self.Xcol] , y=self.DataFrame[self.Ycol] ,**self.config)]
 
 class SingleAxisChart(Chart):
     def __init__(self,goType, dataFrame , col ,axis, config):
@@ -320,7 +337,8 @@ def UpdateSizeByColorByColumns(df,xCol , yCol ):
     sizeBy = (sizeBy-sizeBy.mean())/sizeBy.std()
 
 
-    sizeBy = list(map(lambda x: abs(x)*50, sizeBy))
+    sizeBy = list(map(lambda x: abs(x)*20, sizeBy))
+    #print(sizeBy)
     df["sizeBy"] = sizeBy
     df["colorBy"] = colorBy
 
@@ -333,7 +351,7 @@ def GetScatterChart(filename,xCol , yCol , textCol,configBase):
     df,columns = GetDataFrame(filename)
     df = UpdateSizeByColorByColumns(df,xCol , yCol )
 
-    config = dict(mode ='markers+text' , text = df[df.columns[textCol]], marker = dict(size=  df["sizeBy"] , color = df["colorBy"], line = dict(width = 2,)))
+    config = dict(mode ='markers' , text = df[df.columns[textCol]], marker = dict(size=  df["sizeBy"].tolist() , color = df["colorBy"], line = dict(width = 2,)))
 
     for key in configBase:
         config[key] = configBase[key]
