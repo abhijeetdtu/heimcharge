@@ -16,7 +16,7 @@ api_base_config = {}
 api_base_config["layoutConfig"] = dict(xaxis = dict(side = 'top'))
 api_base_config["orientation"]='h'
 
-def GetParams(request , xy , df):
+def GetParams(request , xy ,isHorizontalFromGet, df):
     method = request.method
     isHorizontal = 'v'
     if method == "POST":
@@ -28,8 +28,17 @@ def GetParams(request , xy , df):
             isHorizontal = 'h'
 
     else:
+        if isHorizontalFromGet:
+            isHorizontal = 'h'
+
         if xy:
             x,y = xy.split(",")
+            try:
+                x = df.columns[int(x)]
+                y = df.columns[int(y)]
+
+            except:
+                pass
         else:
             x = df.columns[0]
             y = df.columns[1]
@@ -42,8 +51,10 @@ def landing():
 
 @APIPlot.route("/<string:resourceName>/<string:chartType>" , methods=["GET" , "POST"])
 @APIPlot.route("/<string:resourceName>/<string:chartType>/<string:xy>" , methods=["GET" , "POST"])
-@APIPlot.route("/<string:resourceName>/<string:chartType>/<string:xy>/<string:filters>/", methods=["GET" , "POST"])
-def plot(resourceName ,chartType,xy=None, filters=None):
+@APIPlot.route("/<string:resourceName>/<string:chartType>/<string:xy>/<string:isHorizontal>", methods=["GET" , "POST"])
+@APIPlot.route("/<string:resourceName>/<string:chartType>/<string:xy>/<string:isHorizontal>/<string:filters>", methods=["GET" , "POST"])
+def plot(resourceName ,chartType,xy=None,isHorizontal='False', filters=None):
+    isHorizontal = bool(isHorizontal)
     if filters:
         filters = json.loads(filters)
 
@@ -60,7 +71,7 @@ def plot(resourceName ,chartType,xy=None, filters=None):
     exampleDic = json.loads(df.head(1).to_json(orient='records'))[0]
     js = json.dumps(json.loads(df.head(1).to_json(orient='records')) , indent=4 , sort_keys=True)
 
-    x,y,isHorizontal = GetParams(request , xy,df)
+    x,y,isHorizontal = GetParams(request , xy,isHorizontal,df)
     config['orientation'] = isHorizontal
     #barChart = Markup(BarChart(df , x , y  , 'h'))
     barChart = Chart(chartType,df ,x , y , config).GetChartHTML()

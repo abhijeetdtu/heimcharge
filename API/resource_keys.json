@@ -11,6 +11,13 @@
   "LifeSavingDrugs":"26a686fb-eff5-4b33-b5e9-7dd6f41fb870",
   "CrimeByForeingers":"d58505c6-15c3-40fe-a73f-abdcc34487c1",
   "StateRoadLength":"6f25cce4-6da3-4b67-9ed8-3bd9340d3a6d",
-  "StateRoadAccidents":"2bb75482-a1bb-4bac-9604-4d4cbfa55f93"
+  "StateRoadAccidents":"2bb75482-a1bb-4bac-9604-4d4cbfa55f93",
+  "CumulativePersonDaysRural" : "2f84f506-2710-4e0a-b9eb-c22a521b9f2f",
+  "RuralInstitutionsElectrification" : "3bf20601-dfcb-4538-a598-39ea2ebf8b96",
+  "RuralInstitutions":"f4b7e9f5-75cd-4698-83ae-d6185536d210",
+  "AvgDaysEmploymentUnderMGNREGA" : "51a18f1b-c3a8-45fb-82fb-cd884d1c2650",
+  "ApprovedTourProviders":"6345e503-4eec-4f14-a3a7-ba2858c26615",
+  "AviationCityWisePassengers":"379b2ff4-3d2b-425a-a0ae-8112db5aae57",
+  "TelcomTrafficPattern":"50cbcca3-9982-4f79-89c7-92ca9ae30c1d"
 
 }

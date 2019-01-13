@@ -32,7 +32,7 @@ class Rest:
             limit = 50
 
         while True:
-            js = Rest.GetJsonFromId(resourceId , type=type,offset=offset , limit=10 ,filters = filters)
+            js = Rest.GetJsonFromId(resourceId , type=type,offset=offset , limit=limit ,filters = filters)
             if offset > limit or prev == json.dumps(js):
                 break
             prev = json.dumps(js)
@@ -51,7 +51,7 @@ class Rest:
         url += Rest.FilterDictToQueryParam(filters)
 
 
-        print(url)
+        ###print(url)
         return requests.get(url).json()
 
     @staticmethod
@@ -61,8 +61,8 @@ class Rest:
     @staticmethod
     def Get(resourceName , filters):
         resourceName = resourceName.lower()
-        df = Ops.GetDataFrameFromJson(Rest.GetJsonFromName(resourceName ,limit=2, filters=filters))
-        print(df)
+        df = Ops.GetDataFrameFromJson(Rest.GetJsonFromName(resourceName ,limit=50, filters=filters))
+        #print(df)
         return df
 
     @staticmethod

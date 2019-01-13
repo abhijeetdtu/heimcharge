@@ -163,7 +163,7 @@ class Scatter(Chart):
 
     def GetChartTrace(self):
         self.config['marker']['size'] = self.DataFrame[self.Zcol].tolist()
-        print(self.config['marker']['size'])
+        #print(self.config['marker']['size'])
         [self.goType(x=self.DataFrame[self.Xcol] , y=self.DataFrame[self.Ycol] ,**self.config)]
 
 class SingleAxisChart(Chart):

@@ -5,6 +5,7 @@ from BusinessLogic.Entities import *
 from BusinessLogic.Mapping import *
 from BusinessLogic.FileOps import *
 from BusinessLogic.ExceptionHandling import *
+from API.RestBase import Rest as RT
 import os,re
 from config import files
 import sys , traceback
@@ -30,6 +31,22 @@ def SetupParamsAndReturnTemplate(template , request , params):
 def SetupParamsAndReturnFilePlot(template , request  , bar_charts):
     returnPartial = (request.args.get('returnPartial') or None) == 'True'
     return render_template(f'{template}.html' ,returnPartial = returnPartial, bar_charts = bar_charts)
+
+
+@ChartPlot.route("/api/<string:plotName>/<string:resourceName>/<int:xCol>/<int:yCol>/<string:isHorizontal>" , methods = ['GET' , 'POST'])
+def apiplot(plotName,resourceName,xCol , yCol,isHorizontal):
+    try:
+        print("hit the endpoint")
+        df = RT.Get(resourceName, {})
+        config = request.form or {}
+        config['orientation'] = isHorizontal
+
+        #print(config)
+        chart = Chart(plotName,df , df.columns[xCol] ,  df.columns[yCol] , config)
+        return SetupParamsAndReturnFilePlot("FilePlot",request ,[chart.GetChartHTML()])
+
+    except Exception as e:
+        return HandleException(e)
 
 @ChartPlot.route("/chart/<string:plotName>/<string:filename>/<int:xCol>/<int:yCol>" , methods = ['GET' , 'POST'])
 def plot(plotName,filename,xCol , yCol):
