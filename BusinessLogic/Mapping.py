@@ -123,9 +123,17 @@ class Chart(ChartBuilderBase):
             self.DataFrame.loc[self.DataFrame[self.Xcol] > quantiles[2] , colorCol] = plotting["ColorSchemes"]["Blueiss"][3]
             self.DataFrame = self.DataFrame.sort_values(by=self.Xcol)
 
+            if 'text' in self.config:
+                self.config['text'] = self.DataFrame[self.config['text']]
+
+
             if 'marker' not in self.config:
                 self.config['marker'] = dict(color = self.DataFrame[colorCol])
             else:
+                if 'size' in self.config['marker'] :
+                    sizeBy =  self.DataFrame[self.config['marker']['size']]
+                    normalized_size = 10*(((sizeBy-sizeBy.mean())/sizeBy.std()) + 3)
+                    self.config['marker']['size'] = normalized_size
                 self.config['marker']['color'] = self.DataFrame[colorCol]
 
         except Exception as e:
@@ -351,7 +359,7 @@ def GetScatterChart(filename,xCol , yCol , textCol,configBase):
     df,columns = GetDataFrame(filename)
     df = UpdateSizeByColorByColumns(df,xCol , yCol )
 
-    config = dict(mode ='markers' , text = df[df.columns[textCol]], marker = dict(size=  df["sizeBy"].tolist() , color = df["colorBy"], line = dict(width = 2,)))
+    config = dict(mode ='markers' , text = textCol, marker = dict(size=  df["sizeBy"].tolist() , color = df["colorBy"], line = dict(width = 2,)))
 
     for key in configBase:
         config[key] = configBase[key]

@@ -13,7 +13,7 @@ Dashboards = Blueprint('Dashboards', __name__)
 @Dashboards.route('/')
 def importantDashboards():
     try:
-        dashboards= [ url_for('Dashboards.tourists') , url_for('Dashboards.mutualFunds')  , url_for('Dashboards.civilAviation') ]
+        dashboards= [ url_for('Dashboards.tourists') , url_for('Dashboards.mutualFunds')  , url_for('Dashboards.civilAviation')   , url_for('Dashboards.stateliteracy') ]
 
         return render_template('Dashboards/Landing.html' ,dashboard_links = dashboards)
 
@@ -52,6 +52,17 @@ def civilAviation():
 
         dashboards = [url_for("ChartPlot.apiplot" ,plotName= "bar" , resourceName = "aviationcitywisepassengers" , xCol = "4" , yCol = "1" ,isHorizontal = "h" , returnPartial="True") ]
 
+        return render_template('Dashboards/Base.html' ,dashboard_links = dashboards)
+
+    except TemplateNotFound:
+        abort(404)
+
+@Dashboards.route("/stateliteracy")
+def stateliteracy():
+
+    try:
+
+        dashboards = [url_for("ChartPlot.scatterSize" ,resourceName = "stateliteracy" , xCol = "4" , yCol = "7" ,sizeCol="7" , textCol=0 , returnPartial="True") ]
         return render_template('Dashboards/Base.html' ,dashboard_links = dashboards)
 
     except TemplateNotFound:

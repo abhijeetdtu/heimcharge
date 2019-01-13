@@ -6,6 +6,7 @@ import re
 
 import locale
 from locale import atof
+from API.RestBase import Rest as RT
 from BusinessLogic.ExceptionHandling import HandleException
 import API.ApiOps as ApiOps
 
@@ -156,6 +157,12 @@ def ColumnCleanup(df):
     return df
 
 def GetDataFrame(filename):
+
+    if filename in RT.GetAllAvailableResources():
+        print(filename)
+        df = RT.Get(filename , {})
+        return [df,df.columns]
+
     dataFile = os.path.abspath(os.path.join("Data" , filename+".json"))
     df = GetDataFrameFromJson(dataFile)
 

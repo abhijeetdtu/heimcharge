@@ -78,6 +78,24 @@ def scatter( filename,xCol , yCol , textCol):
     except Exception as e:
         return HandleException(e)
 
+@ChartPlot.route("/scattersize/<string:resourceName>/<int:xCol>/<int:yCol>/<int:sizeCol>/<int:textCol>")
+def scatterSize( resourceName,xCol , yCol ,sizeCol,textCol):
+    try:
+        configBase = GetConfig(request)
+        df = RT.Get(resourceName, {})
+
+
+        config = dict(mode ='markers' , text = df.columns[textCol], marker = dict(size=  df.columns[sizeCol] , line = dict(width = 2,)))
+        print(df.columns)
+        for key in configBase:
+            config[key] = configBase[key]
+
+        chart = Chart("Scatter",df , df.columns[xCol] ,  df.columns[yCol] , config)
+        return SetupParamsAndReturnFilePlot("FilePlot",request ,[chart.GetChartHTML()])
+
+    except Exception as e:
+        return HandleException(e)
+
 @ChartPlot.route("/stacked/<string:filename>/<int:yCol>/<string:commaSeparatedColumns>")
 def stacked(filename,yCol,commaSeparatedColumns):
     try:
