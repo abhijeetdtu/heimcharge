@@ -114,13 +114,17 @@ class Chart(ChartBuilderBase):
         super(Chart, self).__init__(dataFrame,layoutConfig)
 
         try:
+
+            print(self.DataFrame[xCol].head())
             quantiles = self.DataFrame[xCol].quantile([0.25 , 0.5 , 0.75 , 1]).values
 
             colorCol = 'MarkerColor' + xCol
-            self.DataFrame[colorCol] = plotting["ColorSchemes"]["Blueiss"][0]
-            self.DataFrame.loc[self.DataFrame[self.Xcol] > quantiles[0], colorCol] = plotting["ColorSchemes"]["Blueiss"][1]
-            self.DataFrame.loc[self.DataFrame[self.Xcol] > quantiles[1], colorCol] = plotting["ColorSchemes"]["Blueiss"][2]
-            self.DataFrame.loc[self.DataFrame[self.Xcol] > quantiles[2] , colorCol] = plotting["ColorSchemes"]["Blueiss"][3]
+            print(plotting)
+            selectedScheme = plotting["SelectedScheme"]
+            self.DataFrame[colorCol] = plotting["ColorSchemes"][selectedScheme][0]
+            self.DataFrame.loc[self.DataFrame[self.Xcol] > quantiles[0], colorCol] = plotting["ColorSchemes"][selectedScheme][1]
+            self.DataFrame.loc[self.DataFrame[self.Xcol] > quantiles[1], colorCol] = plotting["ColorSchemes"][selectedScheme][2]
+            self.DataFrame.loc[self.DataFrame[self.Xcol] > quantiles[2] , colorCol] = plotting["ColorSchemes"][selectedScheme][3]
             self.DataFrame = self.DataFrame.sort_values(by=self.Xcol)
 
             if 'text' in self.config:

@@ -1,6 +1,7 @@
 import os
 import json
 import pandas as pd
+from pandas.api.types import is_string_dtype,is_numeric_dtype
 import numpy as np
 import re
 
@@ -14,3 +15,14 @@ def APIFormatJsonToDF(jsonData):
     df = pd.DataFrame(data = data , columns = columns)
     #print(data ,df,columns)
     return df
+
+
+def FindColumns(dataframe):
+    x,y = "" , ""
+    for column in dataframe.columns:
+        if is_string_dtype(dataframe[column]):
+            y = column
+        if is_numeric_dtype(dataframe[column]):
+            x = column
+
+    return x,y

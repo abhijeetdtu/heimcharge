@@ -1,6 +1,7 @@
 import os
 import json
 import pandas as pd
+from pandas.api.types import is_string_dtype
 import numpy as np
 import re
 

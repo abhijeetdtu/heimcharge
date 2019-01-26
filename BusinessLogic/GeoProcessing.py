@@ -48,7 +48,7 @@ def GetLocationValue(df , locationCol ,location , valueCol):
     return value
 
 def CreatePopupCluster(markerArr):
-    
+
     marker_cluster = MarkerCluster(
         name='1000 clustered icons',
         overlay=True,
@@ -61,22 +61,30 @@ def CreatePopupCluster(markerArr):
     return marker_cluster
 
 def GetSizeAndColor(type ,value ,mean, max , min):
-    max_min = (max-min)
-    if(type == 'simple'):
-        size = 15 + 30*value
-        color = 'red'
-    if(type == 'deviationFromMean'):
-        size = 15 +  (30*abs(value-mean)/(max_min+1))
-        if(value-mean > 0):
-            color = 'red'
-        else:
-            color = 'green'
-    
-    return [size , color]
+    print(plotting)
+    selectedScheme = plotting["SelectedScheme"]
+    colorA = plotting["ColorSchemes"][selectedScheme][0]
+    colorB = plotting["ColorSchemes"][selectedScheme][-2]
+    try:
+        max_min = (max-min)
+        if(type == 'simple'):
+            size = 15 + 30*value
+            color = colorA
+        if(type == 'deviationFromMean'):
+            size = 15 +  (30*abs(value-mean)/(max_min+1))
+            if(value-mean > 0):
+                color = colorA
+            else:
+                color = colorB
+
+        return [size , color]
+    except Exception as e:
+        print(e)
+        return [10 , colorA]
 
 def CreateIndividualPopups(df , locationCol , colorBy , drawingType):
     markers = []
-    
+
     max = df[colorBy].max()
     min = df[colorBy].min()
     mean = df[colorBy].mean()
@@ -89,9 +97,9 @@ def CreateIndividualPopups(df , locationCol , colorBy , drawingType):
         markers.append(folium.CircleMarker(color="rgba(255,255,255,0)",
                                            fill=True,
                                            fill_color=color,
-                                           fill_opacity=0.3, 
-                                           radius=size, 
-                                           location= latLong, 
+                                           fill_opacity=0.8,
+                                           radius=size,
+                                           location= latLong,
                                            popup=popUp , ))
 
     return markers
@@ -111,7 +119,7 @@ def IndiaMap(df ,colorBy, columns):
     m = folium.Map(location=[plotting["India"]["Center"]["Lat"], plotting["India"]["Center"]["Long"]]
                     , zoom_start=plotting["DefaultZoom"]
                     , tiles='cartodbpositron')
-    
+
     threshold_scale = split_six(df[colorBy])
     m.choropleth(
             geo_data=state_geo,
@@ -124,7 +132,7 @@ def IndiaMap(df ,colorBy, columns):
             line_opacity=0.2,
             threshold_scale=threshold_scale,
             legend_name=colorBy
-            
+
     )
 
 
@@ -135,4 +143,3 @@ def IndiaMap(df ,colorBy, columns):
     folium.LayerControl().add_to(m)
 
     return IndiaMapModel(colorBy ,  'Sized By Deviation From Mean : {0}<br/> Green < Mean <br/> Red > Mean'.format(df[colorBy].mean()) , m)
-

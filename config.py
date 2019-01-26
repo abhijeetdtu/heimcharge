@@ -11,10 +11,12 @@ files = {
     "StateWisePop" : os.path.abspath(os.path.join("Data" , "stateWisePopulation.json")),
     "LanguageWiseMovies" : os.path.abspath(os.path.join("Data" , "LanguageWiseMovies.json"))
     }
-plotting = { "India" : { "Center" : { "Lat" :  20.5937, "Long" : 78.9629 } } 
-, "DefaultZoom": 4 
+plotting = { "India" : { "Center" : { "Lat" :  20.5937, "Long" : 78.9629 } }
+, "DefaultZoom": 4
+, "SelectedScheme" : "Blackish"
 , "ColorSchemes" : {
      "Blueiss":["#6c567b","#c06c84","#f67280","#f8b195"]
+    ,"Blackish":["#0A0D0D","#2D3536","#627676","#BFCCCC"]
     }
 }
 

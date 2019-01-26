@@ -62,7 +62,7 @@ class Rest:
     def Get(resourceName , filters):
         resourceName = resourceName.lower()
         df = Ops.GetDataFrameFromJson(Rest.GetJsonFromName(resourceName ,limit=50, filters=filters))
-        #print(df)
+        print(df.columns, flush=True)
         return df
 
     @staticmethod

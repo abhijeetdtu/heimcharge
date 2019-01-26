@@ -6,3 +6,6 @@ class IndiaMapModel:
         self.Title = title
         self.Subtitle = subtitle
         self.Html = Markup(html._repr_html_())
+
+    def GetChartHTML(self):
+        return self.Html

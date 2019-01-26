@@ -1,0 +1,20 @@
+
+{% macro input(displayName,link, div) -%}
+
+<p class="btn btn-secondary" href="{{ link }}" onclick="AnchorOnClick()">View Raw Data</p>
+
+
+<script>
+    function AnchorOnClick(){
+        link = "{{link}}"
+        divSelector = "{{div}}"
+        if(divSelector == ""){
+          window.location.href = link
+        }
+        else{
+          App.OpenLinkInDiv(link, divSelector)
+        }
+    }
+</script>
+
+{%- end macro%}

@@ -4,8 +4,13 @@
 
 {% import 'Macros/CardMacro.html' as Card %}
 {% import 'Macros/JsonToChartFormMacro.html' as Jf %}
+{% import 'Macros/NavList.html' as Nav %}
 
 {% block content %}
+
+<div class="row">
+  <p class="btn btn-secondary" href="{{ url_for("ChartPlot.GetTable" , filename = resourceName) }}" onclick="App.OpenLinkInDiv(href , '#APIViewBox')">View Raw Data</p>
+</div>
 
 <div class="row">
 
@@ -28,6 +33,7 @@
     {{ Card.input('','', barChart ) }}
   </div>
 </div>
+
 
 
 {% endblock %}

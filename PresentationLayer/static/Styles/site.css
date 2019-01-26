@@ -3,7 +3,7 @@
     font-family: 'Abril Fatface', Tahoma, Geneva, Verdana, sans-serif;
     font-size: x-large;
     color: #ffffff !important;
-    background-color: #4e90a4;
+    background-color: #AFB3B2;
 }
 
 .navbar .nav-link{
@@ -45,11 +45,11 @@ body {
 
 .carousel .trace.bars .points .point:nth-child(even) path{
 
-    fill:#4e90a4 !important;
+    fill:#21252A !important;
 }
 .carousel .trace.bars .points .point:nth-child(odd) path{
 
-    fill:#3ec8ac !important;
+    fill:#AFB3B2 !important;
 }
 
 /* .trace.bars .points .point:nth-child(even) path{
@@ -83,7 +83,7 @@ path.leaflet-interactive{
 
     justify-content: center;
     display: flex;
-    background-color:#3ec8ac;
+    background-color:#24292F;
     color:white;
 }
 .leaflet-popup{
