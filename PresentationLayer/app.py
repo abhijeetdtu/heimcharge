@@ -8,26 +8,12 @@ from plotly.offline import plot
 from plotly.graph_objs import Scatter
 import plotly.graph_objs as go
 
-from BusinessLogic.Mapping import *
-from BusinessLogic.FileOps import *
-from BusinessLogic.Image import *
-from PresentationLayer.Visualization.IndiaBasePlot import IndiaBasePlot
-from PresentationLayer.Visualization.ChartPlot import ChartPlot
-from PresentationLayer.Visualization.Dashboards import Dashboards
-from PresentationLayer.Visualization.APIPlot import APIPlot
-
-from BusinessLogic.Entities import NavItem
-
 
 from config import files
 
 
 application = Flask(__name__ , static_folder="static", template_folder='Templates')
 
-application.register_blueprint(IndiaBasePlot ,url_prefix='/india')
-application.register_blueprint(ChartPlot ,url_prefix='/plot')
-application.register_blueprint(Dashboards ,url_prefix='/dashboards')
-application.register_blueprint(APIPlot, url_prefix="/APIPlot")
 
 application.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 application.config['TEMPLATES_AUTO_RELOAD'] = True
@@ -54,29 +40,13 @@ def Error404():
 @application.route("/")
 def index():
     try:
-        files = GetStateWiseFileList('json')
-        navItems = [ NavItem(ConvertFileNameToMeaningful(file) , '/india/plotFileWithMap/{0}/{1}/3?autoFitColumnIndex=true'.format(file.replace(".json", "") , GetStateColumnFromFile(file.replace(".json", "")))) for file in files]
 
-        return render_template('Landing.html' , nav_items = navItems , d3data = data )
+        return render_template('Landing.html' , nav_items = [] , d3data = [] )
 
     except Exception as e:
         print(e)
         return Error404()
 
-
-@application.route("/locations")
-def locationWise():
-    try:
-        files = GetStateWiseFileList('json')
-        navItems = [ NavItem(ConvertFileNameToMeaningful( file )
-                            , '/india/plotFileWithMap/{0}/{1}/3?autoFitColumnIndex=true'.format(file.replace(".json", "")
-                            , GetStateColumnFromFile(file.replace(".json", ""))))
-                    for file in files]
-        return render_template('Landing.html' , nav_items = navItems)
-
-    except Exception as e:
-        print(e)
-        return Error404()
 
 @application.route("/imagedata/<int:id>")
 def image(id):
