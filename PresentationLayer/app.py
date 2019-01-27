@@ -9,6 +9,7 @@ from plotly.graph_objs import Scatter
 import plotly.graph_objs as go
 
 
+from BusinessLogic.Image import *
 from config import files
 
 
