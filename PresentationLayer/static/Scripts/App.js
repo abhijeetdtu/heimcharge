@@ -206,7 +206,7 @@ var Animation = (function(){
       elapsedTime = animateTextSequence(elapsedTime , textSquence , {"text" : textElem , "svg" : viewBoxSVG});
 
 
-      animateBalls(elapsedTime,timeToSta,timeToDisplay)
+      animateBalls(elapsedTime-10000,timeToSta,timeToDisplay)
       //elapsedTime = factors.length*(timeToSta + timeToDisplay)
 
       //elapsedTime = animateTextSequence(elapsedTime , textSquence , {"text" : textElem , "svg" : viewBoxSVG});
