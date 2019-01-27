@@ -1,6 +1,7 @@
 import sys, traceback , math
+import os
 
-from flask import Flask , Markup , render_template,redirect
+from flask import Flask , Markup , render_template,redirect , url_for
 from flask import request,jsonify
 
 from plotly.offline import plot
@@ -9,6 +10,7 @@ import plotly.graph_objs as go
 
 from BusinessLogic.Mapping import *
 from BusinessLogic.FileOps import *
+from BusinessLogic.Image import *
 from PresentationLayer.Visualization.IndiaBasePlot import IndiaBasePlot
 from PresentationLayer.Visualization.ChartPlot import ChartPlot
 from PresentationLayer.Visualization.Dashboards import Dashboards
@@ -54,7 +56,8 @@ def index():
     try:
         files = GetStateWiseFileList('json')
         navItems = [ NavItem(ConvertFileNameToMeaningful(file) , '/india/plotFileWithMap/{0}/{1}/3?autoFitColumnIndex=true'.format(file.replace(".json", "") , GetStateColumnFromFile(file.replace(".json", "")))) for file in files]
-        return render_template('Landing.html' , nav_items = navItems)
+
+        return render_template('Landing.html' , nav_items = navItems , d3data = data )
 
     except Exception as e:
         print(e)
@@ -74,3 +77,9 @@ def locationWise():
     except Exception as e:
         print(e)
         return Error404()
+
+@application.route("/imagedata/<int:id>")
+def image(id):
+    current_path = os.path.dirname(os.path.realpath(__file__))
+    print( os.path.dirname(os.path.realpath(__file__)))
+    return jsonify(Images(os.path.join(current_path , "static" , "Images", "{0}.jpg".format(id))).EdgeDetection())

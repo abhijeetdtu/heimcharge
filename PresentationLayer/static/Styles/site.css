@@ -52,6 +52,11 @@ body {
     fill:#AFB3B2 !important;
 }
 
+.mytext{
+  position: absolute;
+  top:40%;
+  text-align: justify;
+}
 /* .trace.bars .points .point:nth-child(even) path{
 
     fill:#6e60a0 !important;

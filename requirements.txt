@@ -6,3 +6,5 @@ folium==0.5.0
 branca==0.2.0
 geopy
 wikipedia
+matplotlib
+scikit-image

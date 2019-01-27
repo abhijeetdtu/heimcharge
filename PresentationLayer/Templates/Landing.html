@@ -2,19 +2,20 @@
 
 {% block content %}
 
-    {% import 'topbar.html' as NavBar %}
-    {{ NavBar.input( 'Geo Analytics'  , 'Select A File' , nav_items , '#viewBox') }}
 
 <div class="row-fluid">
     <div class="col-md-12">
-        <div id="viewBox"></div>
+        <div id="viewBox">
+          <pre id="mytext">
+          </pre>
+          <svg></svg>
+        </div>
     </div>
 </div>
 
 <script>
-
-    $(function () {
-        App.OpenLinkInDiv('/india/plotFileWithMap/StateWiseLokSabha/0/2', '#viewBox')
-    })
+  $(document).ready(function(){
+    Animation.Start()
+  })
 </script>
 {% endblock %}
