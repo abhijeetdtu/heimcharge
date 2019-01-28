@@ -2,7 +2,7 @@ import json
 import requests
 import os
 
-from BusinessLogic.FileOps import *
+import BusinessLogic.FileOps as Ops
 
 class Rest:
 
@@ -61,7 +61,7 @@ class Rest:
     @staticmethod
     def Get(resourceName , filters):
         resourceName = resourceName.lower()
-        df = GetDataFrameFromJson(Rest.GetJsonFromName(resourceName ,limit=50, filters=filters))
+        df = Ops.GetDataFrameFromJson(Rest.GetJsonFromName(resourceName ,limit=50, filters=filters))
         print(df.columns, flush=True)
         return df
 
