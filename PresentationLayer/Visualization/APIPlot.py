@@ -2,7 +2,7 @@ from flask import Blueprint,render_template , Markup ,request , jsonify,url_for
 from jinja2 import TemplateNotFound
 import json
 
-from API.ApiOps import * 
+from API.ApiOps import *
 from API.RestBase import Rest as RT
 from BusinessLogic.Mapping import *
 from BusinessLogic.GeoProcessing import *

@@ -20,6 +20,9 @@
   "AviationCityWisePassengers":"379b2ff4-3d2b-425a-a0ae-8112db5aae57",
   "TelcomTrafficPattern":"50cbcca3-9982-4f79-89c7-92ca9ae30c1d",
   "DisabledPopulationDistrict":"ed74e80a-bbd0-4c17-ba02-35f01f12af31",
-  "G20Population":"1a4f781a-6f31-4c96-84a5-c2bdb6e272bf"
-
+  "G20Population":"1a4f781a-6f31-4c96-84a5-c2bdb6e272bf",
+  "FDI":"8f9755dd-14ea-478b-b7ab-b243a1aa9bdd",
+  "HousingPriceIndex":"8b780f26-ac4d-4c8c-8b71-5088d46aca99",
+  "TourismRevenue":"41b7e891-a4ca-4be7-8023-dde41ec77112",
+  "GDP":"07d49df4-233f-4898-92db-e6855d4dd94c"
 }

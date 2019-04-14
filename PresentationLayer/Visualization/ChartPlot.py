@@ -9,6 +9,7 @@ from API.RestBase import Rest as RT
 import os,re
 from config import files
 import sys , traceback
+import pdb
 
 ChartPlot = Blueprint('ChartPlot', __name__,template_folder='templates')
 
@@ -52,10 +53,25 @@ def apiplot(plotName,resourceName,xCol , yCol,isHorizontal):
 def plot(plotName,filename,xCol , yCol):
     try:
         df,columns = GetDataFrame(filename)
-        config = request.form
+        config = request.form.to_dict()
 
         chart = Chart(plotName,df , df.columns[xCol] ,  df.columns[yCol] , config)
         return SetupParamsAndReturnFilePlot("FilePlot",request ,[chart.GetChartHTML()])
+
+    except Exception as e:
+        return HandleException(e)
+
+@ChartPlot.route("/trend/<string:api_file>/<string:filename>/<string:yearCols>/<int:yCol>/<string:yVal>" , methods = ['GET' , 'POST'])
+def Trend(api_file,filename,yearCols , yCol,yVal='-'):
+    try:
+        df = RT.Get(filename, {}) if api_file == 'api' else GetDataFrame(filename)[0]
+        config = request.form.to_dict()
+
+        if yVal != '-':
+            charts = [TrendChart(df ,yearCols , yCol,yVal,config).GetChartHTML()]
+        else:
+            charts = [TrendChart(df ,yearCols , yCol,y,config).GetChartHTML() for y in df.iloc[:,yCol].values]
+        return SetupParamsAndReturnFilePlot("FilePlot",request ,charts)
 
     except Exception as e:
         return HandleException(e)

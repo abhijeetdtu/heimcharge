@@ -18,7 +18,7 @@ from BusinessLogic.Entities import NavItem
 
 
 from config import files
-
+import pdb
 
 application = Flask(__name__ , static_folder="static", template_folder='Templates')
 

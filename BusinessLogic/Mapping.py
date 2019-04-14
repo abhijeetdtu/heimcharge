@@ -1,6 +1,7 @@
 import os
 import operator
 import re
+import pdb
 
 import json
 
@@ -177,6 +178,16 @@ class Scatter(Chart):
         self.config['marker']['size'] = self.DataFrame[self.Zcol].tolist()
         #print(self.config['marker']['size'])
         [self.goType(x=self.DataFrame[self.Xcol] , y=self.DataFrame[self.Ycol] ,**self.config)]
+
+class TrendChart(Chart):
+    def __init__(self, dataFrame ,yearCols,yCol,yVal,config):
+        columns = [dataFrame.columns[int(col)] for col in yearCols.split(",")]
+        yCol = dataFrame.columns[yCol]
+        df = dataFrame.loc[dataFrame[yCol] == yVal][columns].T
+        df[yVal] = df.iloc[:,0].values
+        df['Year'] = columns
+        super(TrendChart, self).__init__('scatter', df,'Year' , yVal , config)
+
 
 class SingleAxisChart(Chart):
     def __init__(self,goType, dataFrame , col ,axis, config):

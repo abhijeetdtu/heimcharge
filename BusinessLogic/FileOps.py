@@ -9,7 +9,7 @@ from locale import atof
 
 from BusinessLogic.ExceptionHandling import HandleException
 import API.ApiOps as ApiOps
-
+import pdb
 
 
 def MakeTextSafe(value):
@@ -44,7 +44,10 @@ def GetFromIDFieldJson(jsonData):
     try:
         df = FileFormatJsonToDF(jsonData)
     except:
-        df = ApiOps.APIFormatJsonToDF(jsonData)
+        try:
+            df = ApiOps.APIFormatJsonToDF(jsonData)
+        except:
+            df = GetFromCSVLikeJson(jsonData)
 
     return df
 

@@ -8,5 +8,5 @@ def GetSummary(topic):
         return wikipedia.summary(topic)
     except Exception as e:
         HandleException(e)
-    
+
     return ""
