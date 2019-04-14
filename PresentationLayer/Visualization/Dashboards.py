@@ -73,20 +73,19 @@ def stateliteracy():
 def elections():
     try:
         dashboards = [
-            url_for("ChartPlot.Trend" , api_file='api',filename = "HousingPriceIndex" , yearCols = "1,2,3,4,5,6,7,8,9,10" , yCol = "0" ,yVal='All India',returnPartial="True"),
-            url_for("ChartPlot.Trend" , api_file='file',filename = "NationalIncome" , yearCols = "1,2,3,4,5,6,7,8,9,10" , yCol = "0" ,yVal='Per Capita Net National Income (`)',returnPartial="True"),
-            url_for("ChartPlot.Trend" , api_file='api',filename = "TourismRevenue" , yearCols = "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19" , yCol = "0" ,yVal='Monthly- USD mn',returnPartial="True"),
-            url_for("ChartPlot.Trend" , api_file='api',filename = "FDI" , yearCols = "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17" , yCol = "0" ,yVal='TELECOMMUNICATIONS',returnPartial="True"),
-            url_for("ChartPlot.Trend" , api_file='api', filename = "FDI" , yearCols = "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17" , yCol = "0" ,yVal='TRADING',returnPartial="True"),
-            url_for("ChartPlot.Trend" , api_file='api', filename = "FDI" , yearCols = "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17" , yCol = "0" ,yVal='HOTEL & TOURISM',returnPartial="True"),
-            url_for("ChartPlot.Trend" , api_file='api', filename = "FDI" , yearCols = "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17" , yCol = "0" ,yVal='RETAIL TRADING',returnPartial="True"),
-            url_for("ChartPlot.Trend" , api_file='api', filename = "FDI" , yearCols = "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17" , yCol = "0" ,yVal='EDUCATION',returnPartial="True"),
-            url_for("ChartPlot.plot" ,plotName='bar' , filename = "TerroristAttacks" , xCol = "0" , yCol = "1" ,returnPartial="True"),
-            url_for("ChartPlot.plot" ,plotName='bar' , filename = "TerroristAttacks" , xCol = "0" , yCol = "2" ,returnPartial="True"),
-            url_for("ChartPlot.plot" ,plotName='bar' , filename = "TerroristAttacks" , xCol = "0" , yCol = "3" ,returnPartial="True"),
-            url_for("ChartPlot.plot" ,plotName='bar' , filename = "ConsumerPriceIndex" , xCol = "1" , yCol = "20" ,returnPartial="True"),
-            url_for("ChartPlot.plot" ,plotName='scatter' , filename = "gdp" , xCol = "0" , yCol = "14" ,returnPartial="True"),
-            url_for("ChartPlot.Trend" , api_file='api',filename = "FDI" , yearCols = "1,2,3,4,5,6,7" , yCol = "0" ,yVal='EDUCATION',returnPartial="True"),
+            {"title": "Housing Price Index", "url":url_for("ChartPlot.Trend" , api_file='api',filename = "HousingPriceIndex" , yearCols = "1,2,3,4,5,6,7,8,9,10" , yCol = "0" ,yVal='All India',returnPartial="True")},
+            {"title": "National Income", "url":url_for("ChartPlot.Trend" , api_file='file',filename = "NationalIncome" , yearCols = "1,2,3,4,5,6,7,8,9,10" , yCol = "0" ,yVal='Per Capita Net National Income (`)',returnPartial="True")},
+            {"title": "Tourism Revenue", "url":url_for("ChartPlot.Trend" , api_file='api',filename = "TourismRevenue" , yearCols = "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19" , yCol = "0" ,yVal='Monthly- USD mn',returnPartial="True")},
+            {"title": "FDI TELECOMMUNICATIONS", "url":url_for("ChartPlot.Trend" , api_file='api',filename = "FDI" , yearCols = "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17" , yCol = "0" ,yVal='TELECOMMUNICATIONS',returnPartial="True")},
+            {"title": "FDI TRADING", "url":url_for("ChartPlot.Trend" , api_file='api', filename = "FDI" , yearCols = "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17" , yCol = "0" ,yVal='TRADING',returnPartial="True")},
+            {"title": "FDI HOTEL/TOURISM", "url":url_for("ChartPlot.Trend" , api_file='api', filename = "FDI" , yearCols = "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17" , yCol = "0" ,yVal='HOTEL & TOURISM',returnPartial="True")},
+            {"title": "FDI Retail Trading", "url":url_for("ChartPlot.Trend" , api_file='api', filename = "FDI" , yearCols = "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17" , yCol = "0" ,yVal='RETAIL TRADING',returnPartial="True")},
+            {"title": "FDI Education", "url":url_for("ChartPlot.Trend" , api_file='api', filename = "FDI" , yearCols = "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17" , yCol = "0" ,yVal='EDUCATION',returnPartial="True")},
+            {"title": "Terrorist Attacks - Incidents", "url":url_for("ChartPlot.plot" ,plotName='bar' , filename = "TerroristAttacks" , xCol = "0" , yCol = "1" ,returnPartial="True")},
+            {"title": "Terrorist Attacks - Deaths", "url":url_for("ChartPlot.plot" ,plotName='bar' , filename = "TerroristAttacks" , xCol = "0" , yCol = "2" ,returnPartial="True")},
+            {"title": "Terrorist Attacks - Injuries", "url":url_for("ChartPlot.plot" ,plotName='bar' , filename = "TerroristAttacks" , xCol = "0" , yCol = "3" ,returnPartial="True")},
+            {"title": "Consumer Price Index", "url":url_for("ChartPlot.plot" ,plotName='bar' , filename = "ConsumerPriceIndex" , xCol = "1" , yCol = "20" ,returnPartial="True")},
+            {"title": "GDP", "url":url_for("ChartPlot.plot" ,plotName='scatter' , filename = "gdp" , xCol = "0" , yCol = "14" ,returnPartial="True")}
          ]
         return render_template('Dashboards/Base.html' ,dashboard_links = dashboards)
 

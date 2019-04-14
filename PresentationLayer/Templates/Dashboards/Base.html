@@ -7,8 +7,8 @@
     {% for dashboard_link in dashboard_links %}
         <div class="row">
             <div class="col-md-12">
-       
-                {{ Chart.input(loop.index,dashboard_link, dict() )}}
+
+                {{ Chart.input(loop.index,dashboard_link["url"], dict(title=dashboard_link["title"]) )}}
             </div>
         </div>
     {% endfor %}
