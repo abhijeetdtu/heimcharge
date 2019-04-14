@@ -71,8 +71,10 @@ def stateliteracy():
 
 @Dashboards.route("/elections")
 def elections():
+    print(url_for("ChartPlot.plot" ,plotName='bar' , filename = "InfraProjects" , xCol = "8" , yCol = "7" ,returnPartial="True" , filter="8!=Not Available" , sortby=["Date Of Award","date"] ))
     try:
         dashboards = [
+            {"title":"Infrastruture Projects" , "url":url_for("ChartPlot.plot" ,plotName='bar' , filename = "InfraProjects" , xCol = "8" , yCol = "7" ,returnPartial="True" , filter="8!=Not Available" , sortby=["Date Of Award","date"] )},
             {"title": "Indian Exports", "url":url_for("ChartPlot.Trend" , api_file='file',filename = "CountryWiseExports" , yearCols = "5-63" , yCol = "0" ,yVal='India',returnPartial="True")},
             {"title": "Housing Price Index", "url":url_for("ChartPlot.Trend" , api_file='api',filename = "HousingPriceIndex" , yearCols = "1,2,3,4,5,6,7,8,9,10" , yCol = "0" ,yVal='All India',returnPartial="True")},
             {"title": "National Income", "url":url_for("ChartPlot.Trend" , api_file='file',filename = "NationalIncome" , yearCols = "1,2,3,4,5,6,7,8,9,10" , yCol = "0" ,yVal='Per Capita Net National Income (`)',returnPartial="True")},

@@ -34,11 +34,33 @@ class ChartBuilderBase:
 
         if 'locked' in self.config and 'filters' in self.config['locked']:
             x = [self.AddFilterTransform(filter.dfColIndex , filter.op , filter.value) for filter in self.config['locked']['filters']]
+        if 'locked' in self.config and 'sortby' in self.config['locked']:
+            col,dataType = self.config['locked']['sortby']
+            self.SortBy(col,dataType)
 
 
+    def GetCol(self , dfColIndex):
+        if type(dfColIndex) == str:
+            col = dfColIndex
+        else:
+            col = self.DataFrame.columns[dfColIndex]
+        return col
     #to be overriden by child
     def GetChartTrace():
         return []
+
+    def SortBy(self,col,dataType):
+        col = self.GetCol(col)
+        df = self.DataFrame
+        if dataType == 'date':
+            df[col] = pd.to_datetime(df[col] , errors='ignore')
+
+        df = df.sort_values(col)
+
+        if dataType == 'date':
+            df[col] = df[col].dt.strftime('%B %d, %Y, %r')
+
+        self.DataFrame = df
 
     def AddFilterTransform(self,dfColIndex ,op, value):
         rowIndices = []
@@ -393,6 +415,7 @@ def GetChartTrace(filename , xAxis , yAxis ,xaxisPlot='x1', yaxisPlot = 'y1'):
 def GetConfig(request):
     config = dict(locked = dict())
     GetFiltersIntoConfig(request , config)
+    SortBy(request,config)
     return config
 
 def GetFiltersIntoConfig(request , config):
@@ -411,3 +434,7 @@ def GetFilterArrayFromArguments(filterArr):
             filters.append(DataFilter(colIndex , op , value))
 
     return filters
+
+def SortBy(request , config):
+    if len( request.args.getlist('sortby')) > 0:
+        config["locked"]["sortby"] = request.args.getlist('sortby')

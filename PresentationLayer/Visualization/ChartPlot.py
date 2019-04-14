@@ -52,8 +52,9 @@ def apiplot(plotName,resourceName,xCol , yCol,isHorizontal):
 @ChartPlot.route("/chart/<string:plotName>/<string:filename>/<int:xCol>/<int:yCol>" , methods = ['GET' , 'POST'])
 def plot(plotName,filename,xCol , yCol):
     try:
+        #pdb.set_trace()
         df,columns = GetDataFrame(filename)
-        config = request.form.to_dict()
+        config = { **request.form.to_dict() ,  **GetConfig(request)}
 
         chart = Chart(plotName,df , df.columns[xCol] ,  df.columns[yCol] , config)
         return SetupParamsAndReturnFilePlot("FilePlot",request ,[chart.GetChartHTML()])
