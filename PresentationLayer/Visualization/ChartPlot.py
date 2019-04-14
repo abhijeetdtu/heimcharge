@@ -66,7 +66,9 @@ def Trend(api_file,filename,yearCols , yCol,yVal='-'):
     try:
         df = RT.Get(filename, {}) if api_file == 'api' else GetDataFrame(filename)[0]
         config = request.form.to_dict()
-
+        if yearCols.find("-") >= 0:
+            fr,to = [int(t) for t in yearCols.split("-")]
+            yearCols = ",".join([str(i) for i in range(fr,to)])
         if yVal != '-':
             charts = [TrendChart(df ,yearCols , yCol,yVal,config).GetChartHTML()]
         else:

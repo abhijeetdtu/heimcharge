@@ -73,6 +73,7 @@ def stateliteracy():
 def elections():
     try:
         dashboards = [
+            {"title": "Indian Exports", "url":url_for("ChartPlot.Trend" , api_file='file',filename = "CountryWiseExports" , yearCols = "5-63" , yCol = "0" ,yVal='India',returnPartial="True")},
             {"title": "Housing Price Index", "url":url_for("ChartPlot.Trend" , api_file='api',filename = "HousingPriceIndex" , yearCols = "1,2,3,4,5,6,7,8,9,10" , yCol = "0" ,yVal='All India',returnPartial="True")},
             {"title": "National Income", "url":url_for("ChartPlot.Trend" , api_file='file',filename = "NationalIncome" , yearCols = "1,2,3,4,5,6,7,8,9,10" , yCol = "0" ,yVal='Per Capita Net National Income (`)',returnPartial="True")},
             {"title": "Tourism Revenue", "url":url_for("ChartPlot.Trend" , api_file='api',filename = "TourismRevenue" , yearCols = "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19" , yCol = "0" ,yVal='Monthly- USD mn',returnPartial="True")},
