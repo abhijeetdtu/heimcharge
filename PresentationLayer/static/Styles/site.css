@@ -107,8 +107,8 @@ path.leaflet-interactive{
 height:95%;
 }
 
-.plot-container.plotly{
- height:100%;
+.plot-container.plotly , .svg-container{
+ height:inherit !important;
  width:100%;
 }
 
