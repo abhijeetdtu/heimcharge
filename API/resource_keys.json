@@ -24,5 +24,7 @@
   "FDI":"8f9755dd-14ea-478b-b7ab-b243a1aa9bdd",
   "HousingPriceIndex":"8b780f26-ac4d-4c8c-8b71-5088d46aca99",
   "TourismRevenue":"41b7e891-a4ca-4be7-8023-dde41ec77112",
-  "GDP":"07d49df4-233f-4898-92db-e6855d4dd94c"
+  "GDP":"07d49df4-233f-4898-92db-e6855d4dd94c",
+  "ElectionExpenditure":"dfc3446c-4f0c-4d46-9a8d-bc74599c6cfd",
+  "PoliticalPartyStatus":"7385bb09-0ce3-44c0-bebf-dfcd240e85ca"
 }

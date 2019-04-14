@@ -1,8 +1,9 @@
-from flask import Blueprint,render_template , Markup , url_for
+from flask import Blueprint,render_template , Markup , url_for , request
 from jinja2 import TemplateNotFound
 
 from BusinessLogic.Mapping import *
 from BusinessLogic.FileOps import *
+from PresentationLayer.Visualization.ChartPlot import SetupParamsAndReturnTemplate
 
 import os
 from config import files
@@ -68,12 +69,30 @@ def stateliteracy():
     except TemplateNotFound:
         abort(404)
 
+@Dashboards.route("/previouselections")
+def ElectionsOverYears():
+    try:
+        dashboards = [
+             {"title":"Number of constituencies" , "url":url_for("ChartPlot.plot" ,plotName='bar' , filename = "ElectionsOverYears" , xCol = "0" , yCol = "1" ,returnPartial="True")}
+            ,{"title":"BJP seats in elections" , "url":url_for("ChartPlot.plot" ,plotName='scatter' , filename = "politicalpartystatus" , xCol = "0" , yCol = "2" ,returnPartial="True")}
+            ,{"title":"CPI seats" , "url":url_for("ChartPlot.plot" ,plotName='scatter' , filename = "politicalpartystatus" , xCol = "0" , yCol = "4" ,returnPartial="True")}
+            ,{"title":"INC seats" , "url":url_for("ChartPlot.plot" ,plotName='scatter' , filename = "politicalpartystatus" , xCol = "0" , yCol = "6" ,returnPartial="True")}
+            ,{"title":"Recognized State Parties seats" , "url":url_for("ChartPlot.plot" ,plotName='scatter' , filename = "politicalpartystatus" , xCol = "0" , yCol = "9" ,returnPartial="True")}
+            ,{"title":"Independents seats" , "url":url_for("ChartPlot.plot" ,plotName='scatter' , filename = "politicalpartystatus" , xCol = "0" , yCol = "11" ,returnPartial="True")}
+            ,{"title":"Total Other than Recognized Parties seats" , "url":url_for("ChartPlot.plot" ,plotName='scatter' , filename = "politicalpartystatus" , xCol = "0" , yCol = "12" ,returnPartial="True")}
+            ,{"title":"Total Expense" , "url":url_for("ChartPlot.plot" ,plotName='bar' , filename = "electionexpenditure" , xCol = "0" , yCol = "5" ,returnPartial="True")}
+
+         ]
+        return SetupParamsAndReturnTemplate('Dashboards/Carousal' ,request , dict(dashboard_links = dashboards , carousal=True))
+
+    except TemplateNotFound:
+        abort(404)
 
 @Dashboards.route("/elections")
 def elections():
-    print(url_for("ChartPlot.plot" ,plotName='bar' , filename = "InfraProjects" , xCol = "8" , yCol = "7" ,returnPartial="True" , filter="8!=Not Available" , sortby=["Date Of Award","date"] ))
     try:
         dashboards = [
+            {"title":"Previous Elections" , "url":url_for("Dashboards.ElectionsOverYears",returnPartial="True")},
             {"title":"Infrastruture Projects" , "url":url_for("ChartPlot.plot" ,plotName='bar' , filename = "InfraProjects" , xCol = "8" , yCol = "7" ,returnPartial="True" , filter="8!=Not Available" , sortby=["Date Of Award","date"] )},
             {"title": "Indian Exports", "url":url_for("ChartPlot.Trend" , api_file='file',filename = "CountryWiseExports" , yearCols = "5-63" , yCol = "0" ,yVal='India',returnPartial="True")},
             {"title": "Housing Price Index", "url":url_for("ChartPlot.Trend" , api_file='api',filename = "HousingPriceIndex" , yearCols = "1,2,3,4,5,6,7,8,9,10" , yCol = "0" ,yVal='All India',returnPartial="True")},
@@ -90,7 +109,7 @@ def elections():
             {"title": "Consumer Price Index", "url":url_for("ChartPlot.plot" ,plotName='bar' , filename = "ConsumerPriceIndex" , xCol = "1" , yCol = "20" ,returnPartial="True")},
             {"title": "GDP", "url":url_for("ChartPlot.plot" ,plotName='scatter' , filename = "gdp" , xCol = "0" , yCol = "14" ,returnPartial="True")}
          ]
-        return render_template('Dashboards/Base.html' ,dashboard_links = dashboards)
+        return SetupParamsAndReturnTemplate('Dashboards/Base' ,request,dict(dashboard_links = dashboards))
 
     except TemplateNotFound:
         abort(404)

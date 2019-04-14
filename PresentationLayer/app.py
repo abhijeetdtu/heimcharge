@@ -15,7 +15,7 @@ from PresentationLayer.Visualization.Dashboards import Dashboards
 from PresentationLayer.Visualization.APIPlot import APIPlot
 
 from BusinessLogic.Entities import NavItem
-
+from API.RestBase import Rest
 
 from config import files
 import pdb
@@ -30,6 +30,7 @@ application.register_blueprint(APIPlot, url_prefix="/APIPlot")
 application.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 application.config['TEMPLATES_AUTO_RELOAD'] = True
 application.jinja_env.auto_reload = True
+Rest.SetupCacheDir()
 
 @application.after_request
 def add_header(r):

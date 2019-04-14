@@ -1,7 +1,8 @@
 import json
 import requests
 import os
-
+import hashlib
+import pdb
 import BusinessLogic.FileOps as Ops
 
 class Rest:
@@ -13,6 +14,12 @@ class Rest:
 
     #ensure dict keys are lowercase for easy finding
     ResourceKeys = dict( (k.lower() , v) for k,v in json.load(open(RESOURCE_KEY_FILE , "r")).items())
+    CacheDir = os.path.abspath(os.path.join("." ,"API", "CacheDir"))
+
+    @staticmethod
+    def SetupCacheDir():
+        if not os.path.exists(Rest.CacheDir):
+            os.makedirs(Rest.CacheDir)
 
     @staticmethod
     def FilterDictToQueryParam(filters):
@@ -50,9 +57,20 @@ class Rest:
         url = Rest.BASE_URL.format(resourceId , Rest.API_KEY , type , limit , offset)
         url += Rest.FilterDictToQueryParam(filters)
 
+        return Rest.HitCache(url)
 
-        ###print(url)
-        return requests.get(url).json()
+    @staticmethod
+    def HitCache(url):
+        #pdb.set_trace()
+        md = hashlib.sha224(url.encode("utf8")).hexdigest()
+        fpath = os.path.abspath(os.path.join(Rest.CacheDir , md))
+        if(os.path.exists(fpath)):
+            return json.load(open(fpath, "r") )
+        else:
+            data = requests.get(url).json()
+            json.dump(data , open(fpath,"w") )
+
+        return data
 
     @staticmethod
     def GetJsonFromName(resourceName ,limit=10, filters=None):

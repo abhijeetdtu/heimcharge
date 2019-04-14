@@ -1,14 +1,18 @@
-{% extends "_layout.html" %}
+{% set rowclass ='flex-box' %}
+{% if returnPartial == None or returnPartial == False %}
+    {% extends "_layout.html" %}
+    {% set rowclass ='' %}
+{% endif %}
 
 {% import 'Macros/ChartMacro.html' as Chart %}
 
 {% block content %}
 
     {% for dashboard_link in dashboard_links %}
-        <div class="row">
+        <div class="row {{rowclass}}">
             <div class="col-md-12">
-
-                {{ Chart.input(loop.index,dashboard_link["url"]| safe, dict(title=dashboard_link["title"]) )}}
+                {% set id = range(1, 1000) | random %}
+                {{ Chart.input(id + loop.index,dashboard_link["url"]| safe, dict(title=dashboard_link["title"]) )}}
             </div>
         </div>
     {% endfor %}

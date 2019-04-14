@@ -1,0 +1,51 @@
+{% import 'Macros/ChartMacro.html' as Chart %}
+{% import 'Macros/CarousalMacro.html' as Carousal %}
+
+{% block content %}
+
+{% set id = range(1, 1000) | random %}
+<div id="{{id}}" class="carousel slide flex-box" data-ride="carousel" data-interval="false">
+  <!-- Indicators -->
+
+  <ol class="carousel-indicators">
+    {%for item in itemList%}
+    <li data-target="#{{id}}" data-slide-to="{{loop.index}}" {{ "class='active' if loop.index == 1"}}></li>
+    {%endfor%}
+  </ol>
+
+  <!-- Wrapper for slides -->
+  <div class="carousel-inner flex-box">
+    {% for dashboard_link in dashboard_links %}
+    <div class="carousel-item {{'active' if loop.index == 1}}">
+      {{ Chart.input(loop.index,dashboard_link["url"]| safe, dict(title=dashboard_link["title"]) )}}
+    </div>
+    {%endfor%}
+  </div>
+
+  <!-- Left and right controls -->
+  <a class="carousel-control carousel-control-prev" href="#{{id}}" role="button" data-slide="prev">
+    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+    <span class="sr-only">Previous</span>
+  </a>
+  <a class="carousel-control carousel-control-next" href="#{{id}}" role="button" data-slide="next">
+    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+    <span class="sr-only">Next</span>
+  </a>
+</div>
+
+<script>
+  $("#{{id}}").on("slid.bs.carousel", function(event) {
+    var parent = $(event.relatedTarget);
+    var pHeight = parent.height();
+    var pWidth = parent.width();
+    if (parent.find(".plotly-graph-div.js-plotly-plot").get(0)) {
+      Plotly.relayout(parent.find(".plotly-graph-div.js-plotly-plot").get(0), {
+        width: pWidth,
+        height: pHeight
+      });
+    }
+
+
+  })
+</script>
+{% endblock %}
