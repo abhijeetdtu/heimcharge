@@ -95,6 +95,8 @@ path.leaflet-interactive{
     height: 100%;
 }
 
+
+/*
 .flex-box{
     display: flex;
     flex-direction: column;
@@ -102,6 +104,7 @@ path.leaflet-interactive{
 .flex-box > div {
     flex: 1;
 }
+*/
 
 .card-body > .flex-box{
 height:95%;
@@ -112,6 +115,12 @@ height:95%;
  width:100%;
 }
 
+.carousel-control-prev-icon,
+.carousel-control-next-icon{
+   width: 4vh;
+   height: 4vh;
+}
+
 .carousel .card {
     height:100%;
 }
@@ -120,6 +129,7 @@ height:95%;
 }
 
 .carousel-control-next-icon {
+    width: 50px;
     background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%2317a2b8' viewBox='0 0 8 8'%3E%3Cpath d='M2.75 0l-1.5 1.5 2.5 2.5-2.5 2.5 1.5 1.5 4-4-4-4z'/%3E%3C/svg%3E");
 }
 
@@ -166,10 +176,11 @@ height:95%;
         font-size: 50px !important;
     }
 
+/*
     .card-body svg {
         padding:20px;
     }
-
+*/
     .map-top-container {
         height:50%;
     }

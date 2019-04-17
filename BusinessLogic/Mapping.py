@@ -90,13 +90,14 @@ class ChartBuilderBase:
 
         if "margin" not in layoutConfig:
             margin=go.Margin(
-                l=150,
+                l=50,
                 r=0,
                 b=50,
                 t=50,
                 pad=4
             )
             layoutConfig["margin"] = margin
+            layoutConfig["autosize"] = True
         layout = go.Layout( **layoutConfig)
         figure = go.Figure(data = traceArr , layout = layout)
 

@@ -35,17 +35,17 @@
 
 <script>
   $("#{{id}}").on("slid.bs.carousel", function(event) {
-    var parent = $(event.relatedTarget);
-    var pHeight = parent.height();
-    var pWidth = parent.width();
-    if (parent.find(".plotly-graph-div.js-plotly-plot").get(0)) {
-      Plotly.relayout(parent.find(".plotly-graph-div.js-plotly-plot").get(0), {
+    var carouselHolder = $(event.relatedTarget);
+    var plotly = carouselHolder.find(".plotly-graph-div.js-plotly-plot");
+    if(plotly){
+      var parent = plotly.parent()
+      var pHeight = parent.height();
+      var pWidth = parent.width();
+      Plotly.relayout(plotly.get(0), {
         width: pWidth,
         height: pHeight
       });
     }
-
-
   })
 </script>
 {% endblock %}
