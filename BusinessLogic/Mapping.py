@@ -102,6 +102,7 @@ class ChartBuilderBase:
         layoutConfig["autosize"] = True
         layoutConfig["barmode"]='group'
         layoutConfig["hovermode"]='closest'
+        layoutConfig["paper_bgcolor"]='rgba(0,0,0,0)'
         layout = go.Layout( **layoutConfig)
         figure = go.Figure(data = traceArr , layout = layout)
 

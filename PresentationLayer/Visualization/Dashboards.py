@@ -112,7 +112,7 @@ def elections():
             {"collapsable":True,"title": "Terrorist Attacks - Injuries", "url":url_for("ChartPlot.plot" ,plotName='bar' , filename = "TerroristAttacks" , xCol = "0" , yCol = "3" ,returnPartial="True")},
             {"collapsable":True,"title": "Consumer Price Index", "url":url_for("ChartPlot.plot" ,plotName='bar' , filename = "ConsumerPriceIndex" , xCol = "1" , yCol = "20" ,returnPartial="True")},
             {"collapsable":True,"title": "GDP", "url":url_for("ChartPlot.plot" ,plotName='scatter' , filename = "gdp" , xCol = "0" , yCol = "14" ,returnPartial="True")},
-            {"collapsable":True,"indirect":True,"title":"Seatshare over past years" , "url":url_for("ChartPlot.pie" , filename = "previouselectionpartyshares" , commaSeparatedColumns = "2,3,4,5,6,7" , yCol = "0" ,returnPartial="True")}
+            {"collapsable":True,"indirect":True,"title":"Seatshare over past years" , "url":url_for("ChartPlot.pie" , filename = "previouselectionpartyshares" , commaSeparatedColumns = "2,3,4,5,6,7,9,10,11,12" , yCol = "0" ,returnPartial="True")}
          ]
         return SetupParamsAndReturnTemplate('Dashboards/Base' ,request,dict(dashboard_links = dashboards))
 

@@ -20,7 +20,7 @@ plotting = { "India" : { "Center" : { "Lat" :  20.5937, "Long" : 78.9629 } }
     ,"Pie":["#0A0D0D","#2D3536","#627676","#BFCCCC","#6c567b","#c06c84","#f67280","#f8b195"]
     }
 , "Pie":{
-        "label_max_length":40
+        "label_max_length":30
   }
 }
 
