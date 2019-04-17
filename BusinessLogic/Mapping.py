@@ -92,7 +92,7 @@ class ChartBuilderBase:
 
         if "margin" not in layoutConfig:
             margin=go.Margin(
-                l=50,
+                l=100,
                 r=0,
                 b=50,
                 t=50,
@@ -155,10 +155,9 @@ class Chart(ChartBuilderBase):
     def SetupMarkerColors(self):
         try:
 
-            print(self.DataFrame[xCol].head())
-            quantiles = self.DataFrame[xCol].quantile([0.25 , 0.5 , 0.75 , 1]).values
+            quantiles = self.DataFrame[self.Xcol].quantile([0.25 , 0.5 , 0.75 , 1]).values
 
-            colorCol = 'MarkerColor' + xCol
+            colorCol = 'MarkerColor' + self.Xcol
             print(plotting)
             selectedScheme = plotting["SelectedScheme"]
             self.DataFrame[colorCol] = plotting["ColorSchemes"][selectedScheme][0]
@@ -238,7 +237,7 @@ class SingleAxisChart(Chart):
     def __init__(self,goType, dataFrame , col ,axis, config):
         self.axis = axis
         config["layoutConfig"]["margin"] = margin=go.Margin(
-                l=75,
+                l=150,
                 r=75,
                 b=10,
                 t=50,
