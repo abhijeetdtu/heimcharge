@@ -12,7 +12,7 @@
         <div class="row {{rowclass}}">
             <div class="col-md-12">
                 {% set id = range(1, 1000) | random %}
-                {{ Chart.input(id + loop.index,dashboard_link["url"]| safe, dict(title=dashboard_link["title"]) )}}
+                {{ Chart.input(id + loop.index,dashboard_link["url"]| safe, dict(title=dashboard_link["title"] , indirect="indirect" in dashboard_link , collapsable = "collapsable" in dashboard_link) )}}
             </div>
         </div>
     {% endfor %}

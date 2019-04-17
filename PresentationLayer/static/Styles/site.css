@@ -26,6 +26,10 @@ body {
     border-radius: .75rem;
 }
 
+.card-header{
+  cursor: pointer;
+  text-align: center;
+}
 
 .js-plot-link-container {
     display:none;

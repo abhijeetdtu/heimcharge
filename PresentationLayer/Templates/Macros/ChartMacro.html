@@ -1,16 +1,42 @@
 {% macro input(id,endpoint, config) -%}
 
-<div class="card">
+{% import 'Macros/Anchor.html' as Anchor %}
+
+<div class="card" id="card-{{id}}">
+    {% if config.collapsable %}
+    <div class="card-header" id="card-header-{{id}}">
+      Collapse
+    </div>
+    {% endif %}
     <div class="card-body">
         <h5 class="card-title">{{ config.title or "" }}</h5>
         <h6 class="card-subtitle mb-2 text-muted">{{config.subtitle or ""}}</h6>
         <div id="viewBox-{{id}}" class="map-holder" style="height:100%;">
+          {% if config.indirect == True %}
+              {{ Anchor.input(config.title or config.subtitle, endpoint, "#viewBox-%s" % id  )}}
+          {% endif%}
         </div>
     </div>
 
     <script>
          $(function () {
-               App.OpenLinkInDiv('{{endpoint}}', '#viewBox-{{id}}');
+            {% if 'indirect' not in config or config.indirect == False %}
+                App.OpenLinkInDiv('{{endpoint}}', '#viewBox-{{id}}');
+            {% endif %}
+
+            {% if config.collapsable %}
+            $("#card-header-{{id}}").click(function(){
+                var body = $("#card-{{id}}").find(".card-body");
+                body.toggle();
+
+                if(body.is(':visible')){
+                    $(this).text("Collapse")
+                }else{
+                  $(this).text("Show - {{config.title or config.subtitle}}")
+                }
+
+            });
+            {% endif %}
          })
     </script>
 </div>

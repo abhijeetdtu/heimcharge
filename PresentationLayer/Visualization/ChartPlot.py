@@ -54,7 +54,7 @@ def plot(plotName,filename,xCol , yCol):
     try:
         #pdb.set_trace()
         df,columns = GetDataFrame(filename)
-        config = { **request.form.to_dict() ,  **GetConfig(request)}
+        config = GetConfig(request)
 
         chart = Chart(plotName,df , df.columns[xCol] ,  df.columns[yCol] , config)
         return SetupParamsAndReturnFilePlot("FilePlot",request ,[chart.GetChartHTML()])
@@ -138,7 +138,7 @@ def pie(filename,yCol,commaSeparatedColumns):
         df,columns = GetDataFrame(filename)
         selectedColumns = list(map( lambda x: df.columns[int(x)] , commaSeparatedColumns.split(',')))
         yCol = df.columns[yCol]
-        config = dict()
+        config = GetConfig(request)
 
         charts = Pie.GetMultiplePieChartsHTML(df , selectedColumns , yCol , config)
         return SetupParamsAndReturnFilePlot("FilePlot",request ,charts)

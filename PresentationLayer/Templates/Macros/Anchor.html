@@ -1,7 +1,7 @@
 
 {% macro input(displayName,link, div) -%}
 
-<p class="btn btn-secondary" href="{{ link }}" onclick="AnchorOnClick()">View Raw Data</p>
+<p class="btn btn-secondary" href="{{ link }}" onclick="AnchorOnClick()">{{displayName}}</p>
 
 
 <script>
@@ -17,4 +17,4 @@
     }
 </script>
 
-{%- end macro%}
+{%- endmacro %}

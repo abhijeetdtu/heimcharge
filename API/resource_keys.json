@@ -26,5 +26,7 @@
   "TourismRevenue":"41b7e891-a4ca-4be7-8023-dde41ec77112",
   "GDP":"07d49df4-233f-4898-92db-e6855d4dd94c",
   "ElectionExpenditure":"dfc3446c-4f0c-4d46-9a8d-bc74599c6cfd",
-  "PoliticalPartyStatus":"7385bb09-0ce3-44c0-bebf-dfcd240e85ca"
+  "PoliticalPartyStatus":"7385bb09-0ce3-44c0-bebf-dfcd240e85ca",
+  "VidhanSabhaElections":"10e66de2-4fc2-4851-a014-3f81d7dfe349",
+  "PreviousElectionPartyShares":"7385bb09-0ce3-44c0-bebf-dfcd240e85ca"
 }

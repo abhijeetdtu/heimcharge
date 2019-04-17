@@ -18,6 +18,7 @@ import branca.element
 import branca.colormap as cm
 from branca.utilities import split_six
 import pandas as pd
+import copy
 
 from config import plotting
 
@@ -30,7 +31,7 @@ class ChartBuilderBase:
 
     def __init__(self ,dataFrame, layoutConfig = None):
         self.DataFrame = dataFrame
-        self.layoutConfig = layoutConfig
+        self.layoutConfig = copy.deepcopy(layoutConfig)
 
         if 'locked' in self.config and 'filters' in self.config['locked']:
             x = [self.AddFilterTransform(filter.dfColIndex , filter.op , filter.value) for filter in self.config['locked']['filters']]
@@ -38,12 +39,13 @@ class ChartBuilderBase:
             col,dataType = self.config['locked']['sortby']
             self.SortBy(col,dataType)
 
+        self.ClenseConfig()
 
     def GetCol(self , dfColIndex):
-        if type(dfColIndex) == str:
+        try:
+            col = self.DataFrame.columns[int(dfColIndex)]
+        except:
             col = dfColIndex
-        else:
-            col = self.DataFrame.columns[dfColIndex]
         return col
     #to be overriden by child
     def GetChartTrace():
@@ -97,11 +99,17 @@ class ChartBuilderBase:
                 pad=4
             )
             layoutConfig["margin"] = margin
-            layoutConfig["autosize"] = True
+        layoutConfig["autosize"] = True
+        layoutConfig["barmode"]='group'
+        layoutConfig["hovermode"]='closest'
         layout = go.Layout( **layoutConfig)
         figure = go.Figure(data = traceArr , layout = layout)
 
         return figure
+
+    def ClenseConfig(self):
+        if 'returnPartial' in self.config:
+            del self.config['returnPartial']
 
     def GetChart(self):
         if('locked' in self.config):
@@ -129,14 +137,21 @@ class Chart(ChartBuilderBase):
 
     def __init__(self, goType, dataFrame , xCol , yCol , config):
 
-        layoutConfig = self.SeparateLayoutConfig(config, xCol , yCol )
+        self.config = copy.deepcopy(config)
+        layoutConfig = self.SeparateLayoutConfig(self.config, xCol , yCol )
         self.Xcol =xCol
         self.Ycol = yCol
-        self.goType = getattr(go , self.GetGoType(goType))
-        self.config = config
 
         super(Chart, self).__init__(dataFrame,layoutConfig)
 
+        self.goType = getattr(go , self.GetGoType(goType))
+
+        if 'text' in self.config:
+            self.config['text'] = self.DataFrame[self.config['text']]
+
+        self.SetupMarkerColors()
+
+    def SetupMarkerColors(self):
         try:
 
             print(self.DataFrame[xCol].head())
@@ -151,10 +166,6 @@ class Chart(ChartBuilderBase):
             self.DataFrame.loc[self.DataFrame[self.Xcol] > quantiles[2] , colorCol] = plotting["ColorSchemes"][selectedScheme][3]
             self.DataFrame = self.DataFrame.sort_values(by=self.Xcol)
 
-            if 'text' in self.config:
-                self.config['text'] = self.DataFrame[self.config['text']]
-
-
             if 'marker' not in self.config:
                 self.config['marker'] = dict(color = self.DataFrame[colorCol])
             else:
@@ -165,7 +176,10 @@ class Chart(ChartBuilderBase):
                 self.config['marker']['color'] = self.DataFrame[colorCol]
 
         except Exception as e:
-            self.config['marker'] = dict(color =  plotting["ColorSchemes"]["Blueiss"][0])
+            try:
+                self.config['marker'] = dict(color =  plotting["ColorSchemes"]["Blueiss"][0])
+            except:
+                pass
             HandleException(e)
             pass
 
@@ -189,6 +203,13 @@ class Chart(ChartBuilderBase):
     def GetChartTrace(self):
         return [self.goType(x = self.DataFrame[self.Xcol].values , y = self.DataFrame[self.Ycol].values ,  **self.config)]
 
+
+class GroupedBar(Chart):
+
+    def GetChartTrace(self):
+        groupBy = self.config["groupby"]
+        self.DataFrame.groupby(groupBy)
+        return [self.goType(x = self.DataFrame[self.Xcol].values , y = self.DataFrame[self.Ycol].values ,  **self.config)]
 
 class Scatter(Chart):
 
@@ -256,23 +277,34 @@ class StackedBar(ChartBuilderBase):
             traces.append(go.Bar(x = self.DataFrame[xcol] , y = self.DataFrame[self.Ycol] ,  **self.config))
         return traces
 
-class Pie(ChartBuilderBase):
+class Pie(Chart):
 
     def __init__(self,title, values , labels,config):
-        layoutConfig= dict(title = title , xaxis = dict(title="X-axis") , yaxis = dict(title = "Y-Axis"))
+        workingConfig = copy.deepcopy(config)
+        maxLength = plotting["Pie"]["label_max_length"]
+        layoutConfig= dict(title = title
+                         , xaxis = dict(title="X-axis")
+                         , yaxis = dict(title = "Y-Axis")
+                         , legend=dict(x=-.1, y=1.2))
         self.Values= values
-        self.Lables = labels
-        self.config = config
+        self.Labels = ["{0}...".format(label[:maxLength]) for label in labels]
+        workingConfig["layoutConfig"] = {**layoutConfig , **( workingConfig["layoutConfig"] if 'layoutConfig' in workingConfig else dict())}
+        self.config = workingConfig
 
-        super(Pie, self).__init__(pd.DataFrame(columns=self.Labels , data=self.Values),layoutConfig)
+        super(Pie, self).__init__("pie",pd.DataFrame(columns=self.Labels , data=[self.Values]),0,0,self.config)
 
     def GetChartTrace(self):
-        return [go.Pie(values = self.Values , labels = self.Lables ,  **self.config)]
+        print(self.config)
+        return [go.Pie(values = self.Values , labels = self.Labels ,  **self.config)]
+
+    def SetupMarkerColors(self):
+        self.config['marker'] = dict(colors =  plotting["ColorSchemes"]["Pie"])
 
     @staticmethod
     def GetMultiplePieChartsHTML(dataFrame ,selectedXColArr,yCol , config):
+        dataFrame = dataFrame.fillna(0)
         unqValues = dataFrame[yCol].unique()
-        return [ Pie(value  , dataFrame[selectedXColArr].values[dataFrame[yCol] == value][0] , selectedXColArr, config).GetChartHTML() for i , value  in enumerate(unqValues)]
+        return [ Pie(value  , dataFrame.loc[dataFrame[yCol] == value][selectedXColArr].values.tolist()[0] , selectedXColArr,config).GetChartHTML() for i , value  in enumerate(unqValues)]
 
 class Table():
 
@@ -414,15 +446,31 @@ def GetChartTrace(filename , xAxis , yAxis ,xaxisPlot='x1', yaxisPlot = 'y1'):
     return Chart("Bar" , df , columns[xAxis] , columns[yAxis]   , dict(xaxis = xaxisPlot , yaxis = yaxisPlot)).GetChartTrace()[0]
 
 def GetConfig(request):
-    config = dict(locked = dict())
+    config =  { **request.form.to_dict() , **request.args.to_dict() ,"locked":dict()}
+    config = ParseJson(config)
     GetFiltersIntoConfig(request , config)
     SortBy(request,config)
+
+    return config
+
+def ParseJson(config):
+    print(config)
+    for key in config:
+        try:
+            print(config[key])
+            jsObj = json.loads(config[key])
+            config[key] = jsObj
+        except Exception as e:
+            print(e)
+            pass
     return config
 
 def GetFiltersIntoConfig(request , config):
     filterArr = request.args.getlist('filter')
     filters= GetFilterArrayFromArguments(filterArr)
     config["locked"]["filters"] = filters
+    if len(filterArr) > 0 :
+        del config["filter"]
 
 def GetFilterArrayFromArguments(filterArr):
     filters= []
@@ -439,3 +487,4 @@ def GetFilterArrayFromArguments(filterArr):
 def SortBy(request , config):
     if len( request.args.getlist('sortby')) > 0:
         config["locked"]["sortby"] = request.args.getlist('sortby')
+        del config["sortby"]

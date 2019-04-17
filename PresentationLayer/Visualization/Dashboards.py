@@ -71,16 +71,19 @@ def stateliteracy():
 
 @Dashboards.route("/previouselections")
 def ElectionsOverYears():
+
+    #http://localhost:5000/plot/scattersize/vidhansabhaelections/0/6/6/1 Vidhan sabha votes polled
+    #http://localhost:5000/plot/pie/previouselectionpartyshares/0/2,3,4,5,6,7 Pie Seatshare over past years
     try:
         dashboards = [
-             {"title":"Number of constituencies" , "url":url_for("ChartPlot.plot" ,plotName='bar' , filename = "ElectionsOverYears" , xCol = "0" , yCol = "1" ,returnPartial="True")}
-            ,{"title":"BJP seats in elections" , "url":url_for("ChartPlot.plot" ,plotName='scatter' , filename = "politicalpartystatus" , xCol = "0" , yCol = "2" ,returnPartial="True")}
+             {"title":"BJP seats in elections" , "url":url_for("ChartPlot.plot" ,plotName='scatter' , filename = "politicalpartystatus" , xCol = "0" , yCol = "2" ,returnPartial="True")}
             ,{"title":"CPI seats" , "url":url_for("ChartPlot.plot" ,plotName='scatter' , filename = "politicalpartystatus" , xCol = "0" , yCol = "4" ,returnPartial="True")}
             ,{"title":"INC seats" , "url":url_for("ChartPlot.plot" ,plotName='scatter' , filename = "politicalpartystatus" , xCol = "0" , yCol = "6" ,returnPartial="True")}
             ,{"title":"Recognized State Parties seats" , "url":url_for("ChartPlot.plot" ,plotName='scatter' , filename = "politicalpartystatus" , xCol = "0" , yCol = "9" ,returnPartial="True")}
             ,{"title":"Independents seats" , "url":url_for("ChartPlot.plot" ,plotName='scatter' , filename = "politicalpartystatus" , xCol = "0" , yCol = "11" ,returnPartial="True")}
             ,{"title":"Total Other than Recognized Parties seats" , "url":url_for("ChartPlot.plot" ,plotName='scatter' , filename = "politicalpartystatus" , xCol = "0" , yCol = "12" ,returnPartial="True")}
             ,{"title":"Total Expense" , "url":url_for("ChartPlot.plot" ,plotName='bar' , filename = "electionexpenditure" , xCol = "0" , yCol = "5" ,returnPartial="True")}
+            ,{"title":"Number of constituencies" , "url":url_for("ChartPlot.plot" ,plotName='bar' , filename = "ElectionsOverYears" , xCol = "0" , yCol = "1" ,returnPartial="True")}
 
          ]
         return SetupParamsAndReturnTemplate('Dashboards/Carousal' ,request , dict(dashboard_links = dashboards , carousal=True))
@@ -90,24 +93,26 @@ def ElectionsOverYears():
 
 @Dashboards.route("/elections")
 def elections():
+
     try:
         dashboards = [
-            {"url":url_for("Dashboards.ElectionsOverYears",returnPartial="True")},
-            {"title":"Infrastruture Projects" , "url":url_for("ChartPlot.plot" ,plotName='bar' , filename = "InfraProjects" , xCol = "8" , yCol = "7" ,returnPartial="True" , filter="8!=Not Available" , sortby=["Date Of Award","date"] )},
-            {"title": "Indian Exports", "url":url_for("ChartPlot.Trend" , api_file='file',filename = "CountryWiseExports" , yearCols = "5-63" , yCol = "0" ,yVal='India',returnPartial="True")},
-            {"title": "Housing Price Index", "url":url_for("ChartPlot.Trend" , api_file='api',filename = "HousingPriceIndex" , yearCols = "1,2,3,4,5,6,7,8,9,10" , yCol = "0" ,yVal='All India',returnPartial="True")},
-            {"title": "National Income", "url":url_for("ChartPlot.Trend" , api_file='file',filename = "NationalIncome" , yearCols = "1,2,3,4,5,6,7,8,9,10" , yCol = "0" ,yVal='Per Capita Net National Income (`)',returnPartial="True")},
-            {"title": "Tourism Revenue", "url":url_for("ChartPlot.Trend" , api_file='api',filename = "TourismRevenue" , yearCols = "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19" , yCol = "0" ,yVal='Monthly- USD mn',returnPartial="True")},
-            {"title": "FDI TELECOMMUNICATIONS", "url":url_for("ChartPlot.Trend" , api_file='api',filename = "FDI" , yearCols = "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17" , yCol = "0" ,yVal='TELECOMMUNICATIONS',returnPartial="True")},
-            {"title": "FDI TRADING", "url":url_for("ChartPlot.Trend" , api_file='api', filename = "FDI" , yearCols = "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17" , yCol = "0" ,yVal='TRADING',returnPartial="True")},
-            {"title": "FDI HOTEL/TOURISM", "url":url_for("ChartPlot.Trend" , api_file='api', filename = "FDI" , yearCols = "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17" , yCol = "0" ,yVal='HOTEL & TOURISM',returnPartial="True")},
-            {"title": "FDI Retail Trading", "url":url_for("ChartPlot.Trend" , api_file='api', filename = "FDI" , yearCols = "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17" , yCol = "0" ,yVal='RETAIL TRADING',returnPartial="True")},
-            {"title": "FDI Education", "url":url_for("ChartPlot.Trend" , api_file='api', filename = "FDI" , yearCols = "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17" , yCol = "0" ,yVal='EDUCATION',returnPartial="True")},
-            {"title": "Terrorist Attacks - Incidents", "url":url_for("ChartPlot.plot" ,plotName='bar' , filename = "TerroristAttacks" , xCol = "0" , yCol = "1" ,returnPartial="True")},
-            {"title": "Terrorist Attacks - Deaths", "url":url_for("ChartPlot.plot" ,plotName='bar' , filename = "TerroristAttacks" , xCol = "0" , yCol = "2" ,returnPartial="True")},
-            {"title": "Terrorist Attacks - Injuries", "url":url_for("ChartPlot.plot" ,plotName='bar' , filename = "TerroristAttacks" , xCol = "0" , yCol = "3" ,returnPartial="True")},
-            {"title": "Consumer Price Index", "url":url_for("ChartPlot.plot" ,plotName='bar' , filename = "ConsumerPriceIndex" , xCol = "1" , yCol = "20" ,returnPartial="True")},
-            {"title": "GDP", "url":url_for("ChartPlot.plot" ,plotName='scatter' , filename = "gdp" , xCol = "0" , yCol = "14" ,returnPartial="True")}
+            {"title":"Past Elections At a Glance","url":url_for("Dashboards.ElectionsOverYears",returnPartial="True")},
+            {"collapsable":True,"title":"Infrastruture Projects" , "url":url_for("ChartPlot.plot" ,plotName='bar' , filename = "InfraProjects" , xCol = "8" , yCol = "7" ,returnPartial="True" , filter="8!=Not Available" , sortby=["Date Of Award","date"] )},
+            {"collapsable":True,"title": "Indian Exports", "url":url_for("ChartPlot.Trend" , api_file='file',filename = "CountryWiseExports" , yearCols = "5-63" , yCol = "0" ,yVal='India',returnPartial="True")},
+            {"collapsable":True,"title": "Housing Price Index", "url":url_for("ChartPlot.Trend" , api_file='api',filename = "HousingPriceIndex" , yearCols = "1,2,3,4,5,6,7,8,9,10" , yCol = "0" ,yVal='All India',returnPartial="True")},
+            {"collapsable":True,"title": "National Income", "url":url_for("ChartPlot.Trend" , api_file='file',filename = "NationalIncome" , yearCols = "1,2,3,4,5,6,7,8,9,10" , yCol = "0" ,yVal='Per Capita Net National Income (`)',returnPartial="True")},
+            {"collapsable":True,"title": "Tourism Revenue", "url":url_for("ChartPlot.Trend" , api_file='api',filename = "TourismRevenue" , yearCols = "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19" , yCol = "0" ,yVal='Monthly- USD mn',returnPartial="True")},
+            {"collapsable":True,"title": "FDI TELECOMMUNICATIONS", "url":url_for("ChartPlot.Trend" , api_file='api',filename = "FDI" , yearCols = "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17" , yCol = "0" ,yVal='TELECOMMUNICATIONS',returnPartial="True")},
+            {"collapsable":True,"title": "FDI TRADING", "url":url_for("ChartPlot.Trend" , api_file='api', filename = "FDI" , yearCols = "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17" , yCol = "0" ,yVal='TRADING',returnPartial="True")},
+            {"collapsable":True,"title": "FDI HOTEL/TOURISM", "url":url_for("ChartPlot.Trend" , api_file='api', filename = "FDI" , yearCols = "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17" , yCol = "0" ,yVal='HOTEL & TOURISM',returnPartial="True")},
+            {"collapsable":True,"title": "FDI Retail Trading", "url":url_for("ChartPlot.Trend" , api_file='api', filename = "FDI" , yearCols = "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17" , yCol = "0" ,yVal='RETAIL TRADING',returnPartial="True")},
+            {"collapsable":True,"title": "FDI Education", "url":url_for("ChartPlot.Trend" , api_file='api', filename = "FDI" , yearCols = "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17" , yCol = "0" ,yVal='EDUCATION',returnPartial="True")},
+            {"collapsable":True,"title": "Terrorist Attacks - Incidents", "url":url_for("ChartPlot.plot" ,plotName='bar' , filename = "TerroristAttacks" , xCol = "0" , yCol = "1" ,returnPartial="True")},
+            {"collapsable":True,"title": "Terrorist Attacks - Deaths", "url":url_for("ChartPlot.plot" ,plotName='bar' , filename = "TerroristAttacks" , xCol = "0" , yCol = "2" ,returnPartial="True")},
+            {"collapsable":True,"title": "Terrorist Attacks - Injuries", "url":url_for("ChartPlot.plot" ,plotName='bar' , filename = "TerroristAttacks" , xCol = "0" , yCol = "3" ,returnPartial="True")},
+            {"collapsable":True,"title": "Consumer Price Index", "url":url_for("ChartPlot.plot" ,plotName='bar' , filename = "ConsumerPriceIndex" , xCol = "1" , yCol = "20" ,returnPartial="True")},
+            {"collapsable":True,"title": "GDP", "url":url_for("ChartPlot.plot" ,plotName='scatter' , filename = "gdp" , xCol = "0" , yCol = "14" ,returnPartial="True")},
+            {"collapsable":True,"indirect":True,"title":"Seatshare over past years" , "url":url_for("ChartPlot.pie" , filename = "previouselectionpartyshares" , commaSeparatedColumns = "2,3,4,5,6,7" , yCol = "0" ,returnPartial="True")}
          ]
         return SetupParamsAndReturnTemplate('Dashboards/Base' ,request,dict(dashboard_links = dashboards))
 
