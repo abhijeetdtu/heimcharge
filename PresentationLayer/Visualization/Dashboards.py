@@ -1,12 +1,7 @@
-from flask import Blueprint,render_template , Markup , url_for , request
+from flask import Blueprint,render_template  , url_for , request ,abort
 from jinja2 import TemplateNotFound
 
-from BusinessLogic.Mapping import *
-from BusinessLogic.FileOps import *
-from PresentationLayer.Visualization.ChartPlot import SetupParamsAndReturnTemplate
-
-import os
-from config import files
+import PresentationLayer.Visualization._chartHelpers as Helpers
 
 Dashboards = Blueprint('Dashboards', __name__)
 
@@ -15,7 +10,6 @@ Dashboards = Blueprint('Dashboards', __name__)
 def importantDashboards():
     try:
         dashboards= [ url_for('Dashboards.elections') ,url_for('Dashboards.tourists') , url_for('Dashboards.mutualFunds')  , url_for('Dashboards.civilAviation')   , url_for('Dashboards.stateliteracy') ]
-
         return render_template('Dashboards/Landing.html' ,dashboard_links = dashboards)
 
     except TemplateNotFound:
@@ -24,10 +18,10 @@ def importantDashboards():
 @Dashboards.route('/tourists')
 def tourists():
     try:
-
-        dashboards= [ "/plot/scatter/TourismIndiaOverYears/1/4/0?returnPartial=True" ]
-
-        return render_template('Dashboards/Base.html' ,dashboard_links = dashboards)
+        dashboards= [
+        {"title":"Tourist Volume" , "url":url_for("ChartPlot.scatter",filename="TourismIndiaOverYears",xCol="1" , yCol ="4", textCol="0",returnPartial="True")}
+        ]
+        return Helpers.SetupParamsAndReturnTemplate('Dashboards/Base' ,request , dict(dashboard_links = dashboards , carousal=False))
 
     except TemplateNotFound:
         abort(404)
@@ -37,10 +31,13 @@ def tourists():
 def mutualFunds():
     try:
 
-        dashboards = ['/plot/scatter/MutualFundPerformance/{}/{}/0?returnPartial=True'.format(i,i+1) for i in range(3,10)]
+        dashboards= [
+        {"title":"Mutual Fund Performance" , "url":url_for("ChartPlot.scatter",filename="MutualFundPerformance",xCol=i , yCol =i+1, textCol="0",returnPartial="True")}
+        for i in range(3,10)
+        ]
+        return Helpers.SetupParamsAndReturnTemplate('Dashboards/Base' ,request , dict(dashboard_links = dashboards , carousal=False))
 
-
-        return render_template('Dashboards/Base.html' ,dashboard_links = dashboards)
+        #dashboards = ['/plot/scatter/MutualFundPerformance/{}/{}/0?returnPartial=True'.format(i,i+1) for i in range(3,10)]
 
     except TemplateNotFound:
         abort(404)
@@ -51,9 +48,10 @@ def civilAviation():
 
     try:
 
-        dashboards = [url_for("ChartPlot.apiplot" ,plotName= "bar" , resourceName = "aviationcitywisepassengers" , xCol = "4" , yCol = "1" ,isHorizontal = "h" , returnPartial="True") ]
-
-        return render_template('Dashboards/Base.html' ,dashboard_links = dashboards)
+        dashboards= [
+        {"title":"Civil Aviation Growth" , "url":url_for("ChartPlot.apiplot" ,plotName= "bar" , resourceName = "aviationcitywisepassengers" , xCol = "4" , yCol = "1" ,isHorizontal = True , returnPartial="True") }
+        ]
+        return Helpers.SetupParamsAndReturnTemplate('Dashboards/Base' ,request , dict(dashboard_links = dashboards , carousal=False))
 
     except TemplateNotFound:
         abort(404)
@@ -62,9 +60,11 @@ def civilAviation():
 def stateliteracy():
 
     try:
-
-        dashboards = [url_for("ChartPlot.scatterSize" ,resourceName = "stateliteracy" , xCol = "4" , yCol = "7" ,sizeCol="7" , textCol=0 , returnPartial="True") ]
-        return render_template('Dashboards/Base.html' ,dashboard_links = dashboards)
+        dashboards= [
+            {"title":"State Literacy" , "url":url_for("ChartPlot.scatterSize" ,resourceName = "stateliteracy" , xCol = "4" , yCol = "7" ,sizeCol="7" , textCol="0" , returnPartial="True") }
+        ,   {"collapsable":True,"title": "State Literacy Trend", "url":url_for("ChartPlot.Trend" , api_file='file',filename = "stateliteracy" , yearCols = "4-8" , yCol = "0" ,yVal='-',returnPartial="True")},
+        ]
+        return Helpers.SetupParamsAndReturnTemplate('Dashboards/Base' ,request , dict(dashboard_links = dashboards , carousal=False))
 
     except TemplateNotFound:
         abort(404)
@@ -86,7 +86,7 @@ def ElectionsOverYears():
             ,{"title":"Number of constituencies" , "url":url_for("ChartPlot.plot" ,plotName='bar' , filename = "ElectionsOverYears" , xCol = "0" , yCol = "1" ,returnPartial="True")}
 
          ]
-        return SetupParamsAndReturnTemplate('Dashboards/Carousal' ,request , dict(dashboard_links = dashboards , carousal=True))
+        return Helpers.SetupParamsAndReturnTemplate('Dashboards/Carousal' ,request , dict(dashboard_links = dashboards , carousal=True))
 
     except TemplateNotFound:
         abort(404)
@@ -114,7 +114,7 @@ def elections():
             {"collapsable":True,"title": "GDP", "url":url_for("ChartPlot.plot" ,plotName='scatter' , filename = "gdp" , xCol = "0" , yCol = "14" ,returnPartial="True")},
             {"collapsable":True,"indirect":True,"title":"Seatshare over past years" , "url":url_for("ChartPlot.pie" , filename = "previouselectionpartyshares" , commaSeparatedColumns = "2,3,4,5,6,7,9,10,11,12" , yCol = "0" ,returnPartial="True")}
          ]
-        return SetupParamsAndReturnTemplate('Dashboards/Base' ,request,dict(dashboard_links = dashboards))
+        return Helpers.SetupParamsAndReturnTemplate('Dashboards/Base' ,request,dict(dashboard_links = dashboards))
 
     except TemplateNotFound:
         abort(404)

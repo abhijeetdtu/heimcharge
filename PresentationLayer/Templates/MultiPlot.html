@@ -1,0 +1,61 @@
+{% if returnPartial == None or returnPartial == False %}
+{% extends "_layout.html" %}
+{% endif %}
+
+{% block content %}
+{% set baseUrl = url_for("ChartPlot.MultiPlotPost") %}
+{% set id= range(0,100000) | random %}
+<div id="multiplot{{id}}" class="row">
+  <div class="col-md-4">
+    <div class="form-group">
+      <button class="btn btn-primary mb-2" onclick="App.PostJsonAndOpenInDiv('{{baseUrl}}' ,'#multiplot{{id}} textarea', '#multiplot{{id}} .viewbox' )">Get Chart</button>
+    </div>
+    <div class="form-group">
+      <textarea id="jsonarea{{id}}" rows="40" style="min-width: 100%">
+        {
+          "layout": {
+            "rows": 1,
+            "cols": 2,
+            "specs": [
+              [{},{}]
+            ],
+            "shared_xaxes": true,
+            "shared_yaxes": false
+          },
+          "charts": [
+
+            {
+              "method": "_chartPlot",
+              "params": {
+                "filename": "politicalpartystatus",
+                "plotName": "scatter",
+                "xCol": "0",
+                "yCol": "2"
+              },
+              "chart_params":{
+                "name": "BJP Seats"
+              }
+            },
+             {
+              "method": "_chartPlot",
+              "params": {
+                "filename": "politicalpartystatus",
+                "plotName": "scatter",
+                "xCol": "0",
+                "yCol": "4"
+              },
+              "chart_params":{
+                "name": "CPI Seats"
+              }
+            }
+          ]
+        }
+      </textarea>
+    </div>
+  </div>
+  <div class="col-md-8">
+      <div id="viewBox{{id}}" class="viewbox"></div>
+  </div>
+</div>
+
+{% endblock %}

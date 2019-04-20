@@ -9,7 +9,7 @@ from BusinessLogic.GeoProcessing import *
 
 import PresentationLayer.Visualization.Helpers as Helpers
 
-from PresentationLayer.Visualization.ChartPlot import SetupParamsAndReturnTemplate
+import PresentationLayer.Visualization._chartHelpers as Helpers
 
 APIPlot = Blueprint('APIPlot', __name__,template_folder='templates')
 
@@ -50,7 +50,7 @@ def GetParams(request , xy ,isHorizontalFromGet, df):
 @APIPlot.route("/landing" , methods=["GET"])
 def landing():
     links = [(link , url_for("APIPlot.plot" , resourceName= link , chartType= "bar" , returnPartial=True))  for link in  RT.GetAllAvailableResources()]
-    return SetupParamsAndReturnTemplate("APIPlot/Landing" , request , dict(links = links))
+    return  Helpers.SetupParamsAndReturnTemplate("APIPlot/Landing" , request , dict(links = links))
 
 
 def GetChart(chartType,df ,x , y , config):
@@ -80,7 +80,7 @@ def plot(resourceName ,chartType,xy=None,isHorizontal='False', filters=None):
     config['orientation'] = isHorizontal
     #barChart = Markup(BarChart(df , x , y  , 'h'))
     barChart = GetChart(chartType,df ,x , y , config).GetChartHTML()
-    return SetupParamsAndReturnTemplate("ApiPlot",request , {"barChart":barChart , "json":js ,"resourceName":resourceName,"chartType" :chartType, "exampleDic":exampleDic , "url":baseUrl})
+    return  Helpers.SetupParamsAndReturnTemplate("ApiPlot",request , {"barChart":barChart , "json":js ,"resourceName":resourceName,"chartType" :chartType, "exampleDic":exampleDic , "url":baseUrl})
 
 
 
@@ -105,5 +105,5 @@ def aqmap(city="Delhi", pollutant_id="NO2"):
     columns = ['city', 'pollutant_avg']
     colorBy = 'pollutant_avg'
     m = IndiaMap(df ,colorBy, columns)
-    return SetupParamsAndReturnTemplate("ApiPlot",request , {"barChart":m.Html , "json":{} ,"resourceName":"","chartType" :"map", "exampleDic":exampleDic , "url":""})
+    return  Helpers.SetupParamsAndReturnTemplate("ApiPlot",request , {"barChart":m.Html , "json":{} ,"resourceName":"","chartType" :"map", "exampleDic":exampleDic , "url":""})
 """

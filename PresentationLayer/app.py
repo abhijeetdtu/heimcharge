@@ -17,7 +17,6 @@ from PresentationLayer.Visualization.APIPlot import APIPlot
 from BusinessLogic.Entities import NavItem
 from API.RestBase import Rest
 
-from config import files
 import pdb
 
 application = Flask(__name__ , static_folder="static", template_folder='Templates')

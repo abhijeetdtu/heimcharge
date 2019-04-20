@@ -11,7 +11,6 @@ import BusinessLogic.Wikipedia as Wiki
 import copy
 import os
 
-from config import files
 
 IndiaBasePlot = Blueprint('IndiaBasePlot', __name__,template_folder='templates')
 
@@ -20,8 +19,7 @@ IndiaBasePlot = Blueprint('IndiaBasePlot', __name__,template_folder='templates')
 def show():
     try:
 
-        dataFile = files["StateWisePop"]
-        df = GetDataFrameFromJson(dataFile , PopulationTransform)
+        df = GetDataFrame("stateWisePopulation")
 
         columns = ['India / State/ Union Territory', 'Population 2011']
         colorBy = 'Population 2011'

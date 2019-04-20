@@ -29,9 +29,10 @@ from BusinessLogic.Entities import DataFilter
 
 class ChartBuilderBase:
 
-    def __init__(self ,dataFrame, layoutConfig = None):
+    def __init__(self ,dataFrame, layoutConfig = None , fig = None):
         self.DataFrame = dataFrame
         self.layoutConfig = copy.deepcopy(layoutConfig)
+        self.fig = fig
 
         if 'locked' in self.config and 'filters' in self.config['locked']:
             x = [self.AddFilterTransform(filter.dfColIndex , filter.op , filter.value) for filter in self.config['locked']['filters']]
@@ -48,8 +49,9 @@ class ChartBuilderBase:
             col = dfColIndex
         return col
     #to be overriden by child
-    def GetChartTrace():
-        return []
+    def GetChartTrace(self):
+        if('locked' in self.config):
+            del self.config['locked']
 
     def SortBy(self,col,dataType):
         col = self.GetCol(col)
@@ -103,19 +105,22 @@ class ChartBuilderBase:
         layoutConfig["barmode"]='group'
         layoutConfig["hovermode"]='closest'
         layoutConfig["paper_bgcolor"]='rgba(0,0,0,0)'
-        layout = go.Layout( **layoutConfig)
-        figure = go.Figure(data = traceArr , layout = layout)
 
-        return figure
+        if self.fig != None:
+            self.fig['layout'].update({**layoutConfig})
+            print(self.fig['layout'])
+        else:
+            layout = go.Layout(**layoutConfig )
+            figure = go.Figure(data = traceArr , layout = layout)
+            self.fig = figure
+
+        return self.fig
 
     def ClenseConfig(self):
         if 'returnPartial' in self.config:
             del self.config['returnPartial']
 
     def GetChart(self):
-        if('locked' in self.config):
-            del self.config['locked']
-
         data = self.GetChartTrace()
         return self.PrepareFigure(self.layoutConfig, data)
 
@@ -137,18 +142,16 @@ class Chart(ChartBuilderBase):
         return goType
 
     def __init__(self, goType, dataFrame , xCol , yCol , config):
-
+        #pdb.set_trace()
         self.config = copy.deepcopy(config)
         layoutConfig = self.SeparateLayoutConfig(self.config, xCol , yCol )
-        self.Xcol =xCol
-        self.Ycol = yCol
 
         super(Chart, self).__init__(dataFrame,layoutConfig)
 
-        self.goType = getattr(go , self.GetGoType(goType))
+        self.Xcol = self.GetCol(xCol)
+        self.Ycol = self.GetCol(yCol)
 
-        if 'text' in self.config:
-            self.config['text'] = self.DataFrame[self.config['text']]
+        self.goType = getattr(go , self.GetGoType(goType))
 
         self.SetupMarkerColors()
 
@@ -165,6 +168,9 @@ class Chart(ChartBuilderBase):
             self.DataFrame.loc[self.DataFrame[self.Xcol] > quantiles[1], colorCol] = plotting["ColorSchemes"][selectedScheme][2]
             self.DataFrame.loc[self.DataFrame[self.Xcol] > quantiles[2] , colorCol] = plotting["ColorSchemes"][selectedScheme][3]
             self.DataFrame = self.DataFrame.sort_values(by=self.Xcol)
+
+            if 'text' in self.config:
+                self.config['text'] = self.DataFrame[self.config['text']]
 
             if 'marker' not in self.config:
                 self.config['marker'] = dict(color = self.DataFrame[colorCol])
@@ -201,12 +207,14 @@ class Chart(ChartBuilderBase):
         return layoutConfig
 
     def GetChartTrace(self):
+        super().GetChartTrace()
         return [self.goType(x = self.DataFrame[self.Xcol].values , y = self.DataFrame[self.Ycol].values ,  **self.config)]
 
 
 class GroupedBar(Chart):
 
     def GetChartTrace(self):
+        super().GetChartTrace()
         groupBy = self.config["groupby"]
         self.DataFrame.groupby(groupBy)
         return [self.goType(x = self.DataFrame[self.Xcol].values , y = self.DataFrame[self.Ycol].values ,  **self.config)]
@@ -219,6 +227,7 @@ class Scatter(Chart):
         super(Scatter, self).__init__(goType, dataFrame,xCol , yCol , config)
 
     def GetChartTrace(self):
+        super().GetChartTrace()
         self.config['marker']['size'] = self.DataFrame[self.Zcol].tolist()
         #print(self.config['marker']['size'])
         [self.goType(x=self.DataFrame[self.Xcol] , y=self.DataFrame[self.Ycol] ,**self.config)]
@@ -295,23 +304,24 @@ class Pie(Chart):
 
     def GetChartTrace(self):
         print(self.config)
+        super().GetChartTrace()
         return [go.Pie(values = self.Values , labels = self.Labels ,  **self.config)]
 
     def SetupMarkerColors(self):
         self.config['marker'] = dict(colors =  plotting["ColorSchemes"]["Pie"])
 
     @staticmethod
-    def GetMultiplePieChartsHTML(dataFrame ,selectedXColArr,yCol , config):
+    def GetMultiplePieCharts(dataFrame ,selectedXColArr,yCol , config):
         dataFrame = dataFrame.fillna(0)
         unqValues = dataFrame[yCol].unique()
-        return [ Pie(value  , dataFrame.loc[dataFrame[yCol] == value][selectedXColArr].values.tolist()[0] , selectedXColArr,config).GetChartHTML() for i , value  in enumerate(unqValues)]
+        return [ Pie(value  , dataFrame.loc[dataFrame[yCol] == value][selectedXColArr].values.tolist()[0] , selectedXColArr,config) for i , value  in enumerate(unqValues)]
 
 class Table():
 
     def __init__(self,dataFrame):
         self.DataFrame = dataFrame
 
-    def GetTableTrace(self):
+    def GetChartTrace(self):
         df = self.DataFrame
         values = [df[col] for i,col in enumerate(df.columns)]
         trace = go.Table(
@@ -325,7 +335,7 @@ class Table():
         return trace
 
     def GetChart(self):
-        data = [self.GetTableTrace()]
+        data = [self.GetChartTrace()]
 
         figure = go.Figure(data = data)
 
@@ -335,15 +345,31 @@ class Table():
         return Markup(self.Plot(self.GetChart()))
 
     def Plot(self,figure):
-
         return plot(figure, output_type='div' , config={'displayModeBar': False} , include_plotlyjs=False)
+
+class MultiPlot(ChartBuilderBase):
+    def __init__(self, chartsTraceArr , layout):
+        #pdb.set_trace()
+        self.config = {}
+        fig = tools.make_subplots(**layout)
+        rows = layout["rows"]
+        cols = layout["cols"]
+
+        r,c = 1,1
+        for i,trace in enumerate(chartsTraceArr):
+            r += 1
+            if r > rows:
+                r = 1
+                c += 1
+                if c > cols:
+                    c = 1
+            fig.append_trace(trace, r,c)
+        super(MultiPlot, self).__init__(None,{},fig)
+
+
 
 def Plot(figure):
     return plot(figure, output_type='div' , config={'displayModeBar': False} , include_plotlyjs=False)
-
-def PopulationTransform(df):
-     df["Population 2011"] = df["Population 2011"].astype(float)
-     return df
 
 def BarChartTrace(df , xCol , yCol , orientation = 'h'):
     return go.Bar(
@@ -408,6 +434,8 @@ def SharedAxisBarCharts(chartArr , subplotTitles , chartTitle , sharedX , shared
 
 
 def UpdateSizeByColorByColumns(df,xCol , yCol ):
+    #xCol = GetCol(df , xCol)
+    #yCol = GetCol(df , yCol)
     sizeBy = (df[df.columns[xCol]].astype(float).values - df[df.columns[yCol]].astype(float).values)
 
     colorBy = [ 'rgb(255, 144, 14)' if x < 0 else 'rgb(44, 160, 101)' for x in sizeBy]
@@ -425,10 +453,22 @@ def UpdateSizeByColorByColumns(df,xCol , yCol ):
 def GetMappedValue(OldValue , OldMin , OldMax , NewMax , NewMin):
     return (((OldValue - OldMin) * (NewMax - NewMin)) / (OldMax - OldMin)) + NewMin
 
-def GetScatterChart(filename,xCol , yCol , textCol,configBase):
-    df,columns = GetDataFrame(filename)
-    df = UpdateSizeByColorByColumns(df,xCol , yCol )
+def _scatterColumnAdjust(df , col):
+    if col.find("-") >=0:
+        df[col] = col.split("-")[1]
+        return df.columns.get_loc(col)
+    else:
+        return int(col)
 
+def GetScatterChart(filename,xCol , yCol , textCol,configBase):
+    #pdb.set_trace()
+    df,columns = GetDataFrame(filename)
+
+    xCol = _scatterColumnAdjust(df,xCol)
+    yCol = _scatterColumnAdjust(df,yCol)
+
+    df = UpdateSizeByColorByColumns(df,xCol , yCol )
+    textCol = GetCol(df , textCol)
     config = dict(mode ='markers' , text = textCol, marker = dict(size=  df["sizeBy"].tolist() , color = df["colorBy"], line = dict(width = 2,)))
 
     for key in configBase:
@@ -446,10 +486,12 @@ def GetChartTrace(filename , xAxis , yAxis ,xaxisPlot='x1', yaxisPlot = 'y1'):
     return Chart("Bar" , df , columns[xAxis] , columns[yAxis]   , dict(xaxis = xaxisPlot , yaxis = yaxisPlot)).GetChartTrace()[0]
 
 def GetConfig(request):
-    config =  { **request.form.to_dict() , **request.args.to_dict() ,"locked":dict()}
+    request.manual_params = request.manual_params if hasattr(request, 'manual_params') else  dict()
+    request.chart_params = request.chart_params if hasattr(request, 'chart_params') else  dict()
+    config =  { **request.form.to_dict() , **request.args.to_dict() ,"locked":{**request.manual_params} , **request.chart_params }
     config = ParseJson(config)
-    GetFiltersIntoConfig(request , config)
-    SortBy(request,config)
+    GetFiltersIntoConfig(config)
+    SortBy(config)
 
     return config
 
@@ -465,12 +507,10 @@ def ParseJson(config):
             pass
     return config
 
-def GetFiltersIntoConfig(request , config):
-    filterArr = request.args.getlist('filter')
+def GetFiltersIntoConfig(config):
+    filterArr = config['locked']['filter'] if 'filter' in config['locked'] else []
     filters= GetFilterArrayFromArguments(filterArr)
     config["locked"]["filters"] = filters
-    if len(filterArr) > 0 :
-        del config["filter"]
 
 def GetFilterArrayFromArguments(filterArr):
     filters= []
@@ -484,7 +524,14 @@ def GetFilterArrayFromArguments(filterArr):
 
     return filters
 
-def SortBy(request , config):
-    if len( request.args.getlist('sortby')) > 0:
+def SortBy(config):
+    if 'sortby' in config['locked']:
         config["locked"]["sortby"] = request.args.getlist('sortby')
-        del config["sortby"]
+        #del config["sortby"]
+
+def GetCol(df, dfColIndex):
+    try:
+        col = df.columns[int(dfColIndex)]
+    except:
+        col = dfColIndex
+    return col
