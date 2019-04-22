@@ -41,6 +41,11 @@ def _chartTrend(request , api_file,filename,yearCols , yCol,yVal='-'):
 
     return charts
 
+def _chartTimeline(request,filename,timeCol,eventCol):
+    df,columns = FileOps.GetDataFrame(filename)
+    config = BLM.GetConfig(request)
+    return BLM.TimeLine(df, timeCol, eventCol, config)
+
 def _chartTable(request,  filename):
     df,columns = FileOps.GetDataFrame(filename)
     return  BLM.Table(df)
@@ -77,3 +82,29 @@ def _chartPie(request , filename,yCol,commaSeparatedColumns):
     yCol = df.columns[int(yCol)]
     config = BLM.GetConfig(request)
     return BLM.Pie.GetMultiplePieCharts(df , selectedColumns , yCol , config)
+
+
+def _getChartMethod(methodName):
+    possibles = globals().copy()
+    possibles.update(locals())
+    return possibles.get(methodName)
+
+def _chartMultiPlot(request):
+    json = request.get_json()
+    chartsConfigs = json["charts"]
+    traces = []
+    layout = json['layout']
+
+    for chartConfig in chartsConfigs:
+        request.manual_params = chartConfig['query_params'] if 'query_params' in chartConfig else dict()
+        request.chart_params = chartConfig['chart_params'] if 'chart_params' in chartConfig else dict()
+        chartConfig['params']['request'] = request
+        charts = _getChartMethod(chartConfig['method'])(**chartConfig['params'])
+        if type(charts) == list:
+            for chart in charts :
+                for trace in chart.GetChartTrace():
+                    traces.append(trace)
+        else:
+            traces.extend(charts.GetChartTrace())
+
+    return BLM.MultiPlot(traces, layout)

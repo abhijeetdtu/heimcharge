@@ -47,6 +47,15 @@ body {
    top:40%;
 }
 
+.rangeslider-rangeplot.xy {
+    display: none;
+}
+
+.hovertext text {
+    font-size: 2em !important;
+}
+
+
 .carousel .trace.bars .points .point:nth-child(even) path{
 
     fill:#21252A !important;

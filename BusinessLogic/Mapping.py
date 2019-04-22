@@ -2,8 +2,9 @@ import os
 import operator
 import re
 import pdb
-
 import json
+import random
+import math
 
 from flask import Markup
 
@@ -29,7 +30,8 @@ from BusinessLogic.Entities import DataFilter
 
 class ChartBuilderBase:
 
-    def __init__(self ,dataFrame, layoutConfig = None , fig = None):
+    def __init__(self ,dataFrame, layoutConfig = {} , fig = None):
+        #pdb.set_trace()
         self.DataFrame = dataFrame
         self.layoutConfig = copy.deepcopy(layoutConfig)
         self.fig = fig
@@ -108,7 +110,7 @@ class ChartBuilderBase:
 
         if self.fig != None:
             self.fig['layout'].update({**layoutConfig})
-            print(self.fig['layout'])
+            #print(self.fig['layout'])
         else:
             layout = go.Layout(**layoutConfig )
             figure = go.Figure(data = traceArr , layout = layout)
@@ -161,7 +163,7 @@ class Chart(ChartBuilderBase):
             quantiles = self.DataFrame[self.Xcol].quantile([0.25 , 0.5 , 0.75 , 1]).values
 
             colorCol = 'MarkerColor' + self.Xcol
-            print(plotting)
+            #print(plotting)
             selectedScheme = plotting["SelectedScheme"]
             self.DataFrame[colorCol] = plotting["ColorSchemes"][selectedScheme][0]
             self.DataFrame.loc[self.DataFrame[self.Xcol] > quantiles[0], colorCol] = plotting["ColorSchemes"][selectedScheme][1]
@@ -174,12 +176,13 @@ class Chart(ChartBuilderBase):
 
             if 'marker' not in self.config:
                 self.config['marker'] = dict(color = self.DataFrame[colorCol])
-            else:
-                if 'size' in self.config['marker'] :
-                    sizeBy =  self.DataFrame[self.config['marker']['size']]
-                    normalized_size = 10*(((sizeBy-sizeBy.mean())/sizeBy.std()) + 3)
-                    self.config['marker']['size'] = normalized_size
-                self.config['marker']['color'] = self.DataFrame[colorCol]
+            #else:
+
+                #if 'size' in self.config['marker'] :
+                #    sizeBy =  self.DataFrame[self.config['marker']['size']]
+                #    normalized_size = 10*(((sizeBy-sizeBy.mean())/sizeBy.std()) + 3)
+                #    self.config['marker']['size'] = normalized_size
+                #self.config['marker']['color'] = self.DataFrame[colorCol]
 
         except Exception as e:
             try:
@@ -207,6 +210,7 @@ class Chart(ChartBuilderBase):
         return layoutConfig
 
     def GetChartTrace(self):
+
         super().GetChartTrace()
         return [self.goType(x = self.DataFrame[self.Xcol].values , y = self.DataFrame[self.Ycol].values ,  **self.config)]
 
@@ -230,7 +234,7 @@ class Scatter(Chart):
         super().GetChartTrace()
         self.config['marker']['size'] = self.DataFrame[self.Zcol].tolist()
         #print(self.config['marker']['size'])
-        [self.goType(x=self.DataFrame[self.Xcol] , y=self.DataFrame[self.Ycol] ,**self.config)]
+        return [self.goType(x=self.DataFrame[self.Xcol] , y=self.DataFrame[self.Ycol] ,**self.config)]
 
 class TrendChart(Chart):
     def __init__(self, dataFrame ,yearCols,yCol,yVal,config):
@@ -241,6 +245,79 @@ class TrendChart(Chart):
         df['Year'] = columns
         super(TrendChart, self).__init__('scatter', df,'Year' , yVal , config)
 
+class TimeLine(ChartBuilderBase):
+
+    def __init__(self,dataFrame,timeCol,eventCol,config):
+        #pdb.set_trace()
+        self.timeCol = GetCol(dataFrame , timeCol)
+        self.eventCol = GetCol(dataFrame ,eventCol)
+        self.dataFrame = dataFrame
+        self.traces = []
+        self.config = config
+        config["mode"] = "lines+markers+text"
+        config["textposition"] = 'middle center'
+        config["showlegend"] = False
+        config['marker'] = dict(
+            symbol = "square-open"
+        )
+        baseheight= 15
+        basestep = 7
+        height = baseheight
+        direction = 1
+        step = basestep
+        size = 0
+
+        #print("AAAAAAAAAAAAAAAAAAAAAAAAAA", str(pd.to_datetime(self.dataFrame.iloc[0][self.timeCol].astype(int).astype(str) ,format="%Y" )) , self.dataFrame.iloc[0][self.timeCol].dtype == 'float64' )
+        if self.dataFrame.iloc[0][self.timeCol].dtype == 'float64':
+            start = self.dataFrame.iloc[0][self.timeCol].astype(int).astype(str)
+            end =  self.dataFrame.iloc[15][self.timeCol].astype(int).astype(str)
+        else:
+            start = self.dataFrame.iloc[0][self.timeCol].astype(str)
+            end = self.dataFrame.iloc[15][self.timeCol].astype(str)
+        layoutConfig = dict(
+
+            xaxis=dict(
+                range=[ start , end],
+                rangeslider=dict(
+                    visible = True
+                ),
+                type='date'
+            )
+        )
+
+
+        for i,time in enumerate(self.dataFrame[self.timeCol].unique()):
+            events = self.dataFrame[self.dataFrame[self.timeCol] == time][self.eventCol].values
+            #print(events , len(events))
+            if i % 10  == 0:
+                usedHeights = {0:True}
+            rows = []
+            #height = baseheight + direction*baseheight/2
+            height = baseheight
+            step = (height)/2
+            for j,event in enumerate(events):
+
+                while height in usedHeights:
+                    height -= step
+                #height = (-1*height) if direction < 0 else abs(height)-step if abs(height)-step > 0 else baseheight
+                rows.append([event,height,time,size])
+                usedHeights[height] = True
+
+                #height = height-step
+                if height < -1*baseheight:
+                    height = baseheight
+                #height = random.random()*direction*height + step*direction
+
+            direction = (direction + 5) % 15
+            rows.append(["-",0,time,0])
+            nDf = pd.DataFrame(data=rows , columns=["Event" ,"Height", "Time",'sizeBy'])
+            self.traces.append(GetScatterChart( nDf , "2" ,"1", "0" , config).GetChartTrace()[0])
+
+        #pdb.set_trace()
+        super(TimeLine , self).__init__(self.dataFrame , layoutConfig)
+
+    def GetChartTrace(self):
+        return  self.traces
 
 class SingleAxisChart(Chart):
     def __init__(self,goType, dataFrame , col ,axis, config):
@@ -436,18 +513,23 @@ def SharedAxisBarCharts(chartArr , subplotTitles , chartTitle , sharedX , shared
 def UpdateSizeByColorByColumns(df,xCol , yCol ):
     #xCol = GetCol(df , xCol)
     #yCol = GetCol(df , yCol)
-    sizeBy = (df[df.columns[xCol]].astype(float).values - df[df.columns[yCol]].astype(float).values)
+    #pdb.set_trace()
+    if 'sizeBy' not in df.columns:
+        sizeBy = (df[df.columns[xCol]].astype(float).values - df[df.columns[yCol]].astype(float).values)
+    else:
+        sizeBy = df['sizeBy'].values
 
     colorBy = [ 'rgb(255, 144, 14)' if x < 0 else 'rgb(44, 160, 101)' for x in sizeBy]
 
-    sizeBy = (sizeBy-sizeBy.mean())/sizeBy.std()
+    if 'sizeBy' not in df.columns:
+        sizeBy = (sizeBy-sizeBy.mean())/sizeBy.std()
+        sizeBy = list(map(lambda x: abs(x)*20, sizeBy))
+        #print(sizeBy)
+        df["sizeBy"] = sizeBy
 
-
-    sizeBy = list(map(lambda x: abs(x)*20, sizeBy))
-    #print(sizeBy)
-    df["sizeBy"] = sizeBy
     df["colorBy"] = colorBy
 
+    #pdb.set_trace()
     return df
 
 def GetMappedValue(OldValue , OldMin , OldMax , NewMax , NewMin):
@@ -461,21 +543,24 @@ def _scatterColumnAdjust(df , col):
         return int(col)
 
 def GetScatterChart(filename,xCol , yCol , textCol,configBase):
-    #pdb.set_trace()
-    df,columns = GetDataFrame(filename)
+
+    if type(filename) == pd.DataFrame:
+        df,columns = [filename , filename.columns]
+    else:
+        df,columns = GetDataFrame(filename)
 
     xCol = _scatterColumnAdjust(df,xCol)
     yCol = _scatterColumnAdjust(df,yCol)
 
     df = UpdateSizeByColorByColumns(df,xCol , yCol )
     textCol = GetCol(df , textCol)
-    config = dict(mode ='markers' , text = textCol, marker = dict(size=  df["sizeBy"].tolist() , color = df["colorBy"], line = dict(width = 2,)))
-
-    for key in configBase:
-        config[key] = configBase[key]
-
-    #print(config)
-    return Chart("Scatter",df , df.columns[xCol] ,  df.columns[yCol] , config)
+    #pdb.set_trace()
+    marker =  { **{ "size":  df["sizeBy"].tolist() , "color" : df["colorBy"], "line" : dict(width = 2,)} , **configBase.get('marker' ,dict())}
+    configBase['marker'] = marker
+    #pdb.set_trace()
+    config = { **dict(mode ='markers' , text = textCol, marker = marker) , **configBase}
+    #pdb.set_trace()
+    return Chart("Scattergl",df , df.columns[xCol] ,  df.columns[yCol] , config)
 
 def GetChartHTML(filename , xAxis , yAxis ,xaxisPlot='x1', yaxisPlot = 'y1'):
     df,columns = GetDataFrame(filename)

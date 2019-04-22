@@ -32,6 +32,14 @@ def Trend(api_file,filename,yearCols , yCol,yVal='-'):
     except Exception as e:
         return EX.HandleException(e)
 
+@ChartPlot.route("/timeline/<string:filename>/<string:timeCol>/<string:eventCol>")
+def timeline(filename,timeCol,eventCol):
+    try:
+        chart = Helpers._chartTimeline(request,filename,timeCol,eventCol)
+        return Helpers.SetupParamsAndReturnFilePlot("FilePlot",request ,[chart.GetChartHTML()])
+    except Exception as e:
+        return EX.HandleException(e)
+
 @ChartPlot.route("/table/<string:filename>/")
 def GetTable(filename):
     chart = Helpers._chartTable(filename)
@@ -77,22 +85,5 @@ def MultiPlotGet():
 
 @ChartPlot.route("/multiplot" ,methods=["POST"])
 def MultiPlotPost():
-    json = request.get_json()
-    chartsConfigs = json["charts"]
-    traces = []
-    layout = json['layout']
-
-    for chartConfig in chartsConfigs:
-        request.manual_params = chartConfig['query_params'] if 'query_params' in chartConfig else dict()
-        request.chart_params = chartConfig['chart_params'] if 'chart_params' in chartConfig else dict()
-        chartConfig['params']['request'] = request
-        charts = getattr(Helpers , chartConfig['method'])(**chartConfig['params'])
-        if type(charts) == list:
-            for chart in charts :
-                for trace in chart.GetChartTrace():
-                    traces.append(trace)
-        else:
-            traces.extend(charts.GetChartTrace())
-
-    chart = BLM.MultiPlot(traces, layout)
+    chart = Helpers._chartMultiPlot(request)
     return render_template_string(chart.GetChartHTML())
