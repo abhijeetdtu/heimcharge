@@ -287,6 +287,7 @@ class TrendAnimation(Chart):
         self.yearCols = [col for col in yearCols.split(",")]
         self.yCol = yCol
         self.duration = self.GetDuration()
+        self.transition_time = 500
         super(TrendAnimation,self).__init__("scatter" , dataFrame , yearCols[0] ,yCol , self.config)
 
     def GetDuration(self):
@@ -298,7 +299,7 @@ class TrendAnimation(Chart):
                             [col],
                             {'frame': {'duration': self.duration, 'redraw': False},
                              'mode': 'immediate',
-                           'transition': {'duration': 300}}
+                           'transition': {'duration': self.transition_time}}
                          ],
                     'label': col,
                     'method': 'animate'
@@ -315,7 +316,7 @@ class TrendAnimation(Chart):
                 'visible': True,
                 'xanchor': 'right'
             },
-            'transition': {'duration': 300, 'easing': 'elastic'},
+            'transition': {'duration': self.transition_time, 'easing': 'elastic'},
             'pad': {'b': 10, 't': 50},
             'len': 0.9,
             'x': 0.1,
@@ -351,7 +352,7 @@ class TrendAnimation(Chart):
                                 'y': 0,
                                 'yanchor': 'top',
                                 'buttons': [    {
-                                                    'args': [None, {'frame': {'duration': self.duration, 'redraw': False},'mode':'immediate','transition': {'duration': 300, 'easing': 'quad'}}],
+                                                    'args': [None, {'frame': {'duration': self.duration, 'redraw': False},'mode':'immediate','transition': {'duration': self.transition_time, 'easing': 'quad'}}],
                                                     'label': 'Play',
                                                     'method': 'animate'
                                                 }
