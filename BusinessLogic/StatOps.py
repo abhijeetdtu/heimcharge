@@ -1,5 +1,5 @@
 import pandas as pd
-import BusinessLogic.Mapping as BLM
+
 from collections import defaultdict
 
 class StatOps:
@@ -15,6 +15,7 @@ class StatOps:
         return method(*args) if len(args) >= 1 else method()
 
     def __init__(self, dataframe):
+
         self.dataframe = dataframe
         self.applied_ops = defaultdict(list)
 
@@ -24,6 +25,7 @@ class StatOps:
         return False
 
     def Mean(self,col,keyCol):
+        import BusinessLogic.Mapping as BLM
         self.applied_ops[StatOps.mean].append(col)
 
         col = BLM.GetCol(self.dataframe , col)
@@ -35,6 +37,7 @@ class StatOps:
         return self.dataframe
 
     def CumulativeMean(self, col):
+        import BusinessLogic.Mapping as BLM
         col = BLM.GetCol(self.dataframe , col)
         self.dataframe[StatOps.CUM_MEAN] =  self.dataframe[col].expanding().mean()
         return self.dataframe

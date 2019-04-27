@@ -2,7 +2,6 @@ from flask import Blueprint,request,render_template_string
 
 import BusinessLogic.ExceptionHandling as EX
 import PresentationLayer.Visualization._chartHelpers as Helpers
-import BusinessLogic.Mapping as BLM
 
 
 ChartPlot = Blueprint('ChartPlot', __name__,template_folder='templates')

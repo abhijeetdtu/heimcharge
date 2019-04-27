@@ -1,7 +1,6 @@
 from flask import render_template
 import pdb
 
-import BusinessLogic.Entities as Entities
 import BusinessLogic.Mapping as BLM
 import BusinessLogic.FileOps as FileOps
 
