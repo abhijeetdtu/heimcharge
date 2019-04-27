@@ -69,13 +69,42 @@ def stateliteracy():
     except TemplateNotFound:
         abort(404)
 
+@Dashboards.route("/animations")
+def Animations():
+    try:
+        #http://localhost:5000/plot/trendanimation/countrywisetourismoveryears/1-14/0/India
+        dashboards= [
+            {     "title":"Country Wise Tourism"
+                , "url":url_for("ChartPlot.trendAnimation"
+                                , filename = "countrywisetourismoveryears"
+                                , yearCols = "1-14" , yCol = "0" ,yVal="-" , returnPartial=True)
+            },
+            {     "title":"Seat Shares"
+                , "url":url_for("ChartPlot.trendAnimation"
+                                , filename = "previouselectionpartyshares"
+                                , yearCols = "0-18" , yCol = "T" ,yVal="-" , returnPartial=True , locked={"transpose":"true" ,"animation":{"duration":"1000"}})
+            }
+        ]
+        return Helpers.SetupParamsAndReturnTemplate('Dashboards/Base' ,request , dict(dashboard_links = dashboards , carousal=False))
+
+    except TemplateNotFound:
+        abort(404)
+
+
 @Dashboards.route("/previouselections")
 def ElectionsOverYears():
 
     #http://localhost:5000/plot/scattersize/vidhansabhaelections/0/6/6/1 Vidhan sabha votes polled
     #http://localhost:5000/plot/pie/previouselectionpartyshares/0/2,3,4,5,6,7 Pie Seatshare over past years
+    #previouselectionpartyshares/0-18/T/India?locked={"transpose":true,"animation":{"duration":1000}}
     try:
         dashboards = [
+
+            {     "title":"Seat Shares"
+                , "url":url_for("ChartPlot.trendAnimation"
+                                , filename = "previouselectionpartyshares"
+                                , yearCols = "0-18" , yCol = "T" ,yVal="-" , returnPartial=True , locked={"transpose":"true" ,"animation":{"duration":"1000"}})
+            },
              {"title":"BJP seats in elections" , "url":url_for("ChartPlot.plot" ,plotName='scatter' , filename = "politicalpartystatus" , xCol = "0" , yCol = "2" ,returnPartial="True")}
             ,{"title":"CPI seats" , "url":url_for("ChartPlot.plot" ,plotName='scatter' , filename = "politicalpartystatus" , xCol = "0" , yCol = "4" ,returnPartial="True")}
             ,{"title":"INC seats" , "url":url_for("ChartPlot.plot" ,plotName='scatter' , filename = "politicalpartystatus" , xCol = "0" , yCol = "6" ,returnPartial="True")}
@@ -97,7 +126,7 @@ def elections():
     try:
         dashboards = [
             {"title":"Past Elections At a Glance","url":url_for("Dashboards.ElectionsOverYears",returnPartial="True")},
-            {"collapsable":True,"title":"Infrastruture Projects" , "url":url_for("ChartPlot.plot" ,plotName='bar' , filename = "InfraProjects" , xCol = "8" , yCol = "7" ,returnPartial="True" , filter="8!=Not Available" , sortby=["Date Of Award","date"] )},
+            #{"collapsable":True,"title":"Infrastruture Projects" , "url":url_for("ChartPlot.plot" ,plotName='bar' , filename = "InfraProjects" , xCol = "8" , yCol = "7" ,returnPartial="True" , locked={"filter":"8!=Not Available" , "sortby":["Date Of Award","date"]} )},
             {"collapsable":True,"title": "Indian Exports", "url":url_for("ChartPlot.Trend" , api_file='file',filename = "CountryWiseExports" , yearCols = "5-63" , yCol = "0" ,yVal='India',returnPartial="True")},
             {"collapsable":True,"title": "Housing Price Index", "url":url_for("ChartPlot.Trend" , api_file='api',filename = "HousingPriceIndex" , yearCols = "1,2,3,4,5,6,7,8,9,10" , yCol = "0" ,yVal='All India',returnPartial="True")},
             {"collapsable":True,"title": "National Income", "url":url_for("ChartPlot.Trend" , api_file='file',filename = "NationalIncome" , yearCols = "1,2,3,4,5,6,7,8,9,10" , yCol = "0" ,yVal='Per Capita Net National Income (`)',returnPartial="True")},
@@ -111,7 +140,7 @@ def elections():
             {"collapsable":True,"title": "Terrorist Attacks - Deaths", "url":url_for("ChartPlot.plot" ,plotName='bar' , filename = "TerroristAttacks" , xCol = "0" , yCol = "2" ,returnPartial="True")},
             {"collapsable":True,"title": "Terrorist Attacks - Injuries", "url":url_for("ChartPlot.plot" ,plotName='bar' , filename = "TerroristAttacks" , xCol = "0" , yCol = "3" ,returnPartial="True")},
             {"collapsable":True,"title": "Consumer Price Index", "url":url_for("ChartPlot.plot" ,plotName='bar' , filename = "ConsumerPriceIndex" , xCol = "1" , yCol = "20" ,returnPartial="True")},
-            {"collapsable":True,"title": "GDP", "url":url_for("ChartPlot.plot" ,plotName='scatter' , filename = "gdp" , xCol = "0" , yCol = "14" ,returnPartial="True")},
+            #{"collapsable":True,"title": "GDP", "url":url_for("ChartPlot.plot" ,plotName='scatter' , filename = "gdp" , xCol = "0" , yCol = "14" ,returnPartial="True")},
             {"collapsable":True,"indirect":True,"title":"Seatshare over past years" , "url":url_for("ChartPlot.pie" , filename = "previouselectionpartyshares" , commaSeparatedColumns = "2,3,4,5,6,7,9,10,11,12" , yCol = "0" ,returnPartial="True")}
          ]
         return Helpers.SetupParamsAndReturnTemplate('Dashboards/Base' ,request,dict(dashboard_links = dashboards))

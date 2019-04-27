@@ -9,20 +9,30 @@ ChartPlot = Blueprint('ChartPlot', __name__,template_folder='templates')
 
 
 @ChartPlot.route("/api/<string:plotName>/<string:resourceName>/<int:xCol>/<int:yCol>/<string:isHorizontal>" , methods = ['GET' , 'POST'])
-def apiplot(plotName,resourceName,xCol , yCol,isHorizontal):
+def apiplot(plotName,resourceName,xCol , yCol,isHorizontal="False"):
     try:
         chart = Helpers._chartPlot(request , plotName , resourceName , xCol,yCol,isHorizontal == "True")
         return Helpers.SetupParamsAndReturnFilePlot("FilePlot",request ,[chart.GetChartHTML()])
     except Exception as e:
         return EX.HandleException(e)
 
-@ChartPlot.route("/chart/<string:plotName>/<string:filename>/<int:xCol>/<int:yCol>" , methods = ['GET' , 'POST'])
-def plot(plotName,filename,xCol , yCol):
+@ChartPlot.route("/chart/<string:plotName>/<string:filename>/<int:xCol>/<int:yCol>/" , methods = ['GET' , 'POST'])
+@ChartPlot.route("/chart/<string:plotName>/<string:filename>/<int:xCol>/<int:yCol>/<string:isHorizontal>" , methods = ['GET' , 'POST'])
+def plot(plotName,filename,xCol , yCol,isHorizontal="False"):
     try:
-        chart = Helpers._chartPlot(request , plotName , filename , xCol,yCol)
+        chart = Helpers._chartPlot(request , plotName , filename , xCol,yCol,isHorizontal == "True")
         return  Helpers.SetupParamsAndReturnFilePlot("FilePlot",request ,[chart.GetChartHTML()])
     except Exception as e:
         return EX.HandleException(e)
+
+@ChartPlot.route("/trendanimation/<string:filename>/<string:yearCols>/<string:yCol>/<string:yVal>" , methods = ['GET' , 'POST'])
+def trendAnimation(filename,yearCols , yCol,yVal='-'):
+    try:
+        charts =  Helpers._chartTrendAnimation(request,filename,yearCols , yCol,yVal)
+        return  Helpers.SetupParamsAndReturnFilePlot("FilePlot",request ,[charts.GetChartHTML()])
+    except Exception as e:
+        return EX.HandleException(e)
+
 
 @ChartPlot.route("/trend/<string:api_file>/<string:filename>/<string:yearCols>/<int:yCol>/<string:yVal>" , methods = ['GET' , 'POST'])
 def Trend(api_file,filename,yearCols , yCol,yVal='-'):
@@ -75,7 +85,7 @@ def stacked(filename,yCol,commaSeparatedColumns):
 def pie(filename,yCol,commaSeparatedColumns):
     try:
         charts = Helpers._chartPie(request,filename,yCol,commaSeparatedColumns)
-        return Helpers.SetupParamsAndReturnFilePlot("FilePlot",request ,charts)
+        return Helpers.SetupParamsAndReturnFilePlot("FilePlot",request ,[chart.GetChartHTML() for chart in charts])
     except Exception as e:
         return EX.HandleException(e)
 

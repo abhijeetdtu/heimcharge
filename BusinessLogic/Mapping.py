@@ -5,7 +5,8 @@ import pdb
 import json
 import random
 import math
-
+import sys
+from enum import Enum
 from flask import Markup
 
 import plotly.plotly as py
@@ -19,14 +20,18 @@ import branca.element
 import branca.colormap as cm
 from branca.utilities import split_six
 import pandas as pd
+import numpy as np
 import copy
 
 from config import plotting
 
-from BusinessLogic.ExceptionHandling import *
+import BusinessLogic.ExceptionHandling as EX
 from BusinessLogic.FileOps import *
 from BusinessLogic.IndiaMap import IndiaMapModel
 from BusinessLogic.Entities import DataFilter
+from BusinessLogic.StatOps import StatOps
+
+selectedScheme = plotting["SelectedScheme"]
 
 class ChartBuilderBase:
 
@@ -34,15 +39,31 @@ class ChartBuilderBase:
         #pdb.set_trace()
         self.DataFrame = dataFrame
         self.layoutConfig = copy.deepcopy(layoutConfig)
+        self.statOps = StatOps(self.DataFrame)
         self.fig = fig
 
+        if 'locked' in self.config and 'transpose' in self.config['locked']:
+            self.DataFrame.index = self.DataFrame.index.astype(str)
+            self.DataFrame = self.DataFrame.T
+            #pdb.set_trace()
+            self.DataFrame = self.DataFrame.rename(columns=self.DataFrame.iloc[0].astype(str))
+            self.DataFrame = self.DataFrame.drop(self.DataFrame.index[0])
+            self.DataFrame["T"] = self.DataFrame.index
+
+        if 'locked' in self.config and 'statops' in self.config['locked']:
+            self.DataFrame = self.HandleStatOps(self.config['locked']['statops'])
+
         if 'locked' in self.config and 'filters' in self.config['locked']:
-            x = [self.AddFilterTransform(filter.dfColIndex , filter.op , filter.value) for filter in self.config['locked']['filters']]
+            [self.AddFilterTransform(filter.dfColIndex , filter.op , filter.value) for filter in self.config['locked']['filters']]
+
         if 'locked' in self.config and 'sortby' in self.config['locked']:
             col,dataType = self.config['locked']['sortby']
             self.SortBy(col,dataType)
 
         self.ClenseConfig()
+
+    def UpdateFigure(self):
+        pass
 
     def GetCol(self , dfColIndex):
         try:
@@ -50,6 +71,7 @@ class ChartBuilderBase:
         except:
             col = dfColIndex
         return col
+
     #to be overriden by child
     def GetChartTrace(self):
         if('locked' in self.config):
@@ -69,7 +91,7 @@ class ChartBuilderBase:
         self.DataFrame = df
 
     def AddFilterTransform(self,dfColIndex ,op, value):
-        rowIndices = []
+
         if type(dfColIndex) == str:
             col = dfColIndex
         else:
@@ -77,20 +99,26 @@ class ChartBuilderBase:
 
         df =self.DataFrame
 
+        #pdb.set_trace()
         if op == '==':
             df = df[df[col] == value]
         if op == '>':
             value = float(value)
-            df = df[df[col] > value]
+            df = df[df[col].astype(float) > value]
         if op == '<':
             value = float(value)
-            df= df[df[col] < value]
+            df= df[df[col].astype(float) < value]
         if op == '!=':
             df= df[df[col] != value]
 
         self.DataFrame = df
         #self.DataFrame = self.DataFrame[rowIndices]
 
+    def HandleStatOps(self, ops):
+        for op,args in ops:
+            self.DataFrame = StatOps.HandleOp(self.statOps,op,args)
+
+        return self.DataFrame
 
     def PrepareFigure(self,layoutConfig , traceArr):
 
@@ -99,7 +127,7 @@ class ChartBuilderBase:
                 l=100,
                 r=0,
                 b=50,
-                t=50,
+                t=0,
                 pad=4
             )
             layoutConfig["margin"] = margin
@@ -108,14 +136,11 @@ class ChartBuilderBase:
         layoutConfig["hovermode"]='closest'
         layoutConfig["paper_bgcolor"]='rgba(0,0,0,0)'
 
-        if self.fig != None:
-            self.fig['layout'].update({**layoutConfig})
-            #print(self.fig['layout'])
-        else:
-            layout = go.Layout(**layoutConfig )
-            figure = go.Figure(data = traceArr , layout = layout)
-            self.fig = figure
+        layout = go.Layout(**layoutConfig )
+        figure = go.Figure(data = traceArr , layout = layout)
+        self.fig = figure
 
+        self.UpdateFigure()
         return self.fig
 
     def ClenseConfig(self):
@@ -127,9 +152,11 @@ class ChartBuilderBase:
         return self.PrepareFigure(self.layoutConfig, data)
 
     def GetChartHTML(self):
+        #pdb.set_trace()
         return Markup(self.Plot(self.GetChart()))
 
     def Plot(self,figure):
+        #print(figure)
         return plot(figure, output_type='div' , config={'displayModeBar': False} , include_plotlyjs=False , validate=False)
 
 class Chart(ChartBuilderBase):
@@ -146,6 +173,8 @@ class Chart(ChartBuilderBase):
     def __init__(self, goType, dataFrame , xCol , yCol , config):
         #pdb.set_trace()
         self.config = copy.deepcopy(config)
+        self.config['marker'] = config.get("marker" , dict())
+
         layoutConfig = self.SeparateLayoutConfig(self.config, xCol , yCol )
 
         super(Chart, self).__init__(dataFrame,layoutConfig)
@@ -155,42 +184,54 @@ class Chart(ChartBuilderBase):
 
         self.goType = getattr(go , self.GetGoType(goType))
 
-        self.SetupMarkerColors()
+        self.SetupTextAndColors()
 
-    def SetupMarkerColors(self):
+    def _quantiles(self,col,colorCol):
         try:
+            if 'disableQuantileSort' not in self.config['locked']:
+                self.DataFrame = self.DataFrame.sort_values(by=col)
 
-            quantiles = self.DataFrame[self.Xcol].quantile([0.25 , 0.5 , 0.75 , 1]).values
+            quantiles = self.DataFrame[col].quantile([0.25 , 0.5 , 0.75 , 1]).values
 
-            colorCol = 'MarkerColor' + self.Xcol
-            #print(plotting)
-            selectedScheme = plotting["SelectedScheme"]
             self.DataFrame[colorCol] = plotting["ColorSchemes"][selectedScheme][0]
-            self.DataFrame.loc[self.DataFrame[self.Xcol] > quantiles[0], colorCol] = plotting["ColorSchemes"][selectedScheme][1]
-            self.DataFrame.loc[self.DataFrame[self.Xcol] > quantiles[1], colorCol] = plotting["ColorSchemes"][selectedScheme][2]
-            self.DataFrame.loc[self.DataFrame[self.Xcol] > quantiles[2] , colorCol] = plotting["ColorSchemes"][selectedScheme][3]
-            self.DataFrame = self.DataFrame.sort_values(by=self.Xcol)
+            self.DataFrame.loc[self.DataFrame[col] > quantiles[0], colorCol] = plotting["ColorSchemes"][selectedScheme][1]
+            self.DataFrame.loc[self.DataFrame[col] > quantiles[1], colorCol] = plotting["ColorSchemes"][selectedScheme][2]
+            self.DataFrame.loc[self.DataFrame[col] > quantiles[2] , colorCol] = plotting["ColorSchemes"][selectedScheme][3]
+            self.config['marker']['color'] = self.DataFrame[colorCol]
 
-            if 'text' in self.config:
-                self.config['text'] = self.DataFrame[self.config['text']]
-
-            if 'marker' not in self.config:
-                self.config['marker'] = dict(color = self.DataFrame[colorCol])
-            #else:
-
-                #if 'size' in self.config['marker'] :
-                #    sizeBy =  self.DataFrame[self.config['marker']['size']]
-                #    normalized_size = 10*(((sizeBy-sizeBy.mean())/sizeBy.std()) + 3)
-                #    self.config['marker']['size'] = normalized_size
-                #self.config['marker']['color'] = self.DataFrame[colorCol]
 
         except Exception as e:
-            try:
-                self.config['marker'] = dict(color =  plotting["ColorSchemes"]["Blueiss"][0])
-            except:
-                pass
-            HandleException(e)
+            EX.HandleException(e)
             pass
+
+    def _markerAndText(self,colorCol):
+        try:
+            if 'textCol' in self.config['locked']:
+                self.config['text'] = self.DataFrame[self.config['locked']['textCol']]
+
+            if 'sizeCol' in self.config['locked']:
+                df = self.DataFrame
+                col = self.config['locked']['sizeCol']
+                normalizedColValues = ((df[col]-df[col].min())/(df[col].max()-df[col].min()) * 50) + 20
+                self.config['marker']['size'] =normalizedColValues
+        except:
+            self.config['marker'] = dict(color =  plotting["ColorSchemes"]["Blueiss"][0])
+
+    def _statopColors(self,col,keyCol,colorCol):
+        try:
+            if self.statOps.IsApplied(StatOps.mean , col):
+                self.DataFrame.loc[self.DataFrame[keyCol] == StatOps.mean , colorCol] = plotting["StatColors"][selectedScheme][StatOps.mean]
+        except:
+            pass
+
+
+    def SetupTextAndColors(self):
+            col = self.Xcol if (self.DataFrame[self.Xcol].dtype == "float64" or self.DataFrame[self.Xcol].dtype == "int64") else self.Ycol
+            keyCol = self.Xcol if col == self.Ycol else self.Ycol
+            colorCol = 'MarkerColor' + col
+            self._quantiles(col,colorCol)
+            self._statopColors(col,keyCol,colorCol)
+            self._markerAndText(colorCol)
 
     def SeparateLayoutConfig(self,config, xCol , yCol):
         if "layoutConfig" in config:
@@ -210,8 +251,9 @@ class Chart(ChartBuilderBase):
         return layoutConfig
 
     def GetChartTrace(self):
-
+        #pdb.set_trace()
         super().GetChartTrace()
+        #table = Table(self.DataFrame).GetChartTrace()
         return [self.goType(x = self.DataFrame[self.Xcol].values , y = self.DataFrame[self.Ycol].values ,  **self.config)]
 
 
@@ -230,11 +272,112 @@ class Scatter(Chart):
 
         super(Scatter, self).__init__(goType, dataFrame,xCol , yCol , config)
 
+
     def GetChartTrace(self):
         super().GetChartTrace()
         self.config['marker']['size'] = self.DataFrame[self.Zcol].tolist()
         #print(self.config['marker']['size'])
         return [self.goType(x=self.DataFrame[self.Xcol] , y=self.DataFrame[self.Ycol] ,**self.config)]
+
+class TrendAnimation(Chart):
+    def __init__(self, dataFrame ,yearCols,yCol,config):
+        config['mode'] = config.get("mode" , "markers+text")
+        #pdb.set_trace()
+        self.config = config
+        self.yearCols = [col for col in yearCols.split(",")]
+        self.yCol = yCol
+        self.duration = self.GetDuration()
+        super(TrendAnimation,self).__init__("scatter" , dataFrame , yearCols[0] ,yCol , self.config)
+
+    def GetDuration(self):
+        return self.config.get('locked' , dict()).get('animation' , dict()).get("duration" , 1000)
+
+    def GetSliderStep(self,col):
+
+        return  {   'args': [
+                            [col],
+                            {'frame': {'duration': self.duration, 'redraw': False},
+                             'mode': 'immediate',
+                           'transition': {'duration': 300}}
+                         ],
+                    'label': col,
+                    'method': 'animate'
+                }
+
+    def GetSlidersDict(self):
+        return  {
+            'active': 0,
+            'yanchor': 'top',
+            'xanchor': 'left',
+            'currentvalue': {
+                'font': {'size': 20},
+                'prefix': 'Year:',
+                'visible': True,
+                'xanchor': 'right'
+            },
+            'transition': {'duration': 300, 'easing': 'elastic'},
+            'pad': {'b': 10, 't': 50},
+            'len': 0.9,
+            'x': 0.1,
+            'y': 0,
+            'steps': []
+        }
+
+    def Frame(self,col,min,max):
+        config = copy.deepcopy(self.config)
+        config['locked']['sizeCol'] = col
+        config['locked']['textCol'] = self.yCol
+        #frames.append(go.Frame(name = col , data=Chart("scatter" ,self.DataFrame , col , self.yCol , self.config).GetChartTrace()))
+        self.frames.append(go.Frame(name = col , data=Chart("scatter" ,self.DataFrame ,col, self.yCol  , config).GetChartTrace()))
+        min = min if self.DataFrame[col].min() > min else self.DataFrame[col].min()
+        max = max if self.DataFrame[col].max() < max else self.DataFrame[col].max()
+
+        self.sliders_dict['steps'].append(self.GetSliderStep(col))
+        return min,max
+
+    def Figure(self ,min,max):
+        self.fig['layout']['sliders'] = [self.sliders_dict]
+        self.fig['frames']= self.frames
+        self.fig['layout'].update({
+            'yaxis': {'showgrid':False},
+            'xaxis': {'autorange':False ,'range':[min , max] },
+            'updatemenus': [{   'type': 'buttons',
+                                'direction': 'left',
+                                'pad': {'r': 10, 't': 87},
+                                'showactive': False,
+                                'type': 'buttons',
+                                'x': 0.1,
+                                'xanchor': 'right',
+                                'y': 0,
+                                'yanchor': 'top',
+                                'buttons': [    {
+                                                    'args': [None, {'frame': {'duration': self.duration, 'redraw': False},'mode':'immediate','transition': {'duration': 300, 'easing': 'quad'}}],
+                                                    'label': 'Play',
+                                                    'method': 'animate'
+                                                }
+                                           ]
+                            }]
+        })
+
+    def UpdateFigure(self):
+        #pdb.set_trace()
+        self.yearCols = [self.GetCol(col) for col in self.yearCols]
+        self.yCol = self.GetCol(self.yCol)
+        self.frames = []
+        min = sys.maxsize
+        max = 0
+        self.config['locked'] = self.config.get('locked' , dict())
+        self.config['locked']['disableQuantileSort'] = True
+        self.config['mode']= "markers+text"
+
+        self.sliders_dict = self.GetSlidersDict()
+        for i,col in enumerate(self.yearCols):
+            min,max = self.Frame(col,min,max)
+            #frames.append({'data' : [{'x' : self.DataFrame[col] ,'y':self.DataFrame[self.yCol]}] })
+        self.Figure(min,max)
+
+
+
 
 class TrendChart(Chart):
     def __init__(self, dataFrame ,yearCols,yCol,yVal,config):
@@ -247,6 +390,9 @@ class TrendChart(Chart):
 
 class TimeLine(ChartBuilderBase):
 
+    class Params(Enum):
+        animated=1
+
     def __init__(self,dataFrame,timeCol,eventCol,config):
         #pdb.set_trace()
         self.timeCol = GetCol(dataFrame , timeCol)
@@ -254,6 +400,7 @@ class TimeLine(ChartBuilderBase):
         self.dataFrame = dataFrame
         self.traces = []
         self.config = config
+
         config["mode"] = "lines+markers+text"
         config["textposition"] = 'middle center'
         config["showlegend"] = False
@@ -267,25 +414,18 @@ class TimeLine(ChartBuilderBase):
         step = basestep
         size = 0
 
+        super(TimeLine , self).__init__(self.dataFrame , {})
+        endFrame = len(self.dataFrame.index)-1 if self.IsAnimated() else 15
         #print("AAAAAAAAAAAAAAAAAAAAAAAAAA", str(pd.to_datetime(self.dataFrame.iloc[0][self.timeCol].astype(int).astype(str) ,format="%Y" )) , self.dataFrame.iloc[0][self.timeCol].dtype == 'float64' )
         if self.dataFrame.iloc[0][self.timeCol].dtype == 'float64':
             start = self.dataFrame.iloc[0][self.timeCol].astype(int).astype(str)
-            end =  self.dataFrame.iloc[15][self.timeCol].astype(int).astype(str)
+            end =  self.dataFrame.iloc[endFrame][self.timeCol].astype(int).astype(str)
         else:
             start = self.dataFrame.iloc[0][self.timeCol].astype(str)
-            end = self.dataFrame.iloc[15][self.timeCol].astype(str)
-        layoutConfig = dict(
-
-            xaxis=dict(
-                range=[ start , end],
-                rangeslider=dict(
-                    visible = True
-                ),
-                type='date'
-            )
-        )
+            end = self.dataFrame.iloc[endFrame][self.timeCol].astype(str)
 
 
+        minHeight = 0
         for i,time in enumerate(self.dataFrame[self.timeCol].unique()):
             events = self.dataFrame[self.dataFrame[self.timeCol] == time][self.eventCol].values
             #print(events , len(events))
@@ -299,30 +439,73 @@ class TimeLine(ChartBuilderBase):
 
                 while height in usedHeights:
                     height -= step
+
+                minHeight = height if height < minHeight else minHeight
                 #height = (-1*height) if direction < 0 else abs(height)-step if abs(height)-step > 0 else baseheight
                 rows.append([event,height,time,size])
                 usedHeights[height] = True
 
                 #height = height-step
                 if height < -1*baseheight:
+                #if height < 0:
                     height = baseheight
                 #height = random.random()*direction*height + step*direction
 
             direction = (direction + 5) % 15
             rows.append(["-",0,time,0])
-            nDf = pd.DataFrame(data=rows , columns=["Event" ,"Height", "Time",'sizeBy'])
+            nDf = pd.DataFrame(data=rows , columns=[self.eventCol ,"Height", self.timeCol,'sizeBy'])
             self.traces.append(GetScatterChart( nDf , "2" ,"1", "0" , config).GetChartTrace()[0])
 
+        layoutConfig = dict(
+
+            xaxis=dict(
+                range=[ start , end],
+                rangeslider=dict(
+                    visible = True
+                ),
+                type='date'
+            ),
+            yaxis = dict(range=[ minHeight-10 , baseheight+10],autorange=False)
+
+        )
+
+        layoutConfig = self.HandleAnimation(layoutConfig)
+        self.layoutConfig = layoutConfig
         #pdb.set_trace()
-        super(TimeLine , self).__init__(self.dataFrame , layoutConfig)
+
+    def IsAnimated(self):
+        return TimeLine.Params.animated.name in self.config['locked']
+
+    def HandleAnimation(self,layoutConfig):
+        if self.IsAnimated():
+            layoutConfig['updatemenus'] = [{'type': 'buttons',
+                                      'buttons': [{'label': 'Play',
+                                                   'method': 'animate',
+                                                   'args': [None]}]}]
+
+        return layoutConfig
+
+    def GetChart(self):
+        #pdb.set_trace()
+        if self.IsAnimated():
+            self.figure = go.Figure(data=[self.traces[0]])
+            #self.figure['frames'] = [{'data':[self.traces[i]]} for i,trace in enumerate(self.traces)]
+            traces = {'x':[] , 'y':[]}
+            for i,trace in enumerate(self.traces):
+                traces['x'].extend(trace['x'])
+                traces['y'].extend(trace['y'])
+
+            self.figure['frames'] = [{'data':[traces]}]
+            self.UpdateFigure(self.figure)
+        return super().GetChart()
 
     def GetChartTrace(self):
-        return  self.traces
+        return self.traces
 
 class SingleAxisChart(Chart):
     def __init__(self,goType, dataFrame , col ,axis, config):
         self.axis = axis
-        config["layoutConfig"]["margin"] = margin=go.Margin(
+        config["layoutConfig"]["margin"] = go.Margin(
                 l=150,
                 r=75,
                 b=10,
@@ -374,17 +557,19 @@ class Pie(Chart):
                          , legend=dict(x=-.1, y=1.2))
         self.Values= values
         self.Labels = ["{0}...".format(label[:maxLength]) for label in labels]
-        workingConfig["layoutConfig"] = {**layoutConfig , **( workingConfig["layoutConfig"] if 'layoutConfig' in workingConfig else dict())}
+        workingConfig["layoutConfig"] = {**layoutConfig , **workingConfig.get('layoutConfig' ,dict())}
         self.config = workingConfig
 
         super(Pie, self).__init__("pie",pd.DataFrame(columns=self.Labels , data=[self.Values]),0,0,self.config)
 
     def GetChartTrace(self):
-        print(self.config)
-        super().GetChartTrace()
+        #print(self.config)
+        #super().super().GetChartTrace()
+        if('locked' in self.config):
+            del self.config['locked']
         return [go.Pie(values = self.Values , labels = self.Labels ,  **self.config)]
 
-    def SetupMarkerColors(self):
+    def SetupTextAndColors(self):
         self.config['marker'] = dict(colors =  plotting["ColorSchemes"]["Pie"])
 
     @staticmethod
@@ -393,10 +578,12 @@ class Pie(Chart):
         unqValues = dataFrame[yCol].unique()
         return [ Pie(value  , dataFrame.loc[dataFrame[yCol] == value][selectedXColArr].values.tolist()[0] , selectedXColArr,config) for i , value  in enumerate(unqValues)]
 
-class Table():
+class Table(ChartBuilderBase):
 
-    def __init__(self,dataFrame):
+    def __init__(self,dataFrame , config=dict()):
         self.DataFrame = dataFrame
+        self.config = config
+        super(Table , self).__init__(dataFrame)
 
     def GetChartTrace(self):
         df = self.DataFrame
@@ -410,19 +597,6 @@ class Table():
                align = ['left'] * 5))
 
         return trace
-
-    def GetChart(self):
-        data = [self.GetChartTrace()]
-
-        figure = go.Figure(data = data)
-
-        return figure
-
-    def GetChartHTML(self):
-        return Markup(self.Plot(self.GetChart()))
-
-    def Plot(self,figure):
-        return plot(figure, output_type='div' , config={'displayModeBar': False} , include_plotlyjs=False)
 
 class MultiPlot(ChartBuilderBase):
     def __init__(self, chartsTraceArr , layout):
@@ -515,19 +689,13 @@ def UpdateSizeByColorByColumns(df,xCol , yCol ):
     #yCol = GetCol(df , yCol)
     #pdb.set_trace()
     if 'sizeBy' not in df.columns:
-        sizeBy = (df[df.columns[xCol]].astype(float).values - df[df.columns[yCol]].astype(float).values)
+        #sizeBy = (df[df.columns[xCol]].astype(float).values - df[df.columns[yCol]].astype(float).values)
+        sizeBy = 50
     else:
         sizeBy = df['sizeBy'].values
 
-    colorBy = [ 'rgb(255, 144, 14)' if x < 0 else 'rgb(44, 160, 101)' for x in sizeBy]
-
-    if 'sizeBy' not in df.columns:
-        sizeBy = (sizeBy-sizeBy.mean())/sizeBy.std()
-        sizeBy = list(map(lambda x: abs(x)*20, sizeBy))
-        #print(sizeBy)
-        df["sizeBy"] = sizeBy
-
-    df["colorBy"] = colorBy
+    df["sizeBy"] = sizeBy
+    df["colorBy"] =  'rgb(44, 160, 101)'
 
     #pdb.set_trace()
     return df
@@ -543,7 +711,7 @@ def _scatterColumnAdjust(df , col):
         return int(col)
 
 def GetScatterChart(filename,xCol , yCol , textCol,configBase):
-
+    pdb.set_trace()
     if type(filename) == pd.DataFrame:
         df,columns = [filename , filename.columns]
     else:
@@ -570,30 +738,44 @@ def GetChartTrace(filename , xAxis , yAxis ,xaxisPlot='x1', yaxisPlot = 'y1'):
     df,columns = GetDataFrame(filename)
     return Chart("Bar" , df , columns[xAxis] , columns[yAxis]   , dict(xaxis = xaxisPlot , yaxis = yaxisPlot)).GetChartTrace()[0]
 
-def GetConfig(request):
-    request.manual_params = request.manual_params if hasattr(request, 'manual_params') else  dict()
-    request.chart_params = request.chart_params if hasattr(request, 'chart_params') else  dict()
-    config =  { **request.form.to_dict() , **request.args.to_dict() ,"locked":{**request.manual_params} , **request.chart_params }
-    config = ParseJson(config)
-    GetFiltersIntoConfig(config)
-    SortBy(config)
+def SeparateChartArgs(request):
+    #args = {'locked' : dict()}
+    #if 'locked' in request.args.to_dict():
 
+    args = ParseJson({**request.query_params , **request.args.to_dict()})
+    ndic = { **request.form.to_dict() ,**args , **request.chart_params }
+    del args['locked']
+    return {**ndic , **args}
+
+def GetConfig(request):
+    #pdb.set_trace()
+    request.query_params = request.query_params if hasattr(request, 'query_params') else  dict()
+    request.chart_params = request.chart_params if hasattr(request, 'chart_params') else  dict()
+    config = SeparateChartArgs(request)
+    GetFiltersIntoConfig(config)
+    #SortBy(config)
+    #StatOps(config)
     return config
+
 
 def ParseJson(config):
-    print(config)
+    #print(config)
+    dic = {'locked':{}}
+    #pdb.set_trace()
     for key in config:
         try:
-            print(config[key])
-            jsObj = json.loads(config[key])
-            config[key] = jsObj
-        except Exception as e:
-            print(e)
-            pass
-    return config
+            #print(config[key])
+            val = config[key].replace("'" , '"')
+            jsObj = json.loads(val)
+            dic[key] = jsObj
+        except Exception:
+            dic[key] = config[key]
+
+    #print(dic)
+    return dic
 
 def GetFiltersIntoConfig(config):
-    filterArr = config['locked']['filter'] if 'filter' in config['locked'] else []
+    filterArr = config['locked']['filters'] if 'filters' in config['locked'] else []
     filters= GetFilterArrayFromArguments(filterArr)
     config["locked"]["filters"] = filters
 
@@ -607,6 +789,7 @@ def GetFilterArrayFromArguments(filterArr):
             colIndex , op , value = re.split("(\w+)([=\!<>]{1,2})(.+)" , filter)[1:-1]
             filters.append(DataFilter(colIndex , op , value))
 
+    #pdb.set_trace()
     return filters
 
 def SortBy(config):

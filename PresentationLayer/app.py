@@ -45,7 +45,7 @@ def add_header(r):
 
 
 @application.errorhandler(404)
-def Error404():
+def Error404(error):
     return render_template('Errors/404.html'), 404
 
 
