@@ -76,7 +76,7 @@ def Animations():
         dashboards= [
             {     "title":"Country Wise Tourism"
                 , "url":url_for("ChartPlot.trendAnimation"
-                                , filename = "countrywisetourismoveryears"
+                                , filename = "CountryWiseTourismOverYears"
                                 , yearCols = "1-14" , yCol = "0" ,yVal="-" , returnPartial=True)
             },
             {     "title":"Seat Shares"
