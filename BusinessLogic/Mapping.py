@@ -188,7 +188,7 @@ class Chart(ChartBuilderBase):
 
     def _quantiles(self,col,colorCol):
         try:
-            if 'disableQuantileSort' not in self.config['locked']:
+            if 'disableQuantileSort' not in self.config.get('locked' , dict()):
                 self.DataFrame = self.DataFrame.sort_values(by=col)
 
             quantiles = self.DataFrame[col].quantile([0.25 , 0.5 , 0.75 , 1]).values
@@ -330,6 +330,7 @@ class TrendAnimation(Chart):
         config['locked']['textCol'] = self.yCol
         #frames.append(go.Frame(name = col , data=Chart("scatter" ,self.DataFrame , col , self.yCol , self.config).GetChartTrace()))
         self.frames.append(go.Frame(name = col , data=Chart("scatter" ,self.DataFrame ,col, self.yCol  , config).GetChartTrace()))
+        #pdb.set_trace()
         min = min if self.DataFrame[col].min() > min else self.DataFrame[col].min()
         max = max if self.DataFrame[col].max() < max else self.DataFrame[col].max()
 
@@ -377,6 +378,7 @@ class TrendAnimation(Chart):
             #frames.append({'data' : [{'x' : self.DataFrame[col] ,'y':self.DataFrame[self.yCol]}] })
         self.Figure(min,max)
 
+    #def SetupTextAndColors(self): pass
 
 
 
