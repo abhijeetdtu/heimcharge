@@ -57,7 +57,7 @@ def plotFileWithMap(filename , xAxisIndex,  yAxisForMap):
         config["orientation"]='h'
         config["layoutConfig"] = dict(xaxis = dict(side = 'top'))
 
-        if "autoFitColumnIndex" in request.args and request.args["autoFitColumnIndex"] == "true":
+        if "autoFitColumnIndex" in config.get("locked" , dict()):
             if yAxisForMap >= len(columns):
                 yAxisForMap = len(columns)-1
 

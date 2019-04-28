@@ -61,7 +61,7 @@ def CreatePopupCluster(markerArr):
     return marker_cluster
 
 def GetSizeAndColor(type ,value ,mean, max , min):
-    print(plotting)
+    #print(plotting)
     selectedScheme = plotting["SelectedScheme"]
     colorA = plotting["ColorSchemes"][selectedScheme][0]
     colorB = plotting["ColorSchemes"][selectedScheme][-2]

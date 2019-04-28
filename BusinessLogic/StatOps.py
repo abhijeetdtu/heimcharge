@@ -9,7 +9,7 @@ class StatOps:
 
     @staticmethod
     def HandleOp(statop,op,args):
-        print(op,args)
+        #print(op,args)
         method_name = getattr(StatOps , op.lower())
         method = getattr(statop , method_name)
         return method(*args) if len(args) >= 1 else method()

@@ -7,6 +7,7 @@ from plotly.offline import plot
 from plotly.graph_objs import Scatter
 import plotly.graph_objs as go
 
+import BusinessLogic.ExceptionHandling as EX
 from BusinessLogic.Mapping import *
 from BusinessLogic.FileOps import *
 from PresentationLayer.Visualization.IndiaBasePlot import IndiaBasePlot
@@ -53,12 +54,12 @@ def Error404(error):
 def index():
     try:
         files = GetStateWiseFileList('json')
-        navItems = [ NavItem(ConvertFileNameToMeaningful(file) , '/india/plotFileWithMap/{0}/{1}/3?autoFitColumnIndex=true'.format(file.replace(".json", "") , GetStateColumnFromFile(file.replace(".json", "")))) for file in files]
+        navItems = [ NavItem(ConvertFileNameToMeaningful(file) , '/india/plotFileWithMap/{0}/{1}/3?locked={{"autoFitColumnIndex":"true"}}'.format(file.replace(".json", "") , GetStateColumnFromFile(file.replace(".json", "")))) for file in files]
         return render_template('Landing.html' , nav_items = navItems)
 
     except Exception as e:
-        print(e)
-        return Error404()
+        EX.HandleException(e)
+        return Error404(404)
 
 
 @application.route("/locations")
@@ -66,11 +67,11 @@ def locationWise():
     try:
         files = GetStateWiseFileList('json')
         navItems = [ NavItem(ConvertFileNameToMeaningful( file )
-                            , '/india/plotFileWithMap/{0}/{1}/3?autoFitColumnIndex=true'.format(file.replace(".json", "")
+                            , '/india/plotFileWithMap/{0}/{1}/3?locked={{"autoFitColumnIndex":"true"}}'.format(file.replace(".json", "")
                             , GetStateColumnFromFile(file.replace(".json", ""))))
                     for file in files]
         return render_template('Landing.html' , nav_items = navItems)
 
     except Exception as e:
-        print(e)
-        return Error404()
+        EX.HandleException(e)
+        return Error404(404)
