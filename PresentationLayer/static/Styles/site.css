@@ -128,6 +128,12 @@ height:95%;
  width:100%;
 }
 
+.carousel-control.carousel-control-next,
+.carousel-control.carousel-control-prev
+{
+  width:50px !important;
+}
+
 .carousel-control-prev-icon,
 .carousel-control-next-icon{
    width: 4vh;
