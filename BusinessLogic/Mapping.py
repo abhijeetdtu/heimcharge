@@ -226,12 +226,16 @@ class Chart(ChartBuilderBase):
 
 
     def SetupTextAndColors(self):
-            col = self.Xcol if (self.DataFrame[self.Xcol].dtype == "float64" or self.DataFrame[self.Xcol].dtype == "int64") else self.Ycol
-            keyCol = self.Xcol if col == self.Ycol else self.Ycol
-            colorCol = 'MarkerColor' + col
-            self._quantiles(col,colorCol)
-            self._statopColors(col,keyCol,colorCol)
-            self._markerAndText(colorCol)
+            try:
+                col = self.Xcol if (self.DataFrame[self.Xcol].dtype == "float64" or self.DataFrame[self.Xcol].dtype == "int64") else self.Ycol
+                keyCol = self.Xcol if col == self.Ycol else self.Ycol
+                colorCol = 'MarkerColor' + col
+                self._quantiles(col,colorCol)
+                self._statopColors(col,keyCol,colorCol)
+                self._markerAndText(colorCol)
+            except:
+                #pdb.set_trace()
+                pass
 
     def SeparateLayoutConfig(self,config, xCol , yCol):
         if "layoutConfig" in config:

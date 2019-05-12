@@ -64,6 +64,14 @@ def GetFromCSVLikeJson(jsonData):
     df = pd.DataFrame(data = data , columns = columns)
     return df
 
+def GetLocationColumnFromFile(filename):
+    df,columns = GetDataFrame(filename)
+    column = GetLocationColumn(df)
+    #print(filename , stateColumn)
+    if column == None:
+        return 0
+    return column[1]
+
 def GetStateColumnFromFile(filename):
     df,columns = GetDataFrame(filename)
     stateColumn = GetLocationColumn(df, isOnlyState=True)
@@ -73,9 +81,11 @@ def GetStateColumnFromFile(filename):
     return stateColumn[1]
 
 def AreColumnsMatching(df,col ,arr ):
+    #pdb.set_trace(  )
     try:
         values = list(df[col].str.lower())
-        if len(set(arr).intersection(set(values))) > len(set(values))/2:
+        #if len(set(arr).intersection(set(values))) > len(set(values))/2:
+        if len(set(arr).intersection(set(values))) > 0:
             return True
         return False
     except:
@@ -163,7 +173,7 @@ def ColumnCleanup(df):
 
 def GetDataFrame(filename):
     from API.RestBase import Rest as RT
-    
+
     if filename in RT.GetAllAvailableResources():
         print(filename)
         df = RT.Get(filename , {})

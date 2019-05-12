@@ -54,7 +54,7 @@ def Error404(error):
 def index():
     try:
         files = GetStateWiseFileList('json')
-        navItems = [ NavItem(ConvertFileNameToMeaningful(file) , '/india/plotFileWithMap/{0}/{1}/3?locked={{"autoFitColumnIndex":"true"}}'.format(file.replace(".json", "") , GetStateColumnFromFile(file.replace(".json", "")))) for file in files]
+        navItems = [ NavItem(ConvertFileNameToMeaningful(file) , '/india/plotFileWithMap/{0}/{1}/3?locked={{"autoFitColumnIndex":"true"}}'.format(file.replace(".json", "") , GetLocationColumnFromFile(file.replace(".json", "")))) for file in files]
         return render_template('Landing.html' , nav_items = navItems)
 
     except Exception as e:
@@ -68,7 +68,7 @@ def locationWise():
         files = GetStateWiseFileList('json')
         navItems = [ NavItem(ConvertFileNameToMeaningful( file )
                             , '/india/plotFileWithMap/{0}/{1}/3?locked={{"autoFitColumnIndex":"true"}}'.format(file.replace(".json", "")
-                            , GetStateColumnFromFile(file.replace(".json", ""))))
+                            , GetLocationColumnFromFile(file.replace(".json", ""))))
                     for file in files]
         return render_template('Landing.html' , nav_items = navItems)
 

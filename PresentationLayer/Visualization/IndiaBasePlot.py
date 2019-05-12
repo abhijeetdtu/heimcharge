@@ -51,7 +51,7 @@ def plotFile(filename , xAxisIndex):
 @IndiaBasePlot.route('/plotFileWithMap/<string:filename>/<int:xAxisIndex>/<int:yAxisForMap>')
 def plotFileWithMap(filename , xAxisIndex,  yAxisForMap):
     try:
-
+        #pdb.set_trace()
         df,columns = GetDataFrame(filename)
         config = GetConfig(request)
         config["orientation"]='h'
