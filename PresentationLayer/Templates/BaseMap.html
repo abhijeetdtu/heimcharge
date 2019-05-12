@@ -8,23 +8,23 @@
     <h5>{{filename}}</h5>
 </div>
 
-<div class="row " height="100%">
+<div class="row screen-fill" >
     {% if side_chart %}
-        <div class="col-md-12 col-lg-6 map-top-container">
+        <div class="col-md-12 col-lg-6 map-top-container flex-box">
     {%else%}
-        <div class="col-md-12 col-lg-6 map-top-container" >
+        <div class="col-md-12 col-lg-6 map-top-container flex-box" >
     {% endif%}
             {{ Card.input( map.Title  , map.Subtitle, map.Html ) }}
         </div>
 
     {% if side_chart %}
 
-        <div class="col-sm-12 col-md-12 col-lg-6">
-            
-            <div style="height:50%;">
+        <div class="col-sm-12 col-md-12 col-lg-6  flex-box" >
+
+            <div class="flex-box" style="height:50%;">
                     {{Card.input('Quick Stats','', Carsl.input('sideStat',carousal)   )}}
             </div>
-            <div style="height:50%;">
+            <div class="flex-box"  style="height:50%;">
                     {{ Card.input('','',side_chart  ) }}
             </div>
         </div>
@@ -32,13 +32,13 @@
     {% endif%}
     </div>
 </div>
-<div class="row">
+<div class="row screen-fill">
     {% for barChart in  bar_charts %}
 
-    <div class="col-md-12 col-lg-6">
+    <div class="col-md-12 col-lg-6" style="display:flex;height:inherit;">
         {%set onclick = 'App.OpenLinkInDiv("{0}" , "#viewBox");window.scrollTo(0,0);'.format(endpoint | replace("#YAXIS" , loop.index))%}
         {{ Card.input( None ,None, barChart , [Btn.input('View In Map' , 'btn btn-green' , onclick , 'fa fa-map')]) }}
-        
+
     </div>
 
     {% endfor %}

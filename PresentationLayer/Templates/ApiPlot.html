@@ -12,9 +12,9 @@
   <p class="btn btn-secondary" href="{{ url_for("ChartPlot.GetTable" , filename = resourceName) }}" onclick="App.OpenLinkInDiv(href , '#APIViewBox')">View Raw Data</p>
 </div>
 
-<div class="row">
+<div class="row screen-fill">
 
-  <div class="col-md-4">
+  <div class="col-md-4 flex-column">
     <div class="row">
       <p>Example Record</p>
       <pre>
@@ -29,7 +29,7 @@
     </div>
   </div>
 
-  <div class="col-md-8">
+  <div class="col-md-8  flex-column">
     {{ Card.input('','', barChart ) }}
   </div>
 </div>

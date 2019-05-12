@@ -113,7 +113,7 @@ def ElectionsOverYears():
             ,{"title":"Total Other than Recognized Parties seats" , "url":url_for("ChartPlot.plot" ,plotName='scatter' , filename = "politicalpartystatus" , xCol = "0" , yCol = "12" ,returnPartial="True")}
             ,{"title":"Total Expense" , "url":url_for("ChartPlot.plot" ,plotName='bar' , filename = "electionexpenditure" , xCol = "0" , yCol = "5" ,returnPartial="True")}
             ,{"title":"Number of constituencies" , "url":url_for("ChartPlot.plot" ,plotName='bar' , filename = "ElectionsOverYears" , xCol = "0" , yCol = "1" ,returnPartial="True")}
-
+            ,{"title":"Seatshare over past years" , "url":url_for("ChartPlot.pie" , filename = "previouselectionpartyshares" , commaSeparatedColumns = "2,3,4,5,6,7,9,10,11,12" , yCol = "0" ,returnPartial="True")}
          ]
         return Helpers.SetupParamsAndReturnTemplate('Dashboards/Carousal' ,request , dict(dashboard_links = dashboards , carousal=True))
 
@@ -122,7 +122,7 @@ def ElectionsOverYears():
 
 @Dashboards.route("/elections")
 def elections():
-
+    #http://localhost:5000/plot/pie/DateWiseExitPolls2019/1/2,3,4
     try:
         dashboards = [
             {"title":"Past Elections At a Glance","url":url_for("Dashboards.ElectionsOverYears",returnPartial="True")},
@@ -140,8 +140,7 @@ def elections():
             {"collapsable":True,"title": "Terrorist Attacks - Deaths", "url":url_for("ChartPlot.plot" ,plotName='bar' , filename = "TerroristAttacks" , xCol = "0" , yCol = "2" ,returnPartial="True")},
             {"collapsable":True,"title": "Terrorist Attacks - Injuries", "url":url_for("ChartPlot.plot" ,plotName='bar' , filename = "TerroristAttacks" , xCol = "0" , yCol = "3" ,returnPartial="True")},
             {"collapsable":True,"title": "Consumer Price Index", "url":url_for("ChartPlot.plot" ,plotName='bar' , filename = "ConsumerPriceIndex" , xCol = "1" , yCol = "20" ,returnPartial="True")},
-            #{"collapsable":True,"title": "GDP", "url":url_for("ChartPlot.plot" ,plotName='scatter' , filename = "gdp" , xCol = "0" , yCol = "14" ,returnPartial="True")},
-            {"collapsable":True,"indirect":True,"title":"Seatshare over past years" , "url":url_for("ChartPlot.pie" , filename = "previouselectionpartyshares" , commaSeparatedColumns = "2,3,4,5,6,7,9,10,11,12" , yCol = "0" ,returnPartial="True")}
+            {"collapsable":True,"title":"Exit Polls 2019" , "url":url_for("ChartPlot.pie" , filename = "DateWiseExitPolls2019" , commaSeparatedColumns = "2,3,4" , yCol = "1" ,returnPartial="True")}
          ]
         return Helpers.SetupParamsAndReturnTemplate('Dashboards/Base' ,request,dict(dashboard_links = dashboards))
 

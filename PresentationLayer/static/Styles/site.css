@@ -24,6 +24,7 @@ body {
 
 .card {
     border-radius: .75rem;
+    height:inherit;
 }
 
 .card-header{
@@ -80,10 +81,12 @@ path.leaflet-interactive{
 path.leaflet-interactive{
     fill:#414a50;
 }
+
 .btn.btn-green{
     background-color:#4e90a4;
     color:#f7f6de;
 }
+
 
 .yaxislayer-above .ytick text{
     fill:#28385e !important;
@@ -109,15 +112,23 @@ path.leaflet-interactive{
 }
 
 
-/*
+.flex-column{
+  position: relative;
+  display:flex;
+  height:inherit;
+}
 .flex-box{
     display: flex;
     flex-direction: column;
+    width:inherit;
 }
 .flex-box > div {
     flex: 1;
 }
-*/
+
+.screen-fill{
+  height:100vh;
+}
 
 .card-body > .flex-box{
 height:95%;
@@ -164,6 +175,8 @@ height:95%;
     text-align: left;
     cursor: pointer;
 }
+
+
 
 /* If the screen size is 600px wide or less, set the font-size of <div> to 30px */
 @media screen and (max-width: 1080px) {
