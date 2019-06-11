@@ -9,7 +9,10 @@ Dashboards = Blueprint('Dashboards', __name__)
 @Dashboards.route('/')
 def importantDashboards():
     try:
-        dashboards= [ url_for('Dashboards.elections') ,url_for('Dashboards.tourists') , url_for('Dashboards.mutualFunds')  , url_for('Dashboards.civilAviation')   , url_for('Dashboards.stateliteracy') ]
+        dashboards= [ url_for('Dashboards.elections') ,url_for('Dashboards.tourists') , url_for('Dashboards.mutualFunds')  , url_for('Dashboards.civilAviation')
+        , url_for('Dashboards.stateliteracy')
+        , url_for("Dashboards.IndianMilitary")
+        ]
         return render_template('Dashboards/Landing.html' ,dashboard_links = dashboards)
 
     except TemplateNotFound:
@@ -144,5 +147,25 @@ def elections():
          ]
         return Helpers.SetupParamsAndReturnTemplate('Dashboards/Base' ,request,dict(dashboard_links = dashboards))
 
+    except TemplateNotFound:
+        abort(404)
+
+
+@Dashboards.route("/indiaRussia")
+def indiaRussiaRelations():
+    "http://localhost:5000/plot/trend/file/IndiaRussiaTrade/3-20/1/All%20products"
+    pass
+
+@Dashboards.route("/indianmilitary")
+def IndianMilitary():
+    "http://localhost:5000/plot/gantt/IndiaWars/0/8/9"
+    "http://localhost:5000/plot/sunburst/IndianArmedForces/1/2/3"
+    try:
+        dashboards = [
+            {"title":"Indian Armed Forces","url":url_for("ChartPlot.Sunburst",filename="IndianArmedForces",returnPartial="True" , labelCol="1",parentCol="2",valCol="3")},
+            {"title":"Indian Wars","url":url_for("ChartPlot.Gantt",filename="IndiaWars",returnPartial="True" ,yCol="0",startCol="8",endCol="9")}
+            #{"collapsable":True,"title":"Infrastruture Projects" , "url":url_for("ChartPlot.plot" ,plotName='bar' , filename = "InfraProjects" , xCol = "8" , yCol = "7" ,returnPartial="True" , locked={"filter":"8!=Not Available" , "sortby":["Date Of Award","date"]} )},
+         ]
+        return Helpers.SetupParamsAndReturnTemplate('Dashboards/Base' ,request,dict(dashboard_links = dashboards))
     except TemplateNotFound:
         abort(404)

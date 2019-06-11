@@ -88,6 +88,7 @@ def pie(filename,yCol,commaSeparatedColumns):
     except Exception as e:
         return EX.HandleException(e)
 
+
 @ChartPlot.route("/multiplot" ,methods=["GET"])
 def MultiPlotGet():
     return Helpers.SetupParamsAndReturnFilePlot("MultiPlot",request ,[])
@@ -96,3 +97,19 @@ def MultiPlotGet():
 def MultiPlotPost():
     chart = Helpers._chartMultiPlot(request)
     return render_template_string(chart.GetChartHTML())
+
+@ChartPlot.route("/gantt/<string:filename>/<int:yCol>/<string:startCol>/<string:endCol>")
+def Gantt(filename,yCol,startCol,endCol):
+    try:
+        chart = Helpers._chartGant(request,filename,yCol,startCol,endCol)
+        return Helpers.SetupParamsAndReturnFilePlot("FilePlot",request ,[chart.GetChartHTML()])
+    except Exception as e:
+        return EX.HandleException(e)
+
+@ChartPlot.route("/sunburst/<string:filename>/<int:labelCol>/<string:parentCol>/<string:valCol>")
+def Sunburst(filename,labelCol , parentCol ,valCol):
+    try:
+        chart = Helpers._chartSunburst(request,filename,labelCol , parentCol ,valCol)
+        return Helpers.SetupParamsAndReturnFilePlot("FilePlot",request ,[chart.GetChartHTML()])
+    except Exception as e:
+        return EX.HandleException(e)

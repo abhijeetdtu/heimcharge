@@ -14,7 +14,7 @@ from PresentationLayer.Visualization.IndiaBasePlot import IndiaBasePlot
 from PresentationLayer.Visualization.ChartPlot import ChartPlot
 from PresentationLayer.Visualization.Dashboards import Dashboards
 from PresentationLayer.Visualization.APIPlot import APIPlot
-
+from PresentationLayer.Blog.Base import Blogs
 from BusinessLogic.Entities import NavItem
 from API.RestBase import Rest
 
@@ -26,6 +26,7 @@ application.register_blueprint(IndiaBasePlot ,url_prefix='/india')
 application.register_blueprint(ChartPlot ,url_prefix='/plot')
 application.register_blueprint(Dashboards ,url_prefix='/dashboards')
 application.register_blueprint(APIPlot, url_prefix="/APIPlot")
+application.register_blueprint(Blogs , url_prefix="/blog")
 
 application.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 application.config['TEMPLATES_AUTO_RELOAD'] = True

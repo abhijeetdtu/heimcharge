@@ -1,6 +1,6 @@
 gunicorn
 Flask==0.12.4
-plotly
+plotly==3.10.0
 pandas
 folium==0.5.0
 branca==0.2.0

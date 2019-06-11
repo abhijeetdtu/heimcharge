@@ -7,6 +7,7 @@ import BusinessLogic.FileOps as FileOps
 from API.RestBase import Rest as RT
 
 
+
 def SetupParamsAndReturnTemplate(template , request , params):
     returnPartial = (request.args.get('returnPartial') or None) == 'True'
     params["returnPartial"] = returnPartial
@@ -18,6 +19,7 @@ def SetupParamsAndReturnFilePlot(template , request  , bar_charts):
 
 def _chartPlot(request , plotName , filename , xCol , yCol , isHorizontal=False):
     print("hit the endpoint")
+    #pdb.set_trace()
     df,columns = FileOps.GetDataFrame(filename)
     xCol = int(xCol)
     yCol = int(yCol)
@@ -39,6 +41,7 @@ def _chartTrendAnimation(request ,filename,yearCols , yCol,yVal='-'):
 
 
 def _chartTrend(request , api_file,filename,yearCols , yCol,yVal='-'):
+    #pdb.set_trace()
     df = RT.Get(filename, {}) if api_file == 'api' else FileOps.GetDataFrame(filename)[0]
     config = BLM.GetConfig(request)
     yCol = int(yCol)
@@ -48,6 +51,7 @@ def _chartTrend(request , api_file,filename,yearCols , yCol,yVal='-'):
     if yVal != '-':
         charts = [BLM.TrendChart(df ,yearCols , yCol,yVal,config)]
     else:
+        #pdb.set_trace()
         charts = [BLM.TrendChart(df ,yearCols , yCol,y,config) for y in df.iloc[:,yCol].values]
 
     return charts
@@ -93,6 +97,16 @@ def _chartPie(request , filename,yCol,commaSeparatedColumns):
     config = BLM.GetConfig(request)
     return BLM.Pie.GetMultiplePieCharts(df , selectedColumns , yCol , config)
 
+def _chartGant(request,filename,yCol,startCol,endCol):
+    df,columns = FileOps.GetDataFrame(filename)
+    config = BLM.GetConfig(request)
+    #pdb.set_trace()
+    return BLM.Gantt(df,yCol,startCol,endCol,config)
+
+def _chartSunburst(request,filename,labelCol , parentCol ,valCol):
+    df,columns = FileOps.GetDataFrame(filename)
+    config = BLM.GetConfig(request)
+    return BLM.SunBurst(df, labelCol, parentCol, valCol, config)
 
 def _getChartMethod(methodName):
     possibles = globals().copy()
@@ -100,6 +114,7 @@ def _getChartMethod(methodName):
     return possibles.get(methodName)
 
 def _chartMultiPlot(request):
+    #pdb.set_trace()
     json = request.get_json()
     chartsConfigs = json["charts"]
     traces = []

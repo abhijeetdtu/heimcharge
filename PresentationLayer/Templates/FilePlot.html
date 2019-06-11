@@ -5,11 +5,11 @@
 {% import 'Macros/CardMacro.html' as Card %}
 
 {% block content %}
-<div class="row">
+<div class="row screen-fill">
 
     {% for barChart in  bar_charts %}
 
-    <div class="col-md-{{ [6, (12 / bar_charts|length) |int]|max }}">
+    <div class="col-md-{{ [6, (12 / bar_charts|length) |int]|max }} flex-column">
         {{ Card.input('','', barChart ) }}
     </div>
 

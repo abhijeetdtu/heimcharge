@@ -1,0 +1,11 @@
+{% extends "_layout.html" %}
+
+{% block content %}
+
+{% for blog in blogs%}
+  <div class="row">
+    {{blog.id}}
+  <div>
+{% endfor%}
+
+{% endblock %}

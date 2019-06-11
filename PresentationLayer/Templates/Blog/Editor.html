@@ -1,0 +1,44 @@
+{% extends "_layout.html" %}
+
+{% block content %}
+
+<div class="row-fluid">
+  <div class="row-fluid">
+    <div class="col-md-11">
+      <form class="form-inline">
+        <div class="form-group">
+          <input type="text" class="form-control" placeholder="Title">
+
+        </div>
+      </form>
+      <button onclick="BlogEditor.Save('#editor' , '{{id}}')">Save</button>
+    </div>
+  </div>
+  <div class="row-fluid">
+    <div class="col-md-12">
+      <!-- Main Quill library -->
+      <script src="//cdn.quilljs.com/1.0.0/quill.js"></script>
+      <script src="//cdn.quilljs.com/1.0.0/quill.min.js"></script>
+      <script src="{{url_for('static' , filename='Blog/JS/image_resize.js')}}"></script>
+
+      <!-- Theme included stylesheets -->
+      <link href="//cdn.quilljs.com/1.0.0/quill.snow.css" rel="stylesheet">
+      <link href="//cdn.quilljs.com/1.0.0/quill.bubble.css" rel="stylesheet">
+
+      <script src="{{url_for('static' , filename='Blog/JS/editor.js')}}"></script>
+
+      <div id="editor" class="blog-editor">
+        <p>Let's Start Blogging!</p>
+      </div>
+
+      <script>
+        BlogEditor.SetEndPoint("{{ url_for('Blogs.Save')}}")
+        var quill = BlogEditor.CreateEditor("#editor")
+      </script>
+    </div>
+
+  </div>
+</div>
+
+
+{% endblock %}

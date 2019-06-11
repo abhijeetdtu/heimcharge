@@ -12,7 +12,7 @@ from flask import Markup
 import plotly.plotly as py
 from plotly import tools
 from plotly.offline import plot
-
+import plotly.figure_factory as ff
 import plotly.graph_objs as go
 
 import folium
@@ -62,7 +62,7 @@ class ChartBuilderBase:
 
         self.ClenseConfig()
 
-    def UpdateFigure(self):
+    def UpdateFigure(self , layoutConfig):
         pass
 
     def GetCol(self , dfColIndex):
@@ -120,8 +120,7 @@ class ChartBuilderBase:
 
         return self.DataFrame
 
-    def PrepareFigure(self,layoutConfig , traceArr):
-
+    def GetLayout(self , layoutConfig):
         if "margin" not in layoutConfig:
             margin=go.Margin(
                 l=100,
@@ -136,11 +135,15 @@ class ChartBuilderBase:
         layoutConfig["hovermode"]='closest'
         layoutConfig["paper_bgcolor"]='rgba(0,0,0,0)'
 
-        layout = go.Layout(**layoutConfig )
+        return go.Layout(**layoutConfig )
+
+    def PrepareFigure(self,layoutConfig , traceArr):
+        layout = self.GetLayout(layoutConfig)
         figure = go.Figure(data = traceArr , layout = layout)
         self.fig = figure
 
-        self.UpdateFigure()
+        self.UpdateFigure(layout)
+        #self.fig.update({'layout':layout})
         return self.fig
 
     def ClenseConfig(self):
@@ -260,6 +263,27 @@ class Chart(ChartBuilderBase):
         #table = Table(self.DataFrame).GetChartTrace()
         return [self.goType(x = self.DataFrame[self.Xcol].values , y = self.DataFrame[self.Ycol].values ,  **self.config)]
 
+class Gantt(ChartBuilderBase):
+
+    def __init__(self, dataFrame ,yCol,startCol,endCol , config):
+        self.yCol= GetCol(dataFrame,yCol)
+        self.startCol = GetCol(dataFrame,startCol)
+        self.endCol = GetCol(dataFrame,endCol)
+        self.config = config
+        super(Gantt, self).__init__(dataFrame)
+
+
+    def UpdateFigure(self , layoutConfig):
+        df = self.DataFrame
+        df["Task"] = df[self.yCol]
+        df["Start"] = df[self.startCol]
+        df["Finish"] = df[self.endCol]
+
+        #pdb.set_trace()
+        self.fig = ff.create_gantt(df , width=math.inf ,title=self.yCol)
+        self.fig['layout'].update(autosize=True,margin=dict(l=200))
+        self.fig["layout"]["yaxis"].update(automargin=True)#,colors='Viridis', index_col=GetCol(df,"3"), show_colorbar=True)
+
 
 class GroupedBar(Chart):
 
@@ -268,6 +292,28 @@ class GroupedBar(Chart):
         groupBy = self.config["groupby"]
         self.DataFrame.groupby(groupBy)
         return [self.goType(x = self.DataFrame[self.Xcol].values , y = self.DataFrame[self.Ycol].values ,  **self.config)]
+
+class SunBurst(ChartBuilderBase):
+    def __init__(self, dataFrame , labelCol , parentCol ,valCol, config):
+        self.labelCol = GetCol(dataFrame,labelCol)
+        self.parentCol = GetCol(dataFrame,parentCol)
+        self.valCol = GetCol(dataFrame,valCol)
+        self.config = config
+        super(SunBurst, self).__init__(dataFrame)
+
+    def GetChartTrace(self):
+        super().GetChartTrace()
+        #pdb.set_trace()
+        return [go.Sunburst(
+            ids=self.DataFrame[self.labelCol],
+            labels=self.DataFrame[self.labelCol],
+            parents=self.DataFrame[self.parentCol],
+            #branchvalues="total",
+            #domain=dict(column=1)
+            values=self.DataFrame[self.valCol],
+            branchvalues="total"
+
+        )]
 
 class Scatter(Chart):
 
@@ -424,13 +470,16 @@ class TimeLine(ChartBuilderBase):
         super(TimeLine , self).__init__(self.dataFrame , {})
         endFrame = len(self.dataFrame.index)-1 if self.IsAnimated() else 15
         #print("AAAAAAAAAAAAAAAAAAAAAAAAAA", str(pd.to_datetime(self.dataFrame.iloc[0][self.timeCol].astype(int).astype(str) ,format="%Y" )) , self.dataFrame.iloc[0][self.timeCol].dtype == 'float64' )
-        if self.dataFrame.iloc[0][self.timeCol].dtype == 'float64':
-            start = self.dataFrame.iloc[0][self.timeCol].astype(int).astype(str)
-            end =  self.dataFrame.iloc[endFrame][self.timeCol].astype(int).astype(str)
+        #pdb.set_trace()
+        if self.dataFrame[self.timeCol].dtype == 'float64':
+            self.dataFrame[self.timeCol] = self.dataFrame[self.timeCol].astype(int).astype(str)
         else:
-            start = self.dataFrame.iloc[0][self.timeCol].astype(str)
-            end = self.dataFrame.iloc[endFrame][self.timeCol].astype(str)
+            pass
+            #start = self.dataFrame.iloc[0][self.timeCol].astype(str)
+            #end = self.dataFrame.iloc[endFrame][self.timeCol].astype(str)
 
+        start = self.dataFrame.iloc[0][self.timeCol]
+        end =  self.dataFrame.iloc[endFrame][self.timeCol]
 
         minHeight = 0
         for i,time in enumerate(self.dataFrame[self.timeCol].unique()):
@@ -460,6 +509,7 @@ class TimeLine(ChartBuilderBase):
 
             direction = (direction + 5) % 15
             rows.append(["-",0,time,0])
+            #pdb.set_trace()
             nDf = pd.DataFrame(data=rows , columns=[self.eventCol ,"Height", self.timeCol,'sizeBy'])
             self.traces.append(GetScatterChart( nDf , "2" ,"1", "0" , config).GetChartTrace()[0])
 
@@ -622,9 +672,12 @@ class MultiPlot(ChartBuilderBase):
                 if c > cols:
                     c = 1
             fig.append_trace(trace, r,c)
+        self.multiplot_figure = fig
         super(MultiPlot, self).__init__(None,{},fig)
 
 
+    def UpdateFigure(self):
+        self.fig = self.multiplot_figure
 
 def Plot(figure):
     return plot(figure, output_type='div' , config={'displayModeBar': False} , include_plotlyjs=False)
@@ -718,7 +771,7 @@ def _scatterColumnAdjust(df , col):
         return int(col)
 
 def GetScatterChart(filename,xCol , yCol , textCol,configBase):
-    pdb.set_trace()
+    #pdb.set_trace()
     if type(filename) == pd.DataFrame:
         df,columns = [filename , filename.columns]
     else:
@@ -733,7 +786,7 @@ def GetScatterChart(filename,xCol , yCol , textCol,configBase):
     marker =  { **{ "size":  df["sizeBy"].tolist() , "color" : df["colorBy"], "line" : dict(width = 2,)} , **configBase.get('marker' ,dict())}
     configBase['marker'] = marker
     #pdb.set_trace()
-    config = { **dict(mode ='markers' , text = textCol, marker = marker) , **configBase}
+    config = { **dict(mode ='markers' , text = df[textCol], marker = marker) , **configBase}
     #pdb.set_trace()
     return Chart("Scattergl",df , df.columns[xCol] ,  df.columns[yCol] , config)
 
