@@ -311,7 +311,10 @@ class SunBurst(ChartBuilderBase):
             #branchvalues="total",
             #domain=dict(column=1)
             values=self.DataFrame[self.valCol],
-            branchvalues="total"
+            branchvalues="total",
+            marker={"line": {"width": 2 , "color":"rgb(255,255,255)"}
+            ,"colors":plotting["ColorSchemes"][selectedScheme]
+            }
 
         )]
 
