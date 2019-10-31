@@ -1,5 +1,5 @@
 gunicorn
-Flask==0.12.4
+Flask==1.0
 plotly==3.10.0
 pandas
 folium==0.5.0
